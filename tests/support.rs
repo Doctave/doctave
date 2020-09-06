@@ -1,47 +1,63 @@
 use std::env::current_exe;
-use std::fs::{remove_dir_all, create_dir_all};
-use std::io;
 use std::ffi::OsStr;
+use std::fs::{self, create_dir_all, remove_dir_all, File};
+use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
 static TEST_WORKDIRS: &'static str = "_test_area";
 
+#[macro_export]
+/// A macro for creating an integration test inside an isolated environment.
+///
+/// The called provides the name of the test, and a closure describing the body
+/// of the test. The closure takes one argument, which is the TestArea struct
+/// describing the isolated environment.
+///
+macro_rules! integration_test {
+    ($name:ident, $body:expr) => {
+        #[test]
+        fn $name() {
+            test_dir(stringify!($name), $body);
+        }
+    }
+}
+
 pub fn test_dir<F, P: AsRef<Path>>(name: P, lambda: F)
 where
-    F: FnOnce(&TestDir),
+    F: FnOnce(&TestArea),
 {
-    let dir = TestDir::create(name).expect("Could not create test dir");
+    let dir = TestArea::create(name).expect("Could not create test dir");
 
     (lambda)(&dir);
 }
 
-pub struct TestDir {
-    root: PathBuf,
-    dir: PathBuf,
+pub struct TestArea {
+    pub path: PathBuf,
+    project_root: PathBuf,
 }
 
-impl TestDir {
+impl TestArea {
     pub fn create<P: AsRef<Path>>(name: P) -> io::Result<Self> {
-        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join(TEST_WORKDIRS)
             .join(name);
-        let root = current_exe()
+
+        let project_root = current_exe()
             .unwrap()
             .parent()
             .expect("executable's directory")
             .to_path_buf();
 
-        println!("{:?}", dir);
-
-        if dir.exists() {
-            remove_dir_all(&dir)?;
+        if path.exists() {
+            remove_dir_all(&path)?;
         }
-        create_dir_all(&dir)?;
+        create_dir_all(&path)?;
 
-        Ok(TestDir { dir, root })
+        Ok(TestArea { path, project_root })
     }
 
+    /// Runs the given command, with the current directory set as the test area.
     pub fn cmd<I, S>(&self, args: I) -> Output
     where
         I: IntoIterator<Item = S>,
@@ -49,19 +65,79 @@ impl TestDir {
     {
         Command::new(self.binary())
             .args(args)
-            .current_dir(&self.dir)
+            .current_dir(&self.path)
             .output()
             .expect("Unable to spawn command")
     }
 
+    /// The location of the doctave executable
     pub fn binary(&self) -> PathBuf {
-        self.root.join("..").join("doctave")
+        self.project_root.join("..").join("doctave")
     }
 
-    pub fn assert_file_exists<P: AsRef<Path>>(&self, name: P) {
+    pub fn mkdir<P: AsRef<Path>>(&self, name: P) {
+        fs::create_dir(self.path.join(name)).expect("Could not create dir");
+    }
+
+    pub fn write_file<P: AsRef<Path>>(&self, name: P, content: &[u8]) {
+        let mut file = File::create(self.path.join(name)).unwrap();
+        file.write(content).unwrap();
+    }
+
+    pub fn assert_exists<P: AsRef<Path>>(&self, name: P) {
         assert!(
-            self.dir.join(name.as_ref()).exists(),
-            format!("File {} does not exist", name.as_ref().display())
+            self.path.join(name.as_ref()).exists(),
+            format!(
+                "Could not find '{}'. Only found {:?}",
+                name.as_ref().display(),
+                std::fs::read_dir(&self.path)
+                    .unwrap()
+                    .map(|e| e.unwrap().path().to_path_buf())
+                    .map(|p| p.strip_prefix(&self.path).unwrap().to_path_buf())
+                    .collect::<Vec<_>>()
+            )
         );
     }
+
+    pub fn assert_contains<P: AsRef<Path>>(&self, name: P, needle: &str) {
+        self.assert_exists(&name);
+
+        let haystack = fs::read_to_string(self.path.join(&name)).unwrap();
+
+        assert!(
+            haystack.contains(needle),
+            format!(
+                "Could not find \"{}\" inside file \"{}\".\nFound:\n---\n{}\n---\n",
+                needle,
+                name.as_ref().display(),
+                haystack
+            )
+        );
+    }
+
+    pub fn refute_contains<P: AsRef<Path>>(&self, name: P, needle: &str) {
+        self.assert_exists(&name);
+
+        let haystack = fs::read_to_string(self.path.join(&name)).unwrap();
+
+        assert!(
+            !haystack.contains(needle),
+            format!(
+                "Found \"{}\" inside file \"{}\", when it was not expected",
+                needle,
+                name.as_ref().display(),
+            )
+        );
+    }
+}
+
+pub fn assert_success(result: &std::process::Output) {
+    assert!(
+        result.status.success(),
+        format!(
+            "Command was not successful! STDOUT:\n---{}\n--- \n\nSTDERR:\n---{}\n---",
+            std::str::from_utf8(&result.stdout).unwrap(),
+            std::str::from_utf8(&result.stderr).unwrap()
+        )
+    );
 }
