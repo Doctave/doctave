@@ -1,0 +1,8 @@
+[package]
+name = "doctave"
+version = "0.1.0"
+authors = ["Niklas Begley <nik@doctave.com>"]
+edition = "2018"
+
+[dependencies]
+clap = "2.33.3"
