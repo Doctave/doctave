@@ -6,3 +6,8 @@ edition = "2018"
 
 [dependencies]
 clap = "2.33.3"
+walkdir = "2.3.1"
+pulldown-cmark = { version = "0.8", default-features = false, features = ["simd"] }
+
+[dev-dependencies]
+indoc = "1.0.2"

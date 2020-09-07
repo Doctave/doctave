@@ -8,13 +8,18 @@ fn main() {
                for technical documentation.",
         )
         .subcommand(SubCommand::with_name("init").about("Initialize a new project (start here!)"))
+        .subcommand(
+            SubCommand::with_name("build")
+                .about("Builds your site from the project's Markdown files"),
+        )
         .get_matches();
 
     let root_dir = std::env::current_dir().expect("Unable to determine current directory");
 
     let result = match matches.subcommand() {
         ("init", Some(_cmd)) => doctave::InitCommand::run(root_dir),
-        _ => Ok(())
+        ("build", Some(_cmd)) => doctave::BuildCommand::run(root_dir),
+        _ => Ok(()),
     };
 
     if let Err(e) = result {

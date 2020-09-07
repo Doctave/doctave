@@ -135,7 +135,7 @@ pub fn assert_success(result: &std::process::Output) {
     assert!(
         result.status.success(),
         format!(
-            "Command was not successful! STDOUT:\n---{}\n--- \n\nSTDERR:\n---{}\n---",
+            "Command was not successful! \nSTDOUT:\n---\n{}\n--- \n\nSTDERR:\n---\n{}\n---",
             std::str::from_utf8(&result.stdout).unwrap(),
             std::str::from_utf8(&result.stderr).unwrap()
         )
