@@ -31,3 +31,32 @@ integration_test!(build_smoke_test, |area| {
     area.assert_contains(&index, "<li>My</li>");
     area.assert_contains(&index, "<li>List</li>");
 });
+
+integration_test!(build_navigation, |area| {
+    area.mkdir("docs");
+    area.write_file("README.md", b"# Some content");
+    area.write_file("docs/howto_build.md", indoc! {"
+        ---
+        title: How-To Build
+        ---
+
+        # How-To Build
+    "}.as_bytes());
+    area.write_file("docs/runbooks.md", indoc! {"
+        ---
+        title: Runbooks
+        ---
+
+        # Runbooks
+    "}.as_bytes());
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    let index = Path::new("site").join("index.html");
+    area.assert_contains(&index, "<a href=\"/howto_build.html\">How-To Build</a>");
+    area.assert_contains(&index, "<a href=\"/runbooks.html\">Runbooks</a>");
+
+    area.assert_exists(Path::new("site").join("howto_build.html"));
+    area.assert_exists(Path::new("site").join("runbooks.html"));
+});

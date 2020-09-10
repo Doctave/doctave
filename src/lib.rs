@@ -1,10 +1,39 @@
+#[cfg(test)]
+#[macro_use]
+extern crate indoc;
+
+#[macro_use]
+extern crate lazy_static;
+
+mod frontmatter;
+mod navigation;
+
+use std::collections::BTreeMap;
 use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 use pulldown_cmark::{html, Options, Parser};
-
 use walkdir::WalkDir;
+use serde::Serialize;
+
+use handlebars::Handlebars;
+use navigation::Level;
+
+lazy_static! {
+    pub static ref HANDLEBARS: Handlebars<'static> = {
+        let mut handlebars = Handlebars::new();
+
+        handlebars
+            .register_template_string("page", include_str!("../templates/page.html"))
+            .unwrap();
+        handlebars
+            .register_template_string("navigation", include_str!("../templates/navigation.html"))
+            .unwrap();
+
+        handlebars
+    };
+}
 
 pub struct InitCommand {
     root: PathBuf,
@@ -67,10 +96,10 @@ impl BuildCommand {
     }
 
     fn build_site(&self) -> io::Result<()> {
-        let mut index = Page::new(&self.root, "README.md");
+        let mut index = Document::new(&self.root, "README.md");
         index.rename("index");
 
-        let mut pages = vec![index];
+        let mut documents = vec![index];
 
         for entry in WalkDir::new("docs")
             .follow_links(true)
@@ -80,27 +109,53 @@ impl BuildCommand {
             let f_name = entry.file_name().to_string_lossy();
 
             if f_name.ends_with(".md") {
-                pages.push(Page::new(&self.root, entry.path().to_path_buf()));
+                documents.push(Document::new(&self.root, entry.path().to_path_buf()));
             }
         }
 
-        for page in pages {
+        let destinations = documents
+            .iter()
+            .map(|doc| doc.link())
+            .collect::<Vec<_>>();
+
+        let navigation = navigation::build(&destinations);
+
+        for page in documents {
+            fs::create_dir_all(page.destination(&self.out).parent().unwrap())?;
             let mut file = File::create(page.destination(&self.out))?;
-            file.write(page.content().as_bytes())?;
+
+            let data = TemplateData {
+                content: page.html(),
+                navigation: &navigation,
+            };
+
+            println!("{:?}", data.navigation);
+
+            HANDLEBARS
+                .render_to_write("page", &data, &mut file)
+                .unwrap();
         }
 
         Ok(())
     }
 }
 
+#[derive(Debug, Clone, Serialize)]
+struct TemplateData<'a> {
+    content: String,
+    navigation: &'a Level,
+}
+
 #[derive(Debug, Clone)]
-struct Page {
+struct Document {
     path: PathBuf,
     root: PathBuf,
     rename: Option<String>,
+    raw: String,
+    frontmatter: BTreeMap<String, String>,
 }
 
-impl Page {
+impl Document {
     fn new<R: Into<PathBuf>, S: Into<PathBuf>>(root: R, markdown_source: S) -> Self {
         let root = root.into();
         let mut path = markdown_source.into();
@@ -109,25 +164,40 @@ impl Page {
             path = path.strip_prefix(&root).unwrap().to_path_buf();
         }
 
-        Page {
+        let raw = fs::read_to_string(root.join(&path)).unwrap();
+        let frontmatter =
+            frontmatter::parse(&raw).expect("TODO: Print an error when frontmatter is busted");
+
+        Document {
             path,
             root,
+            raw,
             rename: None,
+            frontmatter,
         }
+    }
+
+    fn link(&self) -> (PathBuf, String) {
+        (self.relative_path(), self.title().to_string())
     }
 
     fn destination(&self, out: &Path) -> PathBuf {
+        out.join(self.relative_path())
+    }
+
+    fn relative_path(&self) -> PathBuf {
+        // TODO(Nik): Refactor this mess to be readable
         match self.rename {
-            None => out.join(&self.path.with_file_name(&format!(
+            None => self.path.with_file_name(&format!(
                 "{}.html",
                 self.path.file_stem().unwrap().to_str().unwrap()
-            ))),
-            Some(ref rename) => out.join(&self.path.with_file_name(&format!("{}.html", rename))),
+            )),
+            Some(ref rename) => self.path.with_file_name(&format!("{}.html", rename)),
         }
     }
 
-    fn content(&self) -> String {
-        let raw_markdown = fs::read_to_string(&self.root.join(&self.path)).unwrap();
+    fn html(&self) -> String {
+        let raw_markdown = &self.raw[frontmatter::end_pos(&self.raw)..];
 
         let mut options = Options::empty();
         options.insert(Options::ENABLE_STRIKETHROUGH);
@@ -144,5 +214,12 @@ impl Page {
 
     fn rename(&mut self, new_name: &str) {
         self.rename = Some(new_name.to_string());
+    }
+
+    fn title(&self) -> &str {
+        self.frontmatter
+            .get("title")
+            .map(|t| t.as_ref())
+            .unwrap_or(self.path.file_stem().unwrap().to_str().unwrap())
     }
 }

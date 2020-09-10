@@ -1,0 +1,10 @@
+<ul>
+{{#each level.links}}
+    <li><a href="{{this.path}}">{{this.title}}</a></li>
+    {{#each level.children}}
+        <h1>ASD</h1>
+        {{this}}
+        {{> navigation level=this}}
+    {{/each}}
+{{/each}}
+</ul>

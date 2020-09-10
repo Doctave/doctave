@@ -8,6 +8,10 @@ edition = "2018"
 clap = "2.33.3"
 walkdir = "2.3.1"
 pulldown-cmark = { version = "0.8", default-features = false, features = ["simd"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.8"
+handlebars = "3.4.0"
+lazy_static = "1.4.0"
 
 [dev-dependencies]
 indoc = "1.0.2"
