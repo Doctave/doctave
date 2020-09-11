@@ -9,13 +9,14 @@ mod frontmatter;
 mod navigation;
 
 use std::collections::BTreeMap;
+use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 use pulldown_cmark::{html, Options, Parser};
-use walkdir::WalkDir;
 use serde::Serialize;
+use walkdir::WalkDir;
 
 use handlebars::Handlebars;
 use navigation::Level;
@@ -36,12 +37,15 @@ lazy_static! {
 }
 
 pub struct InitCommand {
-    root: PathBuf,
+    project_root: PathBuf,
+    docs_root: PathBuf,
 }
 
 impl InitCommand {
-    pub fn run(root: PathBuf) -> io::Result<()> {
-        let cmd = InitCommand { root };
+    pub fn run(project_root: PathBuf) -> io::Result<()> {
+        let docs_root = project_root.join("docs");
+
+        let cmd = InitCommand { project_root, docs_root };
 
         cmd.create_readme()?;
         cmd.create_docs_dir()?;
@@ -50,8 +54,8 @@ impl InitCommand {
     }
 
     fn create_readme(&self) -> io::Result<()> {
-        if !self.root.join("README.md").exists() {
-            let mut file = File::create(self.root.join("README.md"))?;
+        if !self.project_root.join("README.md").exists() {
+            let mut file = File::create(self.project_root.join("README.md"))?;
             file.write(b"Hello, world\n============\n")?;
         }
 
@@ -59,8 +63,8 @@ impl InitCommand {
     }
 
     fn create_docs_dir(&self) -> io::Result<()> {
-        if !self.root.join("docs").exists() {
-            fs::create_dir(self.root.join("docs"))?;
+        if !self.project_root.join("docs").exists() {
+            fs::create_dir(&self.docs_root)?;
         }
 
         Ok(())
@@ -68,14 +72,16 @@ impl InitCommand {
 }
 
 pub struct BuildCommand {
-    root: PathBuf,
+    project_root: PathBuf,
+    docs_root: PathBuf,
     out: PathBuf,
 }
 
 impl BuildCommand {
     pub fn run(root: PathBuf) -> io::Result<()> {
         let cmd = BuildCommand {
-            root: root.clone(),
+            project_root: root.clone(),
+            docs_root: root.join("docs"),
             out: root.join("site"),
         };
 
@@ -86,57 +92,99 @@ impl BuildCommand {
     }
 
     fn reset_site_dir(&self) -> io::Result<()> {
-        if self.root.join("site").exists() {
-            fs::remove_dir_all(self.root.join("site"))?;
+        if self.project_root.join("site").exists() {
+            fs::remove_dir_all(self.project_root.join("site"))?;
         }
 
-        fs::create_dir(self.root.join("site"))?;
+        fs::create_dir(self.project_root.join("site"))?;
 
         Ok(())
     }
 
     fn build_site(&self) -> io::Result<()> {
-        let mut index = Document::new(&self.root, "README.md");
-        index.rename("index");
+        let root = self.find_docs();
+        let navigation = Level::from(&root);
 
-        let mut documents = vec![index];
+        println!("{:?}", navigation);
 
-        for entry in WalkDir::new("docs")
-            .follow_links(true)
-            .into_iter()
-            .filter_map(|e| e.ok())
-        {
-            let f_name = entry.file_name().to_string_lossy();
+        self.build_directory(&root, &navigation)?;
 
-            if f_name.ends_with(".md") {
-                documents.push(Document::new(&self.root, entry.path().to_path_buf()));
-            }
-        }
+        Ok(())
+    }
 
-        let destinations = documents
-            .iter()
-            .map(|doc| doc.link())
-            .collect::<Vec<_>>();
+    fn build_directory(&self, dir: &Directory, nav: &Level) -> io::Result<()> {
+        fs::create_dir_all(dir.destination(&self.out))?;
 
-        let navigation = navigation::build(&destinations);
-
-        for page in documents {
-            fs::create_dir_all(page.destination(&self.out).parent().unwrap())?;
-            let mut file = File::create(page.destination(&self.out))?;
+        for doc in &dir.docs {
+            let mut file = File::create(doc.destination(&self.out))?;
 
             let data = TemplateData {
-                content: page.html(),
-                navigation: &navigation,
+                content: doc.html(),
+                navigation: &nav,
             };
-
-            println!("{:?}", data.navigation);
 
             HANDLEBARS
                 .render_to_write("page", &data, &mut file)
                 .unwrap();
         }
 
+        for dir in &dir.dirs {
+            self.build_directory(&dir, &nav)?;
+        }
+
         Ok(())
+    }
+
+    fn find_docs(&self) -> Directory {
+        let mut root_dir = self.walk_dir(self.docs_root.join("")).unwrap_or(Directory {
+            docs: vec![],
+            dirs: vec![],
+        });
+
+        println!("{:?}", root_dir);
+
+        // Set doc directory's root README with the repo's root readme
+        // if one didn't exist
+        if let None = root_dir
+            .docs
+            .iter()
+            .find(|doc| doc.original_file_name() == Some(OsStr::new("README.md")))
+        {
+            root_dir.docs.push(Document::load(&self.project_root, "README.md"));
+        }
+
+        root_dir
+    }
+
+    fn walk_dir<P: AsRef<Path>>(&self, dir: P) -> Option<Directory> {
+        let mut docs = vec![];
+        let mut dirs = vec![];
+
+        for entry in WalkDir::new(dir)
+            .max_depth(1)
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
+            if entry.file_type().is_file() {
+                let path = entry.path();
+
+                docs.push(Document::load(&self.docs_root, path));
+            } else {
+                if docs.is_empty() {
+                    continue;
+                } else {
+                    if let Some(dir) = self.walk_dir(entry.into_path().as_path()) {
+                        dirs.push(dir);
+                    }
+                }
+            }
+        }
+
+        if docs.is_empty() {
+            None
+        } else {
+            Some(Directory { docs, dirs })
+        }
     }
 }
 
@@ -144,6 +192,24 @@ impl BuildCommand {
 struct TemplateData<'a> {
     content: String,
     navigation: &'a Level,
+}
+
+#[derive(Debug, Clone)]
+struct Directory {
+    docs: Vec<Document>,
+    dirs: Vec<Directory>,
+}
+
+impl Directory {
+    fn destination(&self, out: &Path) -> PathBuf {
+        self.docs
+            .get(0)
+            .unwrap()
+            .destination(out)
+            .parent()
+            .unwrap()
+            .to_path_buf()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -156,29 +222,50 @@ struct Document {
 }
 
 impl Document {
-    fn new<R: Into<PathBuf>, S: Into<PathBuf>>(root: R, markdown_source: S) -> Self {
+    /// Loads a markdown document from disk, given a root directory and the relative
+    /// path inside the root directory.
+    fn load<R: Into<PathBuf>, S: Into<PathBuf>>(root: R, markdown_source: S) -> Self {
         let root = root.into();
-        let mut path = markdown_source.into();
-
-        if path.starts_with(&root) {
-            path = path.strip_prefix(&root).unwrap().to_path_buf();
-        }
+        let path = markdown_source.into();
 
         let raw = fs::read_to_string(root.join(&path)).unwrap();
         let frontmatter =
             frontmatter::parse(&raw).expect("TODO: Print an error when frontmatter is busted");
 
+        Document::new(path, root, raw, frontmatter)
+    }
+
+    /// Creates a new document from its raw components
+    fn new<P: Into<PathBuf>, R: Into<PathBuf>>(
+        path: P,
+        root: R,
+        raw: String,
+        frontmatter: BTreeMap<String, String>,
+    ) -> Self {
+        let root = root.into();
+        let mut path = path.into();
+
+        if path.starts_with(&root) {
+            path = path.strip_prefix(&root).unwrap().to_path_buf();
+        }
+
+        let rename = if path.ends_with("README.md") {
+            Some("index".to_string())
+        } else {
+            None
+        };
+
         Document {
-            path,
-            root,
+            path: path.into(),
+            root: root.into(),
             raw,
-            rename: None,
+            rename,
             frontmatter,
         }
     }
 
-    fn link(&self) -> (PathBuf, String) {
-        (self.relative_path(), self.title().to_string())
+    fn original_file_name(&self) -> Option<&OsStr> {
+        self.path.file_name()
     }
 
     fn destination(&self, out: &Path) -> PathBuf {
@@ -210,10 +297,6 @@ impl Document {
         html::push_html(&mut html_output, parser);
 
         html_output
-    }
-
-    fn rename(&mut self, new_name: &str) {
-        self.rename = Some(new_name.to_string());
     }
 
     fn title(&self) -> &str {

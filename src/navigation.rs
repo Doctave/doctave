@@ -1,53 +1,22 @@
+use crate::{Directory, Document};
 use serde::Serialize;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
-pub fn build(documents: &[(PathBuf, String)]) -> Level {
-    build_level(&documents, Path::new("")).expect("No root level found")
+impl From<&Directory> for Level {
+    fn from(dir: &Directory) -> Level {
+        let links = dir.docs.iter().map(|d| d.into()).collect();
+        let children = dir.dirs.iter().map(|d| d.into()).collect();
+
+        Level { links, children }
+    }
 }
 
-pub fn build_level(documents: &[(PathBuf, String)], level: &Path) -> Option<Level> {
-    let mut links = vec![];
-    let mut child_levels = vec![];
-
-    for (path, title) in documents {
-        match path.parent() {
-            Some(p) => {
-                // If this path belongs to the current level,
-                // add it to the list of links
-                if p == level {
-                    links.push(Link {
-                        path: path.clone(),
-                        title: title.clone(),
-                    });
-                } else {
-                    // If the path is one level higher above this level, add it
-                    // to my child levels
-                    println!("Parent: {:?} , Level: {:?}", p, level);
-                    if p.parent() == Some(level) {
-                        println!("Adding child level {:?} to {:?}", p, level);
-                        child_levels.push(p)
-                    }
-                }
-            }
-            _ => {}
+impl From<&Document> for Link {
+    fn from(doc: &Document) -> Link {
+        Link {
+            path: PathBuf::from("/").join(doc.relative_path()),
+            title: doc.title().to_string(),
         }
-    }
-
-    child_levels.sort();
-    child_levels.dedup();
-
-    let mut children = vec![];
-
-    for level in child_levels {
-        if let Some(l) = build_level(&documents, &Path::new(level)) {
-            children.push(l);
-        }
-    }
-
-    if links.len() > 0 {
-        Some(Level { links, children })
-    } else {
-        None
     }
 }
 
@@ -66,37 +35,51 @@ struct Link {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::collections::BTreeMap;
 
-    fn page(path: &str, name: &str) -> (PathBuf, String) {
-        (PathBuf::from(path), name.to_string())
+    fn page(path: &str, name: &str) -> Document {
+        let mut frontmatter = BTreeMap::new();
+        frontmatter.insert("title".to_string(), name.to_string());
+
+        Document::new(path, "docs/", "Not important".to_string(), frontmatter)
     }
 
     #[test]
     fn basic() {
-        let paths = vec![
-            page("index.html", "Getting Started"),
-            page("sibling/index.html", "Child index"),
-            page("sibling/child.html", "Child sibling"),
-        ];
+        let root = Directory {
+            docs: vec![
+                page("docs/index.md", "Getting Started"),
+                page("docs/one.md", "One"),
+                page("docs/two.md", "Two"),
+            ],
+            dirs: vec![Directory {
+                docs: vec![page("docs/child/three.md", "Three")],
+                dirs: vec![],
+            }],
+        };
 
         assert_eq!(
-            build(&paths),
+            Level::from(&root),
             Level {
-                links: vec![Link {
-                    path: PathBuf::from("index.html"),
-                    title: "Getting Started".to_string(),
-                }],
+                links: vec![
+                    Link {
+                        path: PathBuf::from("/index.html"),
+                        title: "Getting Started".to_string(),
+                    },
+                    Link {
+                        path: PathBuf::from("/one.html"),
+                        title: "One".to_string()
+                    },
+                    Link {
+                        path: PathBuf::from("/two.html"),
+                        title: "Two".to_string(),
+                    }
+                ],
                 children: vec![Level {
-                    links: vec![
-                        Link {
-                            path: PathBuf::from("sibling/index.html"),
-                            title: "Child index".to_string()
-                        },
-                        Link {
-                            path: PathBuf::from("sibling/child.html"),
-                            title: "Child sibling".to_string(),
-                        }
-                    ],
+                    links: vec![Link {
+                        path: PathBuf::from("/child/three.html"),
+                        title: "Three".to_string()
+                    },],
                     children: vec![]
                 }]
             }
