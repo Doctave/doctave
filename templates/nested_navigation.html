@@ -1,7 +1,7 @@
-<a href='/'>Home</a>
+<li><a href="{{level.index.path}}">{{level.index.title}}</a></li>
 <ul>
     {{#each level.children}}
-        {{> nested_navigation level=this}}
+        {{> navigation level=this}}
     {{/each}}
     {{#each level.links}}
         <li><a href="{{this.path}}">{{this.title}}</a></li>

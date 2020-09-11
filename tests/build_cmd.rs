@@ -60,3 +60,40 @@ integration_test!(build_navigation, |area| {
     area.assert_exists(Path::new("site").join("howto_build.html"));
     area.assert_exists(Path::new("site").join("runbooks.html"));
 });
+
+integration_test!(build_navigation_nested, |area| {
+    area.mkdir("docs");
+    area.mkdir("docs/nested");
+    area.write_file("README.md", b"# Some content");
+    area.write_file("docs/runbooks.md", indoc! {"
+        ---
+        title: Runbooks
+        ---
+
+        # Runbooks
+    "}.as_bytes());
+    area.write_file("docs/nested/README.md", indoc! {"
+        ---
+        title: Nested
+        ---
+
+        # How-To Build
+    "}.as_bytes());
+    area.write_file("docs/nested/howto_build.md", indoc! {"
+        ---
+        title: How-To Build
+        ---
+
+        # How-To Build
+    "}.as_bytes());
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    let index = Path::new("site").join("index.html");
+    area.assert_contains(&index, "<a href=\"/nested/index.html\">Nested</a>");
+    area.assert_contains(&index, "<a href=\"/nested/howto_build.html\">How-To Build</a>");
+
+    area.assert_exists(Path::new("site").join("nested").join("index.html"));
+    area.assert_exists(Path::new("site").join("nested").join("howto_build.html"));
+});

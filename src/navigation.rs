@@ -1,13 +1,22 @@
 use crate::{Directory, Document};
 use serde::Serialize;
+
+use std::ffi::OsStr;
 use std::path::PathBuf;
 
 impl From<&Directory> for Level {
     fn from(dir: &Directory) -> Level {
-        let links = dir.docs.iter().map(|d| d.into()).collect();
+        let index = dir
+            .docs
+            .iter()
+            .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
+            .expect("No index file found for directory");
+
+
+        let links = dir.docs.iter().filter(|d| *d != index).map(|d| d.into()).collect();
         let children = dir.dirs.iter().map(|d| d.into()).collect();
 
-        Level { links, children }
+        Level { index: index.into(), links, children }
     }
 }
 
@@ -22,6 +31,7 @@ impl From<&Document> for Link {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Level {
+    index: Link,
     links: Vec<Link>,
     children: Vec<Level>,
 }
@@ -48,12 +58,15 @@ mod test {
     fn basic() {
         let root = Directory {
             docs: vec![
-                page("docs/index.md", "Getting Started"),
+                page("docs/README.md", "Getting Started"),
                 page("docs/one.md", "One"),
                 page("docs/two.md", "Two"),
             ],
             dirs: vec![Directory {
-                docs: vec![page("docs/child/three.md", "Three")],
+                docs: vec![
+                    page("docs/child/README.md", "Nested Root"),
+                    page("docs/child/three.md", "Three"),
+                ],
                 dirs: vec![],
             }],
         };
@@ -61,11 +74,11 @@ mod test {
         assert_eq!(
             Level::from(&root),
             Level {
+                index: Link {
+                    path: PathBuf::from("/index.html"),
+                    title: "Getting Started".to_string(),
+                },
                 links: vec![
-                    Link {
-                        path: PathBuf::from("/index.html"),
-                        title: "Getting Started".to_string(),
-                    },
                     Link {
                         path: PathBuf::from("/one.html"),
                         title: "One".to_string()
@@ -76,6 +89,10 @@ mod test {
                     }
                 ],
                 children: vec![Level {
+                    index: Link {
+                        path: PathBuf::from("/child/index.html"),
+                        title: "Nested Root".to_string()
+                    },
                     links: vec![Link {
                         path: PathBuf::from("/child/three.html"),
                         title: "Three".to_string()

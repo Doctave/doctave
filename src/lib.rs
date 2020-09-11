@@ -31,6 +31,12 @@ lazy_static! {
         handlebars
             .register_template_string("navigation", include_str!("../templates/navigation.html"))
             .unwrap();
+        handlebars
+            .register_template_string(
+                "nested_navigation",
+                include_str!("../templates/nested_navigation.html"),
+            )
+            .unwrap();
 
         handlebars
     };
@@ -45,7 +51,10 @@ impl InitCommand {
     pub fn run(project_root: PathBuf) -> io::Result<()> {
         let docs_root = project_root.join("docs");
 
-        let cmd = InitCommand { project_root, docs_root };
+        let cmd = InitCommand {
+            project_root,
+            docs_root,
+        };
 
         cmd.create_readme()?;
         cmd.create_docs_dir()?;
@@ -105,8 +114,6 @@ impl BuildCommand {
         let root = self.find_docs();
         let navigation = Level::from(&root);
 
-        println!("{:?}", navigation);
-
         self.build_directory(&root, &navigation)?;
 
         Ok(())
@@ -141,8 +148,6 @@ impl BuildCommand {
             dirs: vec![],
         });
 
-        println!("{:?}", root_dir);
-
         // Set doc directory's root README with the repo's root readme
         // if one didn't exist
         if let None = root_dir
@@ -150,7 +155,9 @@ impl BuildCommand {
             .iter()
             .find(|doc| doc.original_file_name() == Some(OsStr::new("README.md")))
         {
-            root_dir.docs.push(Document::load(&self.project_root, "README.md"));
+            root_dir
+                .docs
+                .push(Document::load(&self.project_root, "README.md"));
         }
 
         root_dir
@@ -160,7 +167,9 @@ impl BuildCommand {
         let mut docs = vec![];
         let mut dirs = vec![];
 
-        for entry in WalkDir::new(dir)
+        let current_dir: &Path = dir.as_ref();
+
+        for entry in WalkDir::new(&current_dir)
             .max_depth(1)
             .into_iter()
             .filter_map(|e| e.ok())
@@ -170,12 +179,14 @@ impl BuildCommand {
 
                 docs.push(Document::load(&self.docs_root, path));
             } else {
-                if docs.is_empty() {
+                let path = entry.into_path();
+
+                if path.as_path() == current_dir {
                     continue;
-                } else {
-                    if let Some(dir) = self.walk_dir(entry.into_path().as_path()) {
-                        dirs.push(dir);
-                    }
+                }
+
+                if let Some(dir) = self.walk_dir(path) {
+                    dirs.push(dir);
                 }
             }
         }
@@ -212,7 +223,7 @@ impl Directory {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 struct Document {
     path: PathBuf,
     root: PathBuf,
