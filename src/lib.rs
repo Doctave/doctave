@@ -6,9 +6,13 @@ extern crate indoc;
 extern crate lazy_static;
 
 mod build;
+mod site_generator;
 mod frontmatter;
 mod init;
 mod navigation;
+#[allow(dead_code, unused_variables)]
+mod serve;
+mod site;
 
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
@@ -19,6 +23,7 @@ use pulldown_cmark::{html, Options, Parser};
 
 pub use build::BuildCommand;
 pub use init::InitCommand;
+pub use serve::ServeCommand;
 
 use handlebars::Handlebars;
 

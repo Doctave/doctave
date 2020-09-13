@@ -12,6 +12,11 @@ fn main() {
             SubCommand::with_name("build")
                 .about("Builds your site from the project's Markdown files"),
         )
+        .subcommand(
+            SubCommand::with_name("serve").about(
+                "Starts a live reloading development server to serve your documentation site",
+            ),
+        )
         .get_matches();
 
     let root_dir = std::env::current_dir().expect("Unable to determine current directory");
@@ -19,6 +24,7 @@ fn main() {
     let result = match matches.subcommand() {
         ("init", Some(_cmd)) => doctave::InitCommand::run(root_dir),
         ("build", Some(_cmd)) => doctave::BuildCommand::run(root_dir),
+        ("serve", Some(_cmd)) => doctave::ServeCommand::run(root_dir),
         _ => Ok(()),
     };
 

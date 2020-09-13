@@ -1,46 +1,39 @@
 use std::ffi::OsStr;
 use std::fs::{self, File};
-use std::io;
 use std::path::{Path, PathBuf};
+use std::io;
 
+use crate::site::Site;
 use crate::navigation::Level;
 use crate::{Directory, Document};
 
 use serde::Serialize;
 use walkdir::WalkDir;
 
-pub struct BuildCommand {
+pub struct SiteGenerator<'a> {
     project_root: PathBuf,
-    docs_root: PathBuf,
-    out: PathBuf,
+    docs_dir: PathBuf,
+    out_dir: PathBuf,
+    site: &'a Site,
 }
 
-impl BuildCommand {
-    pub fn run(root: PathBuf) -> io::Result<()> {
-        let cmd = BuildCommand {
-            project_root: root.clone(),
-            docs_root: root.join("docs"),
-            out: root.join("site"),
-        };
-
-        cmd.reset_site_dir()?;
-        cmd.build_site()?;
-
-        Ok(())
-    }
-
-    fn reset_site_dir(&self) -> io::Result<()> {
-        if self.project_root.join("site").exists() {
-            fs::remove_dir_all(self.project_root.join("site"))?;
+impl<'a> SiteGenerator<'a> {
+    pub fn new<P, D, O>(site: &'a Site, project_root: P, docs_dir: D, out_dir: O) -> Self
+    where
+        P: Into<PathBuf>,
+        D: Into<PathBuf>,
+        O: Into<PathBuf>,
+    {
+        SiteGenerator {
+            site,
+            project_root: project_root.into(),
+            docs_dir: docs_dir.into(),
+            out_dir: out_dir.into(),
         }
-
-        fs::create_dir(self.project_root.join("site"))?;
-
-        Ok(())
     }
 
-    fn build_site(&self) -> io::Result<()> {
-        let root = self.find_docs();
+    pub fn run(&self) -> io::Result<()> {
+        let root = self.find_docs(&self.project_root);
         let navigation = Level::from(&root);
 
         self.build_directory(&root, &navigation)?;
@@ -49,12 +42,12 @@ impl BuildCommand {
     }
 
     fn build_directory(&self, dir: &Directory, nav: &Level) -> io::Result<()> {
-        fs::create_dir_all(dir.destination(&self.out))?;
+        fs::create_dir_all(dir.destination(&self.out_dir))?;
 
         for doc in &dir.docs {
-            let mut file = File::create(doc.destination(&self.out))?;
+            let mut file = File::create(doc.destination(&self.out_dir))?;
 
-            let data = crate::site_generator::TemplateData {
+            let data = TemplateData {
                 content: doc.html(),
                 navigation: &nav,
             };
@@ -71,11 +64,13 @@ impl BuildCommand {
         Ok(())
     }
 
-    fn find_docs(&self) -> Directory {
-        let mut root_dir = self.walk_dir(self.docs_root.join("")).unwrap_or(Directory {
-            docs: vec![],
-            dirs: vec![],
-        });
+    fn find_docs(&self, project_root: &Path) -> Directory {
+        let mut root_dir = self
+            .walk_dir(project_root.join("docs"))
+            .unwrap_or(Directory {
+                docs: vec![],
+                dirs: vec![],
+            });
 
         // Set doc directory's root README with the repo's root readme
         // if one didn't exist
@@ -86,7 +81,7 @@ impl BuildCommand {
         {
             root_dir
                 .docs
-                .push(Document::load(&self.project_root, "README.md"));
+                .push(Document::load(project_root, "README.md"));
         }
 
         root_dir
@@ -106,7 +101,7 @@ impl BuildCommand {
             if entry.file_type().is_file() {
                 let path = entry.path();
 
-                docs.push(Document::load(&self.docs_root, path));
+                docs.push(Document::load(&self.docs_dir, path));
             } else {
                 let path = entry.into_path();
 
@@ -126,4 +121,10 @@ impl BuildCommand {
             Some(Directory { docs, dirs })
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct TemplateData<'a> {
+    pub content: String,
+    pub navigation: &'a Level,
 }
