@@ -10,7 +10,7 @@ pub struct Site {
 
 impl Site {
     /// Create a new handle to a site output directory.
-    pub fn new<P: Into<PathBuf>>(out_dir: P) -> Site {
+    pub fn in_dir<P: Into<PathBuf>>(out_dir: P) -> Site {
         Site {
             out_dir: out_dir.into(),
         }
@@ -35,7 +35,7 @@ impl Site {
         Ok(())
     }
 
-    fn build_from(&self, project_root: &Path) -> io::Result<()> {
+    pub fn build_from(&self, project_root: &Path) -> io::Result<()> {
         let generator = SiteGenerator::new(
             &self,
             &project_root,

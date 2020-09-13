@@ -36,6 +36,8 @@ impl<'a> SiteGenerator<'a> {
         let root = self.find_docs(&self.project_root);
         let navigation = Level::from(&root);
 
+        self.site.reset()?;
+
         self.build_directory(&root, &navigation)?;
 
         Ok(())
