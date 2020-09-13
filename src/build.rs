@@ -15,17 +15,6 @@ impl BuildCommand {
             site: Site::in_dir(root.join("site")),
         };
 
-        cmd.reset_site_dir()?;
-        cmd.build_site()?;
-
-        Ok(())
-    }
-
-    fn reset_site_dir(&self) -> io::Result<()> {
-        self.site.reset()
-    }
-
-    fn build_site(&self) -> io::Result<()> {
-        self.site.build_from(&self.project_root)
+        cmd.site.build_from(&cmd.project_root)
     }
 }

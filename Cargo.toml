@@ -14,6 +14,9 @@ handlebars = "3.4.0"
 lazy_static = "1.4.0"
 hyper = "0.13"
 hyper-staticfile = "0.5"
+tokio = "0.2.22"
+futures = "0.3"
+futures-util = "0.3"
 
 [dev-dependencies]
 indoc = "1.0.2"

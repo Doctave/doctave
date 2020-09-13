@@ -4,6 +4,10 @@ use std::path::{Path, PathBuf};
 
 use crate::site_generator::SiteGenerator;
 
+/// A handle to the output directory where the site will be generated.
+///
+/// Completely agnostic about where the original Markdown files are
+/// located. Only cares about the destination directory.
 pub struct Site {
     out_dir: PathBuf,
 }
@@ -14,6 +18,10 @@ impl Site {
         Site {
             out_dir: out_dir.into(),
         }
+    }
+
+    pub fn out_dir(&self) -> &Path {
+        &self.out_dir
     }
 
     pub fn create_dir(&self) -> io::Result<()> {
