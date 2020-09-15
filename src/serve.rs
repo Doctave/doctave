@@ -54,6 +54,8 @@ impl ServeCommand {
             let site = site;
             let root = root;
 
+            site.build_from(&root).unwrap();
+
             // Create a watcher object, delivering debounced events.
             // The notification back-end is selected based on the platform.
             let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
@@ -118,8 +120,6 @@ impl ServeCommand {
     fn run_server(&self) -> io::Result<()> {
         // Create the runtime
         let mut rt = Runtime::new()?;
-
-        println!("Starting server...");
 
         // Spawn the root task
         rt.block_on(async {
