@@ -27,6 +27,8 @@ pub use serve::ServeCommand;
 
 use handlebars::Handlebars;
 
+static LIVERELOAD_JS : &'static str = include_str!("livereload.min.js");
+
 lazy_static! {
     pub static ref HANDLEBARS: Handlebars<'static> = {
         let mut handlebars = Handlebars::new();
