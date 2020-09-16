@@ -6,20 +6,20 @@ extern crate indoc;
 extern crate lazy_static;
 
 mod build;
-mod site_generator;
 mod frontmatter;
 mod init;
 mod navigation;
 #[allow(dead_code, unused_variables)]
 mod serve;
 mod site;
+mod site_generator;
 
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use pulldown_cmark::{html, Options, Parser};
+use pulldown_cmark::{CodeBlockKind, CowStr, html, Event, Options, Parser, Tag};
 
 pub use build::BuildCommand;
 pub use init::InitCommand;
@@ -27,8 +27,8 @@ pub use serve::ServeCommand;
 
 use handlebars::Handlebars;
 
-static LIVERELOAD_JS : &'static str = include_str!("assets/livereload.min.js");
-static MERMAID_JS : &'static str = include_str!("assets/mermaid.min.js");
+static LIVERELOAD_JS: &'static str = include_str!("assets/livereload.min.js");
+static MERMAID_JS: &'static str = include_str!("assets/mermaid.min.js");
 
 lazy_static! {
     pub static ref HANDLEBARS: Handlebars<'static> = {
@@ -147,7 +147,25 @@ impl Document {
         options.insert(Options::ENABLE_STRIKETHROUGH);
         options.insert(Options::ENABLE_TASKLISTS);
         options.insert(Options::ENABLE_TABLES);
-        let parser = Parser::new_ext(&raw_markdown, options);
+        let parser = Parser::new_ext(&raw_markdown, options).map(|event| match event {
+            Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(inner))) => {
+                let lang = inner.split(' ').next().unwrap();
+                if lang == "mermaid" {
+                    Event::Html(CowStr::Borrowed("<div class=\"mermaid\">"))
+                } else {
+                    Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(inner)))
+                }
+            },
+            Event::End(Tag::CodeBlock(CodeBlockKind::Fenced(inner))) => {
+                let lang = inner.split(' ').next().unwrap();
+                if lang == "mermaid" {
+                    Event::Html(CowStr::Borrowed("</div>"))
+                } else {
+                    Event::End(Tag::CodeBlock(CodeBlockKind::Fenced(inner)))
+                }
+            },
+            e => e,
+        });
 
         // Write to String buffer.
         let mut html_output = String::new();

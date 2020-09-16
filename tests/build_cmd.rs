@@ -97,3 +97,45 @@ integration_test!(build_navigation_nested, |area| {
     area.assert_exists(Path::new("site").join("nested").join("index.html"));
     area.assert_exists(Path::new("site").join("nested").join("howto_build.html"));
 });
+
+integration_test!(mermaid_js, |area| {
+    area.write_file("README.md", indoc! {"
+        # Mermaid 
+
+        ```mermaid
+        graph TD
+          A[Christmas] -->|Get money| B(Go shopping)
+          B --> C{Let me think}
+          C -->|One| D[Laptop]
+          C -->|Two| E[iPhone]
+          C -->|Three| F[fa:fa-car Car]
+        ```
+    "}.as_bytes());
+
+    let index = Path::new("site").join("index.html");
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    area.assert_contains(&index, "<h1>Mermaid</h1>");
+    area.assert_contains(&index, "<div class=\"mermaid\">");
+    area.assert_contains(&index, "Car]\n</div>");
+});
+
+integration_test!(regular_code, |area| {
+    area.write_file("README.md", indoc! {"
+        # Code Block 
+
+        ```ruby
+        1 + 1
+        ```
+    "}.as_bytes());
+
+    let index = Path::new("site").join("index.html");
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    area.assert_contains(&index, "<h1>Code Block</h1>");
+    area.assert_contains(&index, "<code class=\"language-ruby\">");
+});
