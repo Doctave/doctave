@@ -15,6 +15,25 @@
 <body>
     {{> navigation level=navigation }}
     {{{ content }}}
+
+    <script src="/assets/mermaid.js"></script>
+    <script>
+        let nodes = document.getElementsByClassName("language-mermaid");
+        for (var i = 0; i < nodes.length; i++) {
+            graph = nodes[i];
+            graph.style.display = 'none';
+
+            el = document.createElement("div");
+            el.className = "mermaid";
+            el.innerHTML = graph.innerHTML;
+
+            graph.parentNode.insertBefore(el, graph);
+        }
+
+        mermaid.initialize({
+            startOnLoad: true
+        });
+    </script>
 </body>
 
 </html>

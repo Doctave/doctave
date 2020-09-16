@@ -39,6 +39,16 @@ impl<'a> SiteGenerator<'a> {
         self.site.reset()?;
 
         self.build_directory(&root, &navigation)?;
+        self.build_assets()?;
+
+        Ok(())
+    }
+
+    fn build_assets(&self) -> io::Result<()> {
+        fs::create_dir_all(self.out_dir.join("assets"))?;
+
+        // Dump mermaid.js into the assets directory
+        fs::write(self.out_dir.join("assets").join("mermaid.js"), crate::MERMAID_JS)?;
 
         Ok(())
     }

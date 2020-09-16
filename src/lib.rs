@@ -27,7 +27,8 @@ pub use serve::ServeCommand;
 
 use handlebars::Handlebars;
 
-static LIVERELOAD_JS : &'static str = include_str!("livereload.min.js");
+static LIVERELOAD_JS : &'static str = include_str!("assets/livereload.min.js");
+static MERMAID_JS : &'static str = include_str!("assets/mermaid.min.js");
 
 lazy_static! {
     pub static ref HANDLEBARS: Handlebars<'static> = {
