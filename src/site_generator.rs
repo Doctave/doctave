@@ -1,10 +1,10 @@
 use std::ffi::OsStr;
 use std::fs::{self, File};
-use std::path::{Path, PathBuf};
 use std::io;
+use std::path::{Path, PathBuf};
 
-use crate::site::Site;
 use crate::navigation::Level;
+use crate::site::Site;
 use crate::{Directory, Document};
 
 use serde::Serialize;
@@ -48,7 +48,16 @@ impl<'a> SiteGenerator<'a> {
         fs::create_dir_all(self.out_dir.join("assets"))?;
 
         // Dump mermaid.js into the assets directory
-        fs::write(self.out_dir.join("assets").join("mermaid.js"), crate::MERMAID_JS)?;
+        fs::write(
+            self.out_dir.join("assets").join("mermaid.js"),
+            crate::MERMAID_JS,
+        )?;
+        // Add styles
+        fs::write(
+            self.out_dir.join("assets").join("normalize.css"),
+            crate::NORMALIZE_CSS,
+        )?;
+        fs::write(self.out_dir.join("assets").join("style.css"), crate::STYLES)?;
 
         Ok(())
     }

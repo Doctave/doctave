@@ -29,6 +29,8 @@ use handlebars::Handlebars;
 
 static LIVERELOAD_JS: &'static str = include_str!("assets/livereload.min.js");
 static MERMAID_JS: &'static str = include_str!("assets/mermaid.min.js");
+static STYLES: &'static str = include_str!("assets/style.css");
+static NORMALIZE_CSS: &'static str = include_str!("assets/normalize.css");
 
 lazy_static! {
     pub static ref HANDLEBARS: Handlebars<'static> = {

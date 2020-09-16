@@ -13,18 +13,18 @@ projects that are hosted on Doctave, you are free to deploy the generated sites 
 
 You can read more about hosting your docs on Doctave [here](https://www.doctave.com).
 
-## Features
+# Features
 - [x] Zero-configuration
 - [x] Supports GitHub flavored markdown
 - [x] Full-text search built-in
 - [x] Fast build, built in Rust
 - [x] Local live-reloading preview
 
-## Usage
+# Usage
 
 The CLI comes with a number of sub commands:
 
-### Starting a new project 
+## Starting a new project 
 
 To initialize a Doctave site in your repository, run the following command:
 
@@ -45,7 +45,7 @@ $ tree
     └── decision_records.rs
 ```
 
-### Live preview
+## Live preview
 
 To view your documentation locally, you can start the development server (port 4001 by default):
 
@@ -55,7 +55,7 @@ $ doctave serve
 
 You can now see your site at [localhost:4001](), and any updates to your docs will automatically reload the page.
 
-### Building your site
+## Building your site
 
 Finally, to build a production version of your documentation, run the following:
 
@@ -63,7 +63,7 @@ Finally, to build a production version of your documentation, run the following:
 $ doctave build
 ```
 
-# Now with Mermaid Diagrams!
+## Now with Mermaid Diagrams!
 
 ```mermaid
 graph TD

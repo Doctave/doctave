@@ -1,0 +1,107 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Raleway', sans-serif;
+    margin-bottom: 1.7rem;
+    margin-top: 3rem;
+    color: #9243CE;
+}
+
+h1:first-child {
+    margin-top: 0rem;
+    margin-bottom: 3rem;
+    color: #9243CE;
+    font-size: 4em;
+    text-align: right;
+    font-weight: 900;
+
+    background: rgb(146, 67, 206);
+    background: linear-gradient(220deg, rgba(146, 67, 206, 1) 10%, rgba(123, 137, 255, 1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+    color: #495057;
+}
+
+a {
+    color: #9243CE;
+    text-decoration: underline;
+}
+
+p {
+    margin-bottom: 1.4rem;
+    font-size: 1.1em;
+}
+
+li {
+    font-size: 1.1em;
+}
+
+pre {
+    padding: 1.5rem;
+    background: #4F4F4F;
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 0.1rem 1rem rgba(0, 0, 0, 0.275);
+    margin-bottom: 2rem;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+.sidebar {
+    width: 250px;
+    padding: 1.2rem;
+    padding-top: 50px;
+
+    border-right: 1px solid #EAEAEA;
+
+    background: rgb(146, 67, 206);
+    background: linear-gradient(220deg, rgba(146, 67, 206, 1) 10%, rgba(123, 137, 255, 1) 100%);
+    box-shadow: 0 0.1rem 1rem rgba(0, 0, 0, 0.275);
+}
+
+.sidebar a {
+    font-size: 1.6em;
+    text-decoration: none;
+    text-transform: capitalize;
+    color: #FFF;
+}
+
+
+.sidebar ul {
+    list-style: none;
+}
+.sidebar ul li:before {
+    content: "-";
+    color: #FFF;
+    font-size: 1.7em;
+    font-weight: 100;
+    padding-right: 10px;
+}
+
+.sidebar ul a {
+    font-size: 1.4em;
+}
+
+.sidebar ul ul a {
+    font-size: 1.2em;
+}
+
+
+.content {
+    flex: 1;
+    max-width: 960px;
+    padding-top: 50px;
+    padding-left: 5rem;
+    padding-right: 5rem;
+    padding-bottom: 5rem;
+}

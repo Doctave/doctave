@@ -9,15 +9,35 @@
     <meta name="description" content="Something">
     <meta name="author" content="Some Author">
 
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700;900&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/style.css" media="screen" />
     <script type='text/javascript' src="/livereload.js?port=35729" async="" defer=""></script>
 </head>
 
 <body>
-    {{> navigation level=navigation }}
-    {{{ content }}}
+    <div class='container'>
+        <div class='sidebar'>
+            {{> navigation level=navigation }}
+        </div>
+        <div class='content'>
+            {{{ content }}}
+        </div>
+    </div>
 
     <script src="/assets/mermaid.js"></script>
     <script>
+        window.addEventListener('scroll', function() {
+            //When scroll change, you save it on localStorage.
+            localStorage.setItem('scrollPosition', window.scrollY);
+        }, false);
+
+        window.addEventListener('load', function() {
+            if (localStorage.getItem('scrollPosition') !== null)
+                window.scrollTo(0, localStorage.getItem('scrollPosition'));
+        }, false);
+
         mermaid.initialize({
             startOnLoad: true
         });
