@@ -31,6 +31,7 @@ static LIVERELOAD_JS: &'static str = include_str!("assets/livereload.min.js");
 static MERMAID_JS: &'static str = include_str!("assets/mermaid.min.js");
 static STYLES: &'static str = include_str!("assets/style.css");
 static NORMALIZE_CSS: &'static str = include_str!("assets/normalize.css");
+static ELASTIC_LUNR: &'static str = include_str!("assets/elasticlunr.min.js");
 
 lazy_static! {
     pub static ref HANDLEBARS: Handlebars<'static> = {
@@ -71,8 +72,14 @@ impl Directory {
     }
 }
 
+use std::sync::atomic::AtomicU32;
+
+static DOCUMENT_ID: AtomicU32 = AtomicU32::new(1);
+
+
 #[derive(Debug, Clone, PartialEq)]
 struct Document {
+    pub id: u32,
     path: PathBuf,
     root: PathBuf,
     rename: Option<String>,
@@ -115,6 +122,7 @@ impl Document {
         };
 
         Document {
+            id: DOCUMENT_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
             path: path.into(),
             root: root.into(),
             raw,
@@ -140,6 +148,10 @@ impl Document {
             )),
             Some(ref rename) => self.path.with_file_name(&format!("{}.html", rename)),
         }
+    }
+
+    fn markdown(&self) -> &str {
+        &self.raw
     }
 
     fn html(&self) -> String {

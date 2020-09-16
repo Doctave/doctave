@@ -139,3 +139,21 @@ integration_test!(regular_code, |area| {
     area.assert_contains(&index, "<h1>Code Block</h1>");
     area.assert_contains(&index, "<code class=\"language-ruby\">");
 });
+
+integration_test!(search_index, |area| {
+    area.write_file("README.md", indoc! {"
+        # Code Block 
+
+        ```ruby
+        1 + 1
+        ```
+    "}.as_bytes());
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    let search_index = Path::new("site").join("search_index.json");
+
+    area.assert_contains(&search_index, "Code Block");
+    area.assert_contains(&search_index, "1 + 1");
+});

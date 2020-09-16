@@ -7,6 +7,7 @@ use crate::navigation::Level;
 use crate::site::Site;
 use crate::{Directory, Document};
 
+use elasticlunr::Index;
 use serde::Serialize;
 use walkdir::WalkDir;
 
@@ -39,6 +40,7 @@ impl<'a> SiteGenerator<'a> {
         self.site.reset()?;
 
         self.build_directory(&root, &navigation)?;
+        self.build_search_index(&root)?;
         self.build_assets()?;
 
         Ok(())
@@ -83,6 +85,23 @@ impl<'a> SiteGenerator<'a> {
         }
 
         Ok(())
+    }
+
+    fn build_search_index(&self, root: &Directory) -> io::Result<()> {
+        let mut index = Index::new(&["title", "body"]);
+
+        self.build_search_index_for_dir(root, &mut index);
+
+        fs::write(
+            self.out_dir.join("search_index.json"),
+            index.to_json().as_bytes(),
+        )
+    }
+
+    fn build_search_index_for_dir(&self, root: &Directory, index: &mut Index) {
+        for doc in &root.docs {
+            index.add_doc(&doc.id.to_string(), &[&doc.title(), doc.markdown()]);
+        }
     }
 
     fn find_docs(&self, project_root: &Path) -> Directory {
