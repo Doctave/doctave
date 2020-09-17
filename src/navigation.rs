@@ -37,9 +37,9 @@ pub struct Level {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
-struct Link {
-    path: PathBuf,
-    title: String,
+pub struct Link {
+    pub path: PathBuf,
+    pub title: String,
 }
 
 #[cfg(test)]

@@ -3,7 +3,7 @@ use std::fs::{self, File};
 use std::io;
 use std::path::{Path, PathBuf};
 
-use crate::navigation::Level;
+use crate::navigation::{Level, Link};
 use crate::site::Site;
 use crate::{Directory, Document};
 
@@ -49,11 +49,17 @@ impl<'a> SiteGenerator<'a> {
     fn build_assets(&self) -> io::Result<()> {
         fs::create_dir_all(self.out_dir.join("assets"))?;
 
-        // Dump mermaid.js into the assets directory
+        // Add JS
         fs::write(
             self.out_dir.join("assets").join("mermaid.js"),
             crate::MERMAID_JS,
         )?;
+        fs::write(
+            self.out_dir.join("assets").join("elasticlunr.js"),
+            crate::ELASTIC_LUNR,
+        )?;
+        fs::write(self.out_dir.join("assets").join("app.js"), crate::APP_JS)?;
+
         // Add styles
         fs::write(
             self.out_dir.join("assets").join("normalize.css"),
@@ -88,7 +94,7 @@ impl<'a> SiteGenerator<'a> {
     }
 
     fn build_search_index(&self, root: &Directory) -> io::Result<()> {
-        let mut index = Index::new(&["title", "body"]);
+        let mut index = Index::new(&["title", "uri", "body"]);
 
         self.build_search_index_for_dir(root, &mut index);
 
@@ -100,7 +106,14 @@ impl<'a> SiteGenerator<'a> {
 
     fn build_search_index_for_dir(&self, root: &Directory, index: &mut Index) {
         for doc in &root.docs {
-            index.add_doc(&doc.id.to_string(), &[&doc.title(), doc.markdown()]);
+            index.add_doc(
+                &doc.id.to_string(),
+                &[
+                    &doc.title(),
+                    Link::from(doc).path.to_str().unwrap(),
+                    doc.markdown(),
+                ],
+            );
         }
     }
 

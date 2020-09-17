@@ -19,7 +19,7 @@ use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use pulldown_cmark::{CodeBlockKind, CowStr, html, Event, Options, Parser, Tag};
+use pulldown_cmark::{html, CodeBlockKind, CowStr, Event, Options, Parser, Tag};
 
 pub use build::BuildCommand;
 pub use init::InitCommand;
@@ -27,11 +27,13 @@ pub use serve::ServeCommand;
 
 use handlebars::Handlebars;
 
-static LIVERELOAD_JS: &'static str = include_str!("assets/livereload.min.js");
+static APP_JS: &'static str = include_str!("assets/app.js");
 static MERMAID_JS: &'static str = include_str!("assets/mermaid.min.js");
+static ELASTIC_LUNR: &'static str = include_str!("assets/elasticlunr.min.js");
+static LIVERELOAD_JS: &'static str = include_str!("assets/livereload.min.js");
+
 static STYLES: &'static str = include_str!("assets/style.css");
 static NORMALIZE_CSS: &'static str = include_str!("assets/normalize.css");
-static ELASTIC_LUNR: &'static str = include_str!("assets/elasticlunr.min.js");
 
 lazy_static! {
     pub static ref HANDLEBARS: Handlebars<'static> = {
@@ -42,6 +44,9 @@ lazy_static! {
             .unwrap();
         handlebars
             .register_template_string("navigation", include_str!("../templates/navigation.html"))
+            .unwrap();
+        handlebars
+            .register_template_string("search", include_str!("../templates/search.html"))
             .unwrap();
         handlebars
             .register_template_string(
@@ -75,7 +80,6 @@ impl Directory {
 use std::sync::atomic::AtomicU32;
 
 static DOCUMENT_ID: AtomicU32 = AtomicU32::new(1);
-
 
 #[derive(Debug, Clone, PartialEq)]
 struct Document {
@@ -169,7 +173,7 @@ impl Document {
                 } else {
                     Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(inner)))
                 }
-            },
+            }
             Event::End(Tag::CodeBlock(CodeBlockKind::Fenced(inner))) => {
                 let lang = inner.split(' ').next().unwrap();
                 if lang == "mermaid" {
@@ -177,7 +181,7 @@ impl Document {
                 } else {
                     Event::End(Tag::CodeBlock(CodeBlockKind::Fenced(inner)))
                 }
-            },
+            }
             e => e,
         });
 

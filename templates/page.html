@@ -22,26 +22,14 @@
             {{> navigation level=navigation }}
         </div>
         <div class='content'>
+            {{> search }}
             {{{ content }}}
         </div>
     </div>
 
-    <script src="/assets/mermaid.js"></script>
-    <script>
-        window.addEventListener('scroll', function() {
-            //When scroll change, you save it on localStorage.
-            localStorage.setItem('scrollPosition', window.scrollY);
-        }, false);
-
-        window.addEventListener('load', function() {
-            if (localStorage.getItem('scrollPosition') !== null)
-                window.scrollTo(0, localStorage.getItem('scrollPosition'));
-        }, false);
-
-        mermaid.initialize({
-            startOnLoad: true
-        });
-    </script>
+    <script type="text/javascript" src="/assets/mermaid.js"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js"></script>
+    <script type="text/javascript" src="/assets/app.js"></script>
 </body>
 
 </html>

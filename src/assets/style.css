@@ -10,7 +10,7 @@ h6 {
     color: #9243CE;
 }
 
-h1:first-child {
+h1:first-of-type {
     margin-top: 0rem;
     margin-bottom: 3rem;
     color: #9243CE;
@@ -72,7 +72,6 @@ pre {
 .sidebar a {
     font-size: 1.6em;
     text-decoration: none;
-    text-transform: capitalize;
     color: #FFF;
 }
 
@@ -80,6 +79,7 @@ pre {
 .sidebar ul {
     list-style: none;
 }
+
 .sidebar ul li:before {
     content: "-";
     color: #FFF;
@@ -104,4 +104,39 @@ pre {
     padding-left: 5rem;
     padding-right: 5rem;
     padding-bottom: 5rem;
+}
+
+.search {
+    position: relative;
+    margin-bottom: 25px;
+    width: 500px;
+    max-width: 85%;
+}
+
+.search input[type='text'] {
+    border-radius: 10px;
+    border: 1px solid #d0d0d0;
+    padding: 10px;
+    padding-right: 0px;
+    width: 100%;
+}
+
+.search #search-results {
+    position: absolute;
+    padding: 10px;
+    padding: 0;
+    background: #F2F2F2;
+    border-radius: 10px;
+    width: 100%;
+    list-style: none;
+    box-shadow: 0 0.1rem 1rem rgba(0, 0, 0, 0.075);
+}
+
+.search #search-results li {
+    padding: 15px;
+    border-bottom: 1px solid #E3E3E3;
+    border-radius: 10px;
+}
+.search #search-results li:hover {
+    background: #F6EBFF;
 }
