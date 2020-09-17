@@ -4,39 +4,41 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: 'Raleway', sans-serif;
-    margin-bottom: 1.7rem;
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 1.0rem;
     margin-top: 3rem;
-    color: #9243CE;
+    color: #555454;
 }
 
 h1:first-of-type {
-    margin-top: 0rem;
-    margin-bottom: 3rem;
-    color: #9243CE;
-    font-size: 4em;
-    text-align: right;
-    font-weight: 900;
+    margin-top: 1rem;
+    margin-bottom: 4rem;
+    font-size: 2.7em;
+    text-align: left;
+    font-weight: 600;
 
-    background: rgb(146, 67, 206);
-    background: linear-gradient(220deg, rgba(146, 67, 206, 1) 10%, rgba(123, 137, 255, 1) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #FF8552;
 }
 
 body {
     font-family: 'Source Sans Pro', sans-serif;
-    color: #495057;
+    color: #3C3C3C;
+}
+
+body,
+html {
+    height: 100%;
 }
 
 a {
-    color: #9243CE;
+    color: #FF8552;
     text-decoration: underline;
 }
 
 p {
     margin-bottom: 1.4rem;
     font-size: 1.1em;
+    line-height: 1.6rem;
 }
 
 li {
@@ -53,62 +55,148 @@ pre {
 }
 
 .container {
-    display: flex;
     width: 100%;
+    min-height: 100%;
+    display: flex;
 }
 
 .sidebar {
+    position: relative;
     width: 250px;
-    padding: 1.2rem;
+    min-width: 250px;
+    padding-left: 2.0rem;
+    padding-right: 1rem;
     padding-top: 50px;
 
     border-right: 1px solid #EAEAEA;
 
-    background: rgb(146, 67, 206);
-    background: linear-gradient(220deg, rgba(146, 67, 206, 1) 10%, rgba(123, 137, 255, 1) 100%);
-    box-shadow: 0 0.1rem 1rem rgba(0, 0, 0, 0.275);
+    background: #F9FAFB;
 }
 
 .sidebar a {
-    font-size: 1.6em;
+    font-size: 1.1em;
     text-decoration: none;
-    color: #FFF;
+    color: #797979;
 }
 
+.sidebar .project-name {
+    font-weight: 600;
+    font-size: 1.3rem;
+
+    margin-top: 0px;
+    margin-bottom: 80px;
+}
+
+.sidebar .project-name a {
+    color: #FF8552;
+}
 
 .sidebar ul {
     list-style: none;
+    padding-left: 0px;
 }
 
-.sidebar ul li:before {
-    content: "-";
-    color: #FFF;
-    font-size: 1.7em;
-    font-weight: 100;
-    padding-right: 10px;
+.sidebar ul li {
+    margin-bottom: 40px;
+}
+
+.sidebar ul li.active {
+    border-left: 2px solid #FF8552;
+    padding-left: 10px;
 }
 
 .sidebar ul a {
-    font-size: 1.4em;
+    font-size: 1.0em;
+    font-weight: 600;
+}
+
+.sidebar ul a:hover {
+    color: #FF8552;
+    text-decoration: underline;
 }
 
 .sidebar ul ul a {
-    font-size: 1.2em;
+    font-size: 1.0em;
 }
 
+.wave {
+    position: absolute;
+    left: 0;
+    bottom: 80px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+.wave-body {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: block;
+    height: 80px;
+    width: 100%;
+    background-color: #FF8552;
+
+    color: #FFF;
+    padding: 2rem;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
 
 .content {
-    flex: 1;
-    max-width: 960px;
+    z-index: 1;
+    width: 100%;
     padding-top: 50px;
     padding-left: 5rem;
     padding-right: 5rem;
     padding-bottom: 5rem;
+
+    box-shadow: 0px 4px 40px rgba(0, 0, 0, 0.1);
+}
+
+.content-inner {
+    display: flex;
+    width: 100%;
+}
+
+.content-main {
+    min-width: 550px;
+    max-width: 960px;
+    width: 60%;
+    padding-right: 5rem;
+}
+
+.content-scrollspy {
+    margin-left: 2rem;
+    width: 230px;
+    padding-right: 2rem;
+    line-height: 2em;
+    margin-top: 8rem;
+}
+
+.scrollspy {
+    padding-left: 10px;
+    border-left: 2px solid #E6E6E6;
+}
+
+.scrollspy a {
+    font-family: Poppins;
+    font-style: normal;
+    font-weight: bold;
+    color: #8F8F8F;
+    text-decoration: none;
+}
+
+.scrollspy a:hover {
+    color: #FF8552;
+    text-decoration: underline;
 }
 
 .search {
     position: relative;
-    margin-bottom: 25px;
+    margin-bottom: 3.0rem;
     width: 500px;
     max-width: 85%;
 }
@@ -137,6 +225,7 @@ pre {
     border-bottom: 1px solid #E3E3E3;
     border-radius: 10px;
 }
+
 .search #search-results li:hover {
     background: #F6EBFF;
 }

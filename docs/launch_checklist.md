@@ -12,11 +12,14 @@ What do we need to get Doctave out to the general public?
 - [x] Fix frontmatter line being injected into the page
 - [ ] Fix livereload socket/protocol errors
 - [ ] Automatically create a index.html for a subdirectory without a README.md
+- [ ] Extensionless URLs for `serve` command
 
 ## Tasks
 
-- [ ] Implement a better styling
+- [x] Implement a better styling
+- [ ] Styles/themes for mermaid diagrams
 - [ ] Terminal feedback
+- [ ] Scrollspy
 - [ ] Write docs!
 - [ ] Host docs
 - [ ] Setup CI/CD for all platforms
