@@ -157,3 +157,22 @@ integration_test!(search_index, |area| {
     area.assert_contains(&search_index, "Code Block");
     area.assert_contains(&search_index, "1 + 1");
 });
+
+integration_test!(frontmatter, |area| {
+    area.write_file("README.md", indoc! {"
+        ---
+        title: \"The start\"
+        ---
+
+        # This is the end
+        ```
+    "}.as_bytes());
+
+    let index = Path::new("site").join("index.html");
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    area.assert_contains(&index, "<h1>This is the end</h1>");
+    area.refute_contains(&index, "<hr />");
+});

@@ -155,17 +155,15 @@ impl Document {
     }
 
     fn markdown(&self) -> &str {
-        &self.raw
+        frontmatter::without(&self.raw)
     }
 
     fn html(&self) -> String {
-        let raw_markdown = &self.raw[frontmatter::end_pos(&self.raw)..];
-
         let mut options = Options::empty();
         options.insert(Options::ENABLE_STRIKETHROUGH);
         options.insert(Options::ENABLE_TASKLISTS);
         options.insert(Options::ENABLE_TABLES);
-        let parser = Parser::new_ext(&raw_markdown, options).map(|event| match event {
+        let parser = Parser::new_ext(self.markdown(), options).map(|event| match event {
             Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(inner))) => {
                 let lang = inner.split(' ').next().unwrap();
                 if lang == "mermaid" {

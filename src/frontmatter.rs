@@ -24,11 +24,15 @@ pub fn end_pos(input: &str) -> usize {
         if end_mark.is_none() {
             0
         } else {
-            end_mark.unwrap() + 4
+            end_mark.unwrap() + 8
         }
     } else {
         0
     }
+}
+
+pub fn without(input: &str) -> &str {
+    &input[end_pos(input)..]
 }
 
 #[cfg(test)]
@@ -87,5 +91,20 @@ mod test {
         "};
 
         assert_eq!(parse(input).unwrap(), BTreeMap::new());
+    }
+
+    #[test]
+    fn without_basic() {
+        let input = indoc! {"
+            ---
+            title: Runbooks
+            ---
+
+            # Runbooks
+        "};
+
+        let without_frontmatter = without(input);
+
+        assert_eq!(without_frontmatter, "\n# Runbooks\n");
     }
 }
