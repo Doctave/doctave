@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 use crate::navigation::{Level, Link};
 use crate::site::Site;
 use crate::{Directory, Document};
+use crate::markdown::Heading;
 
 use elasticlunr::Index;
 use serde::Serialize;
@@ -77,7 +78,8 @@ impl<'a> SiteGenerator<'a> {
             let mut file = File::create(doc.destination(&self.out_dir))?;
 
             let data = TemplateData {
-                content: doc.html(),
+                content: doc.html().to_string(),
+                headings: doc.headings().to_vec(),
                 navigation: &nav,
             };
 
@@ -111,7 +113,7 @@ impl<'a> SiteGenerator<'a> {
                 &[
                     &doc.title(),
                     Link::from(doc).path.to_str().unwrap(),
-                    doc.markdown(),
+                    doc.markdown_section(),
                 ],
             );
         }
@@ -179,5 +181,6 @@ impl<'a> SiteGenerator<'a> {
 #[derive(Debug, Clone, Serialize)]
 pub struct TemplateData<'a> {
     pub content: String,
+    pub headings: Vec<Heading>,
     pub navigation: &'a Level,
 }

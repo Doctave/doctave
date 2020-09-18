@@ -41,11 +41,11 @@
                 <div class='content-main'>
                     {{{ content }}}
                 </div>
-                <div class='content-scrollspy'>
-                    <div class='scrollspy'>
-                        <a href='#'>Some</a><br />
-                        <a href='#'>fake content</a><br />
-                        <a href='#'>for now</a>
+                <div class='content-page-nav'>
+                    <div id='page-nav' class='page-nav'>
+                        {{#each headings}}
+                            <a class='page-nav-level-{{this.level}}' href='#{{this.anchor}}'>{{this.title}}</a>
+                        {{/each}}
                     </div>
                 </div>
             </div>

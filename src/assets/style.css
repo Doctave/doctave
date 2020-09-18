@@ -170,28 +170,48 @@ pre {
 
 .content-scrollspy {
     margin-left: 2rem;
-    width: 230px;
+    min-width: 230px;
     padding-right: 2rem;
     line-height: 2em;
     margin-top: 8rem;
 }
 
-.scrollspy {
-    padding-left: 10px;
+.page-nav {
+    padding-left: 20px;
     border-left: 2px solid #E6E6E6;
 }
 
-.scrollspy a {
+.page-nav a {
     font-family: Poppins;
     font-style: normal;
     font-weight: bold;
     color: #8F8F8F;
     text-decoration: none;
+    display: block;
 }
 
-.scrollspy a:hover {
+.page-nav a.active {
+    color: #FF8552;
+}
+
+.page-nav a:hover {
     color: #FF8552;
     text-decoration: underline;
+}
+
+.page-nav a.page-nav-level-2 {
+    padding-left: 20px;
+    font-size: 0.9rem;
+}
+
+.page-nav a.page-nav-level-3 {
+    padding-left: 40px;
+    font-size: 0.9rem;
+}
+.page-nav a.page-nav-level-4
+.page-nav a.page-nav-level-5 
+.page-nav a.page-nav-level-5 {
+    display: none;
 }
 
 .search {

@@ -8,6 +8,7 @@ extern crate lazy_static;
 mod build;
 mod frontmatter;
 mod init;
+mod markdown;
 mod navigation;
 #[allow(dead_code, unused_variables)]
 mod serve;
@@ -19,10 +20,9 @@ use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use pulldown_cmark::{html, CodeBlockKind, CowStr, Event, Options, Parser, Tag};
-
 pub use build::BuildCommand;
 pub use init::InitCommand;
+pub use markdown::{Heading, Markdown};
 pub use serve::ServeCommand;
 
 use handlebars::Handlebars;
@@ -88,6 +88,7 @@ struct Document {
     root: PathBuf,
     rename: Option<String>,
     raw: String,
+    markdown: Markdown,
     frontmatter: BTreeMap<String, String>,
 }
 
@@ -125,11 +126,14 @@ impl Document {
             None
         };
 
+        let markdown = markdown::parse(frontmatter::without(&raw));
+
         Document {
             id: DOCUMENT_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
             path: path.into(),
             root: root.into(),
             raw,
+            markdown,
             rename,
             frontmatter,
         }
@@ -154,40 +158,16 @@ impl Document {
         }
     }
 
-    fn markdown(&self) -> &str {
+    fn markdown_section(&self) -> &str {
         frontmatter::without(&self.raw)
     }
 
-    fn html(&self) -> String {
-        let mut options = Options::empty();
-        options.insert(Options::ENABLE_STRIKETHROUGH);
-        options.insert(Options::ENABLE_TASKLISTS);
-        options.insert(Options::ENABLE_TABLES);
-        let parser = Parser::new_ext(self.markdown(), options).map(|event| match event {
-            Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(inner))) => {
-                let lang = inner.split(' ').next().unwrap();
-                if lang == "mermaid" {
-                    Event::Html(CowStr::Borrowed("<div class=\"mermaid\">"))
-                } else {
-                    Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(inner)))
-                }
-            }
-            Event::End(Tag::CodeBlock(CodeBlockKind::Fenced(inner))) => {
-                let lang = inner.split(' ').next().unwrap();
-                if lang == "mermaid" {
-                    Event::Html(CowStr::Borrowed("</div>"))
-                } else {
-                    Event::End(Tag::CodeBlock(CodeBlockKind::Fenced(inner)))
-                }
-            }
-            e => e,
-        });
+    fn headings(&self) -> &[Heading] {
+        &self.markdown.headings
+    }
 
-        // Write to String buffer.
-        let mut html_output = String::new();
-        html::push_html(&mut html_output, parser);
-
-        html_output
+    fn html(&self) -> &str {
+        &self.markdown.as_html
     }
 
     fn title(&self) -> &str {

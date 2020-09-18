@@ -30,6 +30,47 @@ function search() {
     });
 }
 
+function scrollTop() {
+    var supportPageOffset = window.pageXOffset !== undefined;
+    var isCSS1Compat = ((document.compatMode || "") === "CSS1Compat");
+
+    return supportPageOffset ? window.pageYOffset : isCSS1Compat ? document.documentElement.scrollTop : document.body.scrollTop;
+}
+
+// Checks if the search bar is visible, as a proxy for
+// determining when we should start scrolling.
+function shouldDragScrollspy() {
+    var search = document.getElementById('search-form');
+
+    return !isVisible(search);
+}
+
+function isVisible(element) {
+    var rect = element.getBoundingClientRect();
+    var elemTop = rect.top;
+    var elemBottom = rect.bottom;
+
+    var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+    return isVisible;
+}
+
+function dragScrollspy() {
+    if (shouldDragScrollspy()) {
+        pageNav = document.getElementById('page-nav');
+        pageNav.style.position = 'fixed';
+        pageNav.style.top = '13.5rem';
+    } else {
+        pageNav = document.getElementById('page-nav');
+        pageNav.style.position = '';
+        pageNav.style.top = '';
+    }
+}
+
+// Scrollspy listeners
+window.addEventListener('scroll', function(e) {
+    dragScrollspy();
+    // updateActiveScrollspyLink();
+});
 // Don't reset scrolling on livereload
 window.addEventListener('scroll', function() {
     localStorage.setItem('scrollPosition', window.scrollY);
@@ -39,6 +80,7 @@ window.addEventListener('load', function() {
     if (localStorage.getItem('scrollPosition') !== null)
         window.scrollTo(0, localStorage.getItem('scrollPosition'));
 }, false);
+
 
 // Initialize mermaid JS
 mermaid.initialize({
@@ -60,3 +102,5 @@ fetch('/search_index.json')
         document.getElementById('search-box').oninput = search;
         search();
     });
+
+dragScrollspy();

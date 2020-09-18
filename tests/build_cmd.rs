@@ -24,7 +24,7 @@ integration_test!(build_smoke_test, |area| {
 
     let index = Path::new("site").join("index.html");
 
-    area.assert_contains(&index, "<h1>Some content</h1>");
+    area.assert_contains(&index, ">Some content</h1>");
     area.assert_contains(&index, "<p>This is some text</p>");
     area.assert_contains(&index, "<li>Look</li>");
     area.assert_contains(&index, "<li>At</li>");
@@ -117,7 +117,7 @@ integration_test!(mermaid_js, |area| {
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    area.assert_contains(&index, "<h1>Mermaid</h1>");
+    area.assert_contains(&index, ">Mermaid</h1>");
     area.assert_contains(&index, "<div class=\"mermaid\">");
     area.assert_contains(&index, "Car]\n</div>");
 });
@@ -136,7 +136,7 @@ integration_test!(regular_code, |area| {
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    area.assert_contains(&index, "<h1>Code Block</h1>");
+    area.assert_contains(&index, ">Code Block</h1>");
     area.assert_contains(&index, "<code class=\"language-ruby\">");
 });
 
@@ -173,6 +173,29 @@ integration_test!(frontmatter, |area| {
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    area.assert_contains(&index, "<h1>This is the end</h1>");
+    area.assert_contains(&index, ">This is the end</h1>");
     area.refute_contains(&index, "<hr />");
+});
+
+integration_test!(page_nav, |area| {
+    area.write_file("README.md", indoc! {"
+        # This
+
+        # Is
+
+        # The
+
+        # End
+        ```
+    "}.as_bytes());
+
+    let index = Path::new("site").join("index.html");
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    area.assert_contains(&index, "<a class='page-nav-level-1' href='#this-1'>This</a>");
+    area.assert_contains(&index, "<a class='page-nav-level-1' href='#is-2'>Is</a>");
+    area.assert_contains(&index, "<a class='page-nav-level-1' href='#the-3'>The</a>");
+    area.assert_contains(&index, "<a class='page-nav-level-1' href='#end-4'>End</a>");
 });
