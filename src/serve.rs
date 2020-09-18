@@ -5,6 +5,7 @@ use std::sync::{Arc, RwLock};
 use std::thread::JoinHandle;
 use std::time::Duration;
 
+use colored::*;
 use crossbeam_channel::{bounded, Receiver, Sender};
 use futures_util::future;
 use hyper::service::{make_service_fn, service_fn};
@@ -13,7 +14,6 @@ use hyper_staticfile::Static;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use tokio::runtime::Runtime;
 use tungstenite::protocol::WebSocket;
-use colored::*;
 
 use crate::site::Site;
 
@@ -65,7 +65,9 @@ impl ServeCommand {
             let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
 
             for path in paths {
-                watcher.watch(path, RecursiveMode::Recursive).unwrap();
+                if path.exists() {
+                    watcher.watch(path, RecursiveMode::Recursive).unwrap();
+                }
             }
 
             loop {

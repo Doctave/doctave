@@ -11,7 +11,7 @@ What do we need to get Doctave out to the general public?
 
 - [x] Fix frontmatter line being injected into the page
 - [x] Fix livereload socket/protocol errors
-- [ ] Automatically create a index.html for a subdirectory without a README.md
+- [x] Automatically create a index.html for a subdirectory without a README.md
 - [ ] Extensionless URLs for `serve` command
 
 ## Tasks
@@ -21,6 +21,7 @@ What do we need to get Doctave out to the general public?
 - [ ] In-memory serving during development
 - [ ] Styles/themes for mermaid diagrams
 - [ ] Terminal feedback
+- [ ] Project Title
 - [x] Scrollspy
 - [x] Active links
 - [ ] Write docs!

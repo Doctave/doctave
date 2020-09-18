@@ -12,11 +12,19 @@ impl From<&Directory> for Level {
             .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
             .expect("No index file found for directory");
 
-
-        let links = dir.docs.iter().filter(|d| *d != index).map(|d| d.into()).collect();
+        let links = dir
+            .docs
+            .iter()
+            .filter(|d| *d != index)
+            .map(|d| d.into())
+            .collect();
         let children = dir.dirs.iter().map(|d| d.into()).collect();
 
-        Level { index: index.into(), links, children }
+        Level {
+            index: index.into(),
+            links,
+            children,
+        }
     }
 }
 

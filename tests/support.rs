@@ -20,7 +20,7 @@ macro_rules! integration_test {
         fn $name() {
             test_dir(stringify!($name), $body);
         }
-    }
+    };
 }
 
 pub fn test_dir<F, P: AsRef<Path>>(name: P, lambda: F)
@@ -76,7 +76,7 @@ impl TestArea {
     }
 
     pub fn mkdir<P: AsRef<Path>>(&self, name: P) {
-        fs::create_dir(self.path.join(name)).expect("Could not create dir");
+        create_dir_all(self.path.join(name)).expect("Could not create dir");
     }
 
     pub fn write_file<P: AsRef<Path>>(&self, name: P, content: &[u8]) {

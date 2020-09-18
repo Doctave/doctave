@@ -1,8 +1,8 @@
 #[allow(dead_code)]
 mod support;
 
-use support::*;
 use std::path::Path;
+use support::*;
 
 integration_test!(init_smoke_test, |area| {
     let result = area.cmd(&["init"]);

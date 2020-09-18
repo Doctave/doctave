@@ -8,7 +8,9 @@ use std::path::Path;
 use support::*;
 
 integration_test!(build_smoke_test, |area| {
-    area.write_file("README.md", indoc! {"
+    area.write_file(
+        "README.md",
+        indoc! {"
         # Some content
 
         This is some text
@@ -17,7 +19,9 @@ integration_test!(build_smoke_test, |area| {
         * At
         * My
         * List
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
     let result = area.cmd(&["build"]);
     assert_success(&result);
@@ -35,20 +39,28 @@ integration_test!(build_smoke_test, |area| {
 integration_test!(build_navigation, |area| {
     area.mkdir("docs");
     area.write_file("README.md", b"# Some content");
-    area.write_file("docs/howto_build.md", indoc! {"
+    area.write_file(
+        Path::new("docs").join("howto_build.md"),
+        indoc! {"
         ---
         title: How-To Build
         ---
 
         # How-To Build
-    "}.as_bytes());
-    area.write_file("docs/runbooks.md", indoc! {"
+    "}
+        .as_bytes(),
+    );
+    area.write_file(
+        "docs/runbooks.md",
+        indoc! {"
         ---
         title: Runbooks
         ---
 
         # Runbooks
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
     let result = area.cmd(&["build"]);
     assert_success(&result);
@@ -61,48 +73,68 @@ integration_test!(build_navigation, |area| {
     area.assert_exists(Path::new("site").join("runbooks.html"));
 
     let howto = Path::new("site").join("howto_build.html");
-    area.assert_contains(&howto, "<a class=\"active\" href=\"/howto_build.html\">How-To Build</a>");
+    area.assert_contains(
+        &howto,
+        "<a class=\"active\" href=\"/howto_build.html\">How-To Build</a>",
+    );
 });
 
 integration_test!(build_navigation_nested, |area| {
     area.mkdir("docs");
-    area.mkdir("docs/nested");
+    area.mkdir(Path::new("docs").join("nested"));
     area.write_file("README.md", b"# Some content");
-    area.write_file("docs/runbooks.md", indoc! {"
+    area.write_file(
+        Path::new("docs").join("runbooks.md"),
+        indoc! {"
         ---
         title: Runbooks
         ---
 
         # Runbooks
-    "}.as_bytes());
-    area.write_file("docs/nested/README.md", indoc! {"
+    "}
+        .as_bytes(),
+    );
+    area.write_file(
+        "docs/nested/README.md",
+        indoc! {"
         ---
         title: Nested
         ---
 
         # How-To Build
-    "}.as_bytes());
-    area.write_file("docs/nested/howto_build.md", indoc! {"
+    "}
+        .as_bytes(),
+    );
+    area.write_file(
+        "docs/nested/howto_build.md",
+        indoc! {"
         ---
         title: How-To Build
         ---
 
         # How-To Build
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
     let index = Path::new("site").join("index.html");
     area.assert_contains(&index, "<a href=\"/nested/index.html\">Nested</a>");
-    area.assert_contains(&index, "<a href=\"/nested/howto_build.html\">How-To Build</a>");
+    area.assert_contains(
+        &index,
+        "<a href=\"/nested/howto_build.html\">How-To Build</a>",
+    );
 
     area.assert_exists(Path::new("site").join("nested").join("index.html"));
     area.assert_exists(Path::new("site").join("nested").join("howto_build.html"));
 });
 
 integration_test!(mermaid_js, |area| {
-    area.write_file("README.md", indoc! {"
+    area.write_file(
+        "README.md",
+        indoc! {"
         # Mermaid 
 
         ```mermaid
@@ -113,7 +145,9 @@ integration_test!(mermaid_js, |area| {
           C -->|Two| E[iPhone]
           C -->|Three| F[fa:fa-car Car]
         ```
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
     let index = Path::new("site").join("index.html");
 
@@ -126,13 +160,17 @@ integration_test!(mermaid_js, |area| {
 });
 
 integration_test!(regular_code, |area| {
-    area.write_file("README.md", indoc! {"
+    area.write_file(
+        "README.md",
+        indoc! {"
         # Code Block 
 
         ```ruby
         1 + 1
         ```
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
     let index = Path::new("site").join("index.html");
 
@@ -144,13 +182,17 @@ integration_test!(regular_code, |area| {
 });
 
 integration_test!(search_index, |area| {
-    area.write_file("README.md", indoc! {"
+    area.write_file(
+        "README.md",
+        indoc! {"
         # Code Block 
 
         ```ruby
         1 + 1
         ```
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
     let result = area.cmd(&["build"]);
     assert_success(&result);
@@ -162,14 +204,18 @@ integration_test!(search_index, |area| {
 });
 
 integration_test!(frontmatter, |area| {
-    area.write_file("README.md", indoc! {"
+    area.write_file(
+        "README.md",
+        indoc! {"
         ---
         title: \"The start\"
         ---
 
         # This is the end
         ```
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
     let index = Path::new("site").join("index.html");
 
@@ -181,7 +227,9 @@ integration_test!(frontmatter, |area| {
 });
 
 integration_test!(page_nav, |area| {
-    area.write_file("README.md", indoc! {"
+    area.write_file(
+        "README.md",
+        indoc! {"
         # This
 
         # Is
@@ -190,15 +238,37 @@ integration_test!(page_nav, |area| {
 
         # End
         ```
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
     let index = Path::new("site").join("index.html");
 
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    area.assert_contains(&index, "<a class='page-nav-level-1' href='#this-1'>This</a>");
+    area.assert_contains(
+        &index,
+        "<a class='page-nav-level-1' href='#this-1'>This</a>",
+    );
     area.assert_contains(&index, "<a class='page-nav-level-1' href='#is-2'>Is</a>");
     area.assert_contains(&index, "<a class='page-nav-level-1' href='#the-3'>The</a>");
     area.assert_contains(&index, "<a class='page-nav-level-1' href='#end-4'>End</a>");
+});
+
+integration_test!(missing_directory_index, |area| {
+    area.mkdir(Path::new("docs").join("nested"));
+
+    area.write_file(Path::new("docs").join("README.md"), b"# Some content");
+    area.write_file(
+        Path::new("docs").join("nested").join("not_the_index.md"),
+        b"# Some other content",
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    // Assert we auto-generated an index page
+    let nested_index = Path::new("site").join("nested").join("index.html");
+    area.assert_contains(&nested_index, "This page was generated automatically by Doctave");
 });
