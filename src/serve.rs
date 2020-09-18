@@ -13,6 +13,7 @@ use hyper_staticfile::Static;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use tokio::runtime::Runtime;
 use tungstenite::protocol::WebSocket;
+use colored::*;
 
 use crate::site::Site;
 
@@ -31,6 +32,9 @@ impl ServeCommand {
             threads: Vec::new(),
             listeners: Arc::new(RwLock::new(Vec::with_capacity(8))),
         };
+
+        println!("{}", "Doctave CLI | Serve".blue().bold());
+        println!("🚀 Starting development server...\n");
 
         cmd.threads.push(cmd.builder_thread(
             Site::in_dir(cmd.project_root.join("site")),
@@ -134,7 +138,7 @@ impl ServeCommand {
 
             let addr = ([127, 0, 0, 1], 4001).into();
             let server = hyper::Server::bind(&addr).serve(make_service);
-            eprintln!("Doc server running on http://{}/", addr);
+            println!("Server running on {}\n", format!("http://{}/", addr).bold());
             server.await.expect("Server failed");
         });
 
@@ -152,7 +156,8 @@ async fn handle_request<B>(req: Request<B>, static_: Static) -> Result<Response<
 
 fn handle_websocket(stream: std::net::TcpStream, broadcast_listener: Receiver<()>) {
     let result = || -> io::Result<()> {
-        let mut websocket = tungstenite::accept(stream).unwrap();
+        let mut websocket =
+            tungstenite::accept(stream).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
         livereload_handshake(&mut websocket)?;
 
@@ -213,13 +218,19 @@ fn rebuild(
     msg: &str,
     listeners: Arc<RwLock<Vec<Sender<()>>>>,
 ) {
+    use std::time::Instant;
+
+    println!("    File {} {}.", path.display().to_string().bold(), msg);
+
+    let start = Instant::now();
     site.build_from(project_root).unwrap();
+    let duration = start.elapsed();
+
+    println!("    Site rebuilt in {}\n", format!("{:?}", duration).bold());
 
     let list = listeners.read().unwrap();
 
     for l in &*list {
         l.send(()).unwrap();
     }
-
-    println!("  {} {}.", path.display(), msg);
 }

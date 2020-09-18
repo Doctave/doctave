@@ -22,6 +22,7 @@ tungstenite = { version = "0.11", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 crossbeam-channel = "0.4"
 elasticlunr-rs = "2.3"
+colored = "2"
 
 [dev-dependencies]
 indoc = "1.0.2"
