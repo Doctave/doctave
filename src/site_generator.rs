@@ -81,6 +81,7 @@ impl<'a> SiteGenerator<'a> {
                 content: doc.html().to_string(),
                 headings: doc.headings().to_vec(),
                 navigation: &nav,
+                current_page: Link::from(doc),
             };
 
             crate::HANDLEBARS
@@ -183,4 +184,5 @@ pub struct TemplateData<'a> {
     pub content: String,
     pub headings: Vec<Heading>,
     pub navigation: &'a Level,
+    pub current_page: Link,
 }

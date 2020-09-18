@@ -39,7 +39,7 @@ function scrollTop() {
 
 // Checks if the search bar is visible, as a proxy for
 // determining when we should start scrolling.
-function shouldDragScrollspy() {
+function shouldDragPageNav() {
     var search = document.getElementById('search-form');
 
     return !isVisible(search);
@@ -54,8 +54,8 @@ function isVisible(element) {
     return isVisible;
 }
 
-function dragScrollspy() {
-    if (shouldDragScrollspy()) {
+function dragPageNav() {
+    if (shouldDragPageNav()) {
         pageNav = document.getElementById('page-nav');
         pageNav.style.position = 'fixed';
         pageNav.style.top = '13.5rem';
@@ -66,10 +66,9 @@ function dragScrollspy() {
     }
 }
 
-// Scrollspy listeners
+// Page nav listeners
 window.addEventListener('scroll', function(e) {
-    dragScrollspy();
-    // updateActiveScrollspyLink();
+    dragPageNav();
 });
 // Don't reset scrolling on livereload
 window.addEventListener('scroll', function() {
@@ -103,4 +102,4 @@ fetch('/search_index.json')
         search();
     });
 
-dragScrollspy();
+dragPageNav();

@@ -1,12 +1,11 @@
 <h2 class='project-name'><a href='/'>User Service</a></h2>
-
 <nav>
     <ul>
         {{#each level.children}}
-            {{> nested_navigation level=this}}
+            {{> nested_navigation level=this current_page=current_page}}
         {{/each}}
         {{#each level.links}}
-            <li><a href="{{this.path}}">{{this.title}}</a></li>
+            <li><a {{#if (eq ../current_page.path this.path) }}class="active" {{/if}}href="{{this.path}}">{{this.title}}</a></li>
         {{/each}}
     </ul>
 </nav>

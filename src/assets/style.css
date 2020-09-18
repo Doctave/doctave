@@ -110,6 +110,11 @@ pre {
     font-weight: 600;
 }
 
+.sidebar ul a.active {
+    border-left: 2px solid #FF8552;
+    padding-left: 10px;
+}
+
 .sidebar ul a:hover {
     color: #FF8552;
     text-decoration: underline;
@@ -168,7 +173,7 @@ pre {
     padding-right: 5rem;
 }
 
-.content-scrollspy {
+.content-page-nav {
     margin-left: 2rem;
     min-width: 230px;
     padding-right: 2rem;
@@ -199,14 +204,20 @@ pre {
     text-decoration: underline;
 }
 
+.page-nav a.page-nav-level-1 {
+    line-height: 2.0rem;
+}
+
 .page-nav a.page-nav-level-2 {
     padding-left: 20px;
     font-size: 0.9rem;
+    line-height: 1.8rem;
 }
 
 .page-nav a.page-nav-level-3 {
     padding-left: 40px;
     font-size: 0.9rem;
+    line-height: 1.4rem;
 }
 .page-nav a.page-nav-level-4
 .page-nav a.page-nav-level-5 

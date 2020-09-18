@@ -59,6 +59,9 @@ integration_test!(build_navigation, |area| {
 
     area.assert_exists(Path::new("site").join("howto_build.html"));
     area.assert_exists(Path::new("site").join("runbooks.html"));
+
+    let howto = Path::new("site").join("howto_build.html");
+    area.assert_contains(&howto, "<a class=\"active\" href=\"/howto_build.html\">How-To Build</a>");
 });
 
 integration_test!(build_navigation_nested, |area| {

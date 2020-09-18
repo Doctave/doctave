@@ -1,9 +1,9 @@
 <li><a href="{{level.index.path}}">{{level.index.title}}</a></li>
 <ul>
     {{#each level.children}}
-        {{> navigation level=this}}
+        {{> nested_navigation level=this current_page=current_page}}
     {{/each}}
     {{#each level.links}}
-        <li><a href="{{this.path}}">{{this.title}}</a></li>
+    <li><a {{#if (eq ../current_page.path this.path) }}class="active" {{/if}}href="{{this.path}}">{{this.title}}</a></li>
     {{/each}}
 </ul>
