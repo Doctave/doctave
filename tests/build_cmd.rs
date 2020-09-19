@@ -272,3 +272,21 @@ integration_test!(missing_directory_index, |area| {
     let nested_index = Path::new("site").join("nested").join("index.html");
     area.assert_contains(&nested_index, "This page was generated automatically by Doctave");
 });
+
+integration_test!(missing_directory_index_root, |area| {
+    area.mkdir(Path::new("docs"));
+
+    area.write_file(Path::new("README.md"), b"# Some content");
+    area.write_file(
+        Path::new("docs").join("not_the_index.md"),
+        b"# Some other content",
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    // Assert we auto-generated an index page
+    let nested_index = Path::new("site").join("index.html");
+    area.refute_contains(&nested_index, "This page was generated automatically by Doctave");
+    area.assert_contains(&nested_index, "Some content");
+});

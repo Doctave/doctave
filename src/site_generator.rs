@@ -145,6 +145,8 @@ impl<'a> SiteGenerator<'a> {
                 .push(Document::load(project_root, "README.md"));
         }
 
+        self.generate_missing_indices(&mut root_dir.dirs);
+
         root_dir
     }
 
@@ -179,20 +181,25 @@ impl<'a> SiteGenerator<'a> {
         if docs.is_empty() {
             None
         } else {
-            if docs
-                .iter()
-                .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
-                .is_none()
-            {
-                docs.push(self.generate_missing_index(current_dir, &docs));
-            }
-
             Some(Directory { docs, dirs })
         }
     }
 
-    fn generate_missing_index(&self, dir: &Path, docs: &[Document]) -> Document {
-        let content = docs
+    fn generate_missing_indices(&self, dirs: &mut [Directory]) {
+        for mut dir in dirs {
+            if dir.docs
+                .iter()
+                .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
+                .is_none()
+            {
+                let new_index = self.generate_missing_index(&mut dir);
+                dir.docs.push(new_index);
+            }
+        }
+    }
+
+    fn generate_missing_index(&self, dir: &mut Directory) -> Document {
+        let content = dir.docs
             .iter()
             .map(|d| {
                 format!(
@@ -207,11 +214,11 @@ impl<'a> SiteGenerator<'a> {
         let mut frontmatter = BTreeMap::new();
         frontmatter.insert(
             "title".to_string(),
-            format!("{}", dir.file_name().unwrap().to_string_lossy()),
+            format!("{}", dir.path().file_name().unwrap().to_string_lossy()),
         );
 
         Document::new(
-            dir.join("README.md"),
+            dir.path().join("README.md"),
             &self.docs_dir,
             format!(
                 "# Index of {}\n \
@@ -223,8 +230,8 @@ impl<'a> SiteGenerator<'a> {
                 # Pages\n\
                 \n\
                 {}",
-                dir.file_name().unwrap().to_string_lossy(),
-                dir.strip_prefix(&self.project_root).unwrap().display(),
+                dir.path().file_name().unwrap().to_string_lossy(),
+                dir.path().strip_prefix(&self.project_root).unwrap_or(dir.path()).display(),
                 content
             ),
             frontmatter,

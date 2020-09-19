@@ -66,6 +66,10 @@ struct Directory {
 }
 
 impl Directory {
+    fn path(&self) -> &Path {
+        &self.docs[0].path.parent().unwrap()
+    }
+
     fn destination(&self, out: &Path) -> PathBuf {
         self.docs
             .get(0)
