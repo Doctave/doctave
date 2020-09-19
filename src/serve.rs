@@ -1,3 +1,5 @@
+use std::ffi::OsStr;
+use std::fs::File;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::channel;
@@ -5,14 +7,11 @@ use std::sync::{Arc, RwLock};
 use std::thread::JoinHandle;
 use std::time::Duration;
 
+use ascii::AsciiString;
 use colored::*;
 use crossbeam_channel::{bounded, Receiver, Sender};
-use futures_util::future;
-use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Request, Response};
-use hyper_staticfile::Static;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
-use tokio::runtime::Runtime;
+use tiny_http::{Request, Response, Server};
 use tungstenite::protocol::WebSocket;
 
 use crate::site::Site;
@@ -124,35 +123,81 @@ impl ServeCommand {
     }
 
     fn run_server(&self) -> io::Result<()> {
-        // Create the runtime
-        let mut rt = Runtime::new()?;
+        let addr = "0.0.0.0:4001";
+        let server = Server::http(&addr).unwrap();
 
-        // Spawn the root task
-        rt.block_on(async {
-            let static_ = Static::new(self.site.out_dir());
+        println!("Server running on {}\n", format!("http://{}/", addr).bold());
 
-            let make_service = make_service_fn(|_| {
-                let static_ = static_.clone();
-                future::ok::<_, hyper::Error>(service_fn(move |req| {
-                    handle_request(req, static_.clone())
-                }))
-            });
-
-            let addr = ([127, 0, 0, 1], 4001).into();
-            let server = hyper::Server::bind(&addr).serve(make_service);
-            println!("Server running on {}\n", format!("http://{}/", addr).bold());
-            server.await.expect("Server failed");
-        });
+        for request in server.incoming_requests() {
+            self.handle_request(request);
+        }
 
         Ok(())
     }
-}
 
-async fn handle_request<B>(req: Request<B>, static_: Static) -> Result<Response<Body>, io::Error> {
-    if req.uri().path() == "/livereload.js" {
-        Ok(Response::new(Body::from(crate::LIVERELOAD_JS)))
-    } else {
-        static_.clone().serve(req).await
+    fn handle_request(&self, request: Request) {
+        let result = {
+            let uri = request.url().parse::<http::Uri>().unwrap();
+
+            match self.resolve_file(&Path::new(uri.path())) {
+                Some((f, None)) => request
+                    .respond(Response::from_file(File::open(f).unwrap()).with_status_code(200)),
+                Some((f, Some(content_type))) => request.respond(
+                    Response::from_file(File::open(f).unwrap())
+                        .with_status_code(200)
+                        .with_header(tiny_http::Header {
+                            field: "Content-Type".parse().unwrap(),
+                            value: AsciiString::from_ascii(content_type).unwrap(),
+                        }),
+                ),
+                None => request.respond(Response::new_empty(tiny_http::StatusCode(404))),
+            }
+        };
+
+        if let Err(e) = result {
+            eprintln!("    HTTP server threw error: {}", e);
+        }
+    }
+
+    fn resolve_file(&self, path: &Path) -> Option<(PathBuf, Option<&str>)> {
+        if path.to_str().map(|s| s.contains("..")).unwrap_or(false) {
+            return None;
+        }
+
+        let mut components = path.components();
+        components.next();
+        let path = self.site.out_dir().join(components.as_path());
+
+        if path.is_file() && path.exists() {
+            Some((path.to_path_buf(), self.content_type_for(path.extension())))
+        } else if path.is_dir() && path.join("index.html").exists() {
+            let p = path.join("index.html");
+            let extension = p.extension();
+
+            Some((p.clone(), self.content_type_for(extension)))
+        } else {
+            None
+        }
+    }
+
+    fn content_type_for(&self, extension: Option<&OsStr>) -> Option<&'static str> {
+        match extension {
+            Some(s) => match s.to_str() {
+                Some("txt") => Some("text/plain; charset=utf8"),
+                Some("html") => Some("text/html; charset=utf8"),
+                Some("htm") => Some("text/html; charset=utf8"),
+                Some("css") => Some("text/css"),
+                Some("js") => Some("text/javascript"),
+                Some("pdf") => Some("application/pdf"),
+                Some("zip") => Some("application/zip"),
+                Some("jpg") => Some("image/jpeg"),
+                Some("jpeg") => Some("image/jpeg"),
+                Some("png") => Some("image/png"),
+                None => None,
+                _ => None,
+            },
+            None => None,
+        }
     }
 }
 
@@ -198,11 +243,11 @@ fn livereload_handshake(websocket: &mut WebSocket<std::net::TcpStream>) -> io::R
         }
 
         let response = r#"
-            {
-              "command": "hello",
-              "protocols": ["http://livereload.com/protocols/official-7"],
-              "serverName": "doctave"
-            }
+        {
+            "command": "hello",
+            "protocols": ["http://livereload.com/protocols/official-7"],
+            "serverName": "doctave"
+        }
         "#;
 
         websocket

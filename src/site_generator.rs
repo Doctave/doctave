@@ -60,6 +60,10 @@ impl<'a> SiteGenerator<'a> {
             self.out_dir.join("assets").join("elasticlunr.js"),
             crate::ELASTIC_LUNR,
         )?;
+        fs::write(
+            self.out_dir.join("assets").join("livereload.js"),
+            crate::LIVERELOAD_JS,
+        )?;
         fs::write(self.out_dir.join("assets").join("app.js"), crate::APP_JS)?;
 
         // Add styles
