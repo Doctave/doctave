@@ -8,17 +8,20 @@ The Doctave CLI is not a generic static site generator - it is only meant for ge
 documentation sites from Markdown. This allows the tool to be much simpler than other solutions,
 with fewer configuration steps.
 
-This open source CLI is built and maintained by Doctave. While it is meant originally to be used for
-projects that are hosted on Doctave, you are free to deploy the generated sites as you please.
+This open source CLI is built and maintained by [Doctave](https://www.doctave.com). While it is
+meant originally to be used for projects that are hosted on Doctave.com, it does not depend on it,
+and you are free to deploy the generated sites as you please. _This CLI is and always will be free
+and open source._
 
 You can read more about hosting your docs on Doctave [here](https://www.doctave.com).
 
 ## Features
-- [x] Zero-configuration
-- [x] Supports GitHub flavored markdown
+- [x] Minimal configuration
+- [x] GitHub flavored markdown
 - [x] Full-text search built-in
+- [x] Mermaid.js diagrams out of the box
+- [x] Local live-reloading server
 - [x] Fast build, built in Rust
-- [x] Local live-reloading preview
 
 ## Usage
 
@@ -53,7 +56,8 @@ To view your documentation locally, you can start the development server (port 4
 $ doctave serve
 ```
 
-You can now see your site at [localhost:4001](), and any updates to your docs will automatically reload the page.
+You can now see your site at [localhost:4001](), and any updates to your docs will automatically
+reload the page.
 
 ### Building your site
 
