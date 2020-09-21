@@ -38,13 +38,13 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            artifact: target/release/doctave
+            artifact: doctave
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact: target/release/doctave
+            artifact: doctave
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact: target/release/doctave.exe
+            artifact: doctave.exe
 
 
     runs-on: ${{ matrix.os }}
@@ -59,4 +59,7 @@ jobs:
         with:
           command: build
           args: --release --target ${{ matrix.target }}
+      - uses: actions/upload-artifact@v2
+        with:
+          path: target/${{ matrix.target }}/release/${{ matrix.artifact }}
 
