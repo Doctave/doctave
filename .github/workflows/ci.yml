@@ -8,6 +8,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
 
     runs-on: ${{ matrix.os }}
 
@@ -16,10 +23,11 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: ${{ matrix.target }}
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --no-fail-fast
+          args: --no-fail-fast --target ${{ matrix.target }}
 
   build:
     name: Build Release
@@ -29,10 +37,13 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
             artifact: target/release/doctave
           - os: macos-latest
+            target: x86_64-apple-darwin
             artifact: target/release/doctave
           - os: windows-latest
+            target: x86_64-pc-windows-msvc
             artifact: target/release/doctave.exe
 
 
@@ -43,8 +54,9 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: ${{ matrix.target }}
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release
+          args: --release --target ${{ matrix.target }}
 
