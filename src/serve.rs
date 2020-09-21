@@ -1,7 +1,7 @@
 use std::io;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
-use std::thread::JoinHandle;
+use std::thread;
 use std::time::Instant;
 
 use colored::*;
@@ -15,7 +15,6 @@ use crate::watcher::Watcher;
 pub struct ServeCommand {
     project_root: PathBuf,
     site: Site,
-    threads: Vec<JoinHandle<()>>,
     listeners: Arc<RwLock<Vec<Sender<()>>>>,
 }
 
@@ -24,7 +23,6 @@ impl ServeCommand {
         let cmd = ServeCommand {
             project_root: root.clone(),
             site: Site::in_dir(root.join("site")),
-            threads: Vec::new(),
             listeners: Arc::new(RwLock::new(Vec::with_capacity(8))),
         };
 
@@ -47,18 +45,27 @@ impl ServeCommand {
             ],
             watch_snd,
         );
-        std::thread::spawn(move || watcher.run());
+        thread::Builder::new()
+            .name("watcher".into())
+            .spawn(move || watcher.run())
+            .unwrap();
 
         // Live Reload --------------------------------
 
         let (reload_send, reload_rcv) = bounded(128);
         let livereload_server = LivereloadServer::new(reload_rcv);
-        std::thread::spawn(move || livereload_server.run());
+        thread::Builder::new()
+            .name("livereload".into())
+            .spawn(move || livereload_server.run())
+            .unwrap();
 
         // Preview Server -----------------------------
 
         let http_server = PreviewServer::new("0.0.0.0:4001", &cmd.site.out_dir());
-        std::thread::spawn(move || http_server.run());
+        thread::Builder::new()
+            .name("http-server".into())
+            .spawn(move || http_server.run())
+            .unwrap();
 
         // Listen for updates on from the watcher, rebuild the site,
         // and inform the websocket listeners.

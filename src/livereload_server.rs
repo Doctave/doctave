@@ -1,5 +1,7 @@
 use std::io;
 use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
 
 use bus::{Bus, BusReader};
 use crossbeam_channel::Receiver;
@@ -33,7 +35,10 @@ impl LivereloadServer {
     /// updates to them.
     pub fn run(self) {
         let bus_clone = self.bus.clone();
-        std::thread::spawn(move || run_listener(bus_clone));
+        thread::Builder::new()
+            .name("livereload-listener".into())
+            .spawn(move || run_listener(bus_clone))
+            .unwrap();
 
         for _msg in self.channel {
             self.bus.lock().unwrap().broadcast(());
@@ -47,9 +52,12 @@ fn run_listener(bus: Arc<Mutex<Bus<()>>>) {
     for stream in server.incoming().filter_map(Result::ok) {
         let receiver = bus.lock().unwrap().add_rx();
 
-        std::thread::spawn(move || {
-            handle_websocket(stream, receiver);
-        });
+        thread::Builder::new()
+            .name("livereload-connection".into())
+            .spawn(move || {
+                handle_websocket(stream, receiver);
+            })
+            .unwrap();
     }
 }
 
@@ -67,22 +75,26 @@ fn handle_websocket(stream: std::net::TcpStream, mut listener: BusReader<()>) {
             return Ok(());
         }
 
-        for _ in listener.iter() {
-            websocket
-                .write_message(
-                    r#"
-                    {
-                        "command": "reload",
-                        "path": "",
-                        "liveCSS": true
-                    }
-                    "#
-                    .into(),
-                )
-                .map_err(|e| map_tungstenite_error(e))?;
+        loop {
+            if let Ok(_msg) = listener.recv_timeout(Duration::from_millis(1000)) {
+                websocket
+                    .write_message(
+                        r#"
+                        {
+                            "command": "reload",
+                            "path": "",
+                            "liveCSS": true
+                        }
+                        "#
+                        .into(),
+                    )
+                    .map_err(|e| map_tungstenite_error(e))?;
+            } else {
+                websocket
+                    .write_message(tungstenite::Message::Ping(Vec::new()))
+                    .map_err(|e| map_tungstenite_error(e))?;
+            }
         }
-
-        Ok(())
     };
 
     match (result)() {
