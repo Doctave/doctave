@@ -61,5 +61,6 @@ jobs:
           args: --release --target ${{ matrix.target }}
       - uses: actions/upload-artifact@v2
         with:
+          name: doctave-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/${{ matrix.artifact }}
 
