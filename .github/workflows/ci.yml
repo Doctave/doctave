@@ -23,6 +23,7 @@ jobs:
 
   build:
     name: Build Release
+    needs: test
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
