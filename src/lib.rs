@@ -8,12 +8,15 @@ extern crate lazy_static;
 mod build;
 mod frontmatter;
 mod init;
+mod livereload_server;
+mod preview_server;
 mod markdown;
 mod navigation;
 #[allow(dead_code, unused_variables)]
 mod serve;
 mod site;
 mod site_generator;
+mod watcher;
 
 use std::collections::BTreeMap;
 use std::ffi::OsStr;

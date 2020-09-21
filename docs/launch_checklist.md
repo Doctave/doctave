@@ -17,8 +17,8 @@ What do we need to get Doctave out to the general public?
 ## Tasks
 
 - [x] Implement a better styling
-- [ ] Swap hyper for [Tiny HTTP](https://github.com/tiny-http/tiny-http)
-- [ ] In-memory serving during development
+- [x] Swap hyper for [Tiny HTTP](https://github.com/tiny-http/tiny-http)
+- [ ] In-memory serving during development (Push out)
 - [ ] Styles/themes for mermaid diagrams
 - [ ] Terminal feedback
 - [ ] Project Title

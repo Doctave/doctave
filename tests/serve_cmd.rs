@@ -27,7 +27,7 @@ integration_test!(serve_smoke_test, |area| {
         sender2.send(()).unwrap();
     });
 
-    std::thread::sleep(std::time::Duration::from_millis(100));
+    std::thread::sleep(std::time::Duration::from_millis(300));
 
     // Make a request to the locally running server
     use std::io::Read;
