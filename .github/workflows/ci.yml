@@ -5,7 +5,11 @@ on: push
 jobs:
   test:
     name: Test
-    runs-on: [windows-latest, ubuntu-latest, macos-latest]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
@@ -19,7 +23,19 @@ jobs:
 
   build:
     name: Build Release
-    runs-on: [windows-latest, ubuntu-latest, macos-latest]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            artifact: target/release/doctave
+          - os: macos-latest-latest
+            artifact: target/release/doctave
+          - os: windows-latest
+            artifact: target/release/doctave.exe
+
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
