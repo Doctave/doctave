@@ -59,8 +59,10 @@ fn handle_request(request: Request, out_dir: PathBuf) {
         }
     };
 
-    if let Err(e) = result {
-        eprintln!("    HTTP server threw error: {}", e);
+    match result {
+        Ok(()) => {}
+        Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => {}
+        Err(e) => eprintln!("    HTTP server threw error: {}", e),
     }
 }
 

@@ -55,25 +55,31 @@ fn run_listener(bus: Arc<Mutex<Bus<()>>>) {
 
 fn handle_websocket(stream: std::net::TcpStream, mut listener: BusReader<()>) {
     let result = || -> io::Result<()> {
-        let mut websocket =
-            tungstenite::accept(stream).map_err(|err| match err {
-                HandshakeError::Failure(e) => map_tungstenite_error(e),
-                other => io::Error::new(io::ErrorKind::Other, other)
-            })?;
+        let mut websocket = tungstenite::accept(stream).map_err(|err| match err {
+            HandshakeError::Failure(e) => map_tungstenite_error(e),
+            other => io::Error::new(io::ErrorKind::Other, other),
+        })?;
 
-        livereload_handshake(&mut websocket)?;
+        if livereload_handshake(&mut websocket).is_err() {
+            // If the handshake fails, bail. Just can happen for
+            // example when the user spams the reload button in
+            // the browser.
+            return Ok(());
+        }
 
         for _ in listener.iter() {
-            websocket.write_message(
-                r#"
+            websocket
+                .write_message(
+                    r#"
                     {
                         "command": "reload",
                         "path": "",
                         "liveCSS": true
                     }
                     "#
-                .into(),
-            ).map_err(|e| map_tungstenite_error(e))?;
+                    .into(),
+                )
+                .map_err(|e| map_tungstenite_error(e))?;
         }
 
         Ok(())
@@ -81,16 +87,19 @@ fn handle_websocket(stream: std::net::TcpStream, mut listener: BusReader<()>) {
 
     match (result)() {
         Ok(_) => {}
+        Err(e) if e.kind() == io::ErrorKind::BrokenPipe => {}
         // Unexpected errors that are not just disconnects.
         Err(e) => println!(
-            "Livereload client disconnected due to an error: {:?} {}.",
-            e, e
+            "Livereload client disconnected due to an unexpected error: {}.",
+            e
         ),
     };
 }
 
 fn livereload_handshake(websocket: &mut WebSocket<std::net::TcpStream>) -> io::Result<()> {
-    let msg = websocket.read_message().unwrap();
+    let msg = websocket
+        .read_message()
+        .map_err(|e| map_tungstenite_error(e))?;
 
     if msg.is_text() {
         let parsed: serde_json::Value = serde_json::from_str(msg.to_text().unwrap())?;
