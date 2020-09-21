@@ -2,7 +2,7 @@
 <nav>
     <ul>
         {{#each level.children}}
-            {{> nested_navigation level=this current_page=current_page}}
+            {{> nested_navigation level=this current_page=../current_page}}
         {{/each}}
         {{#each level.links}}
             <li><a {{#if (eq ../current_page.path this.path) }}class="active" {{/if}}href="{{this.path}}">{{this.title}}</a></li>
