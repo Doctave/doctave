@@ -62,11 +62,15 @@ pre {
 
 .sidebar {
     position: relative;
-    width: 250px;
+    width: 350px;
     min-width: 250px;
-    padding-left: 2.0rem;
+    padding-left: 3.0rem;
     padding-right: 1rem;
     padding-top: 50px;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 
     border-right: 1px solid #EAEAEA;
 
@@ -97,7 +101,7 @@ pre {
 }
 
 .sidebar ul li {
-    margin-bottom: 40px;
+    margin-top: 2rem;
 }
 
 .sidebar ul li.active {
@@ -120,8 +124,15 @@ pre {
     text-decoration: underline;
 }
 
+.sidebar ul ul li {
+    margin-top: 1rem;
+    padding-left: 2rem;
+}
+
 .sidebar ul ul a {
+    font-weight: 400;
     font-size: 1.0em;
+    font-family: 'Source Sans Pro', sans-serif;
 }
 
 .wave {
@@ -219,9 +230,8 @@ pre {
     font-size: 0.9rem;
     line-height: 1.4rem;
 }
-.page-nav a.page-nav-level-4
-.page-nav a.page-nav-level-5 
-.page-nav a.page-nav-level-5 {
+
+.page-nav a.page-nav-level-4 .page-nav a.page-nav-level-5 .page-nav a.page-nav-level-5 {
     display: none;
 }
 
