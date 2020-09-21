@@ -14,5 +14,6 @@ jobs:
           toolchain: stable
       - uses: actions-rs/cargo@v1
         with:
-          command: test --no-fail-fast
+          command: test
+          args: --no-fail-fast
 
