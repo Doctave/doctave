@@ -118,7 +118,7 @@ impl<'a> SiteGenerator<'a> {
                 &doc.id.to_string(),
                 &[
                     &doc.title(),
-                    Link::from(doc).path.to_str().unwrap(),
+                    &Link::from(doc).path.as_str(),
                     doc.markdown_section(),
                 ],
             );
@@ -205,7 +205,7 @@ impl<'a> SiteGenerator<'a> {
                 format!(
                     "* [{}]({})",
                     Link::from(d).title,
-                    Link::from(d).path.display()
+                    Link::from(d).path,
                 )
             })
             .collect::<Vec<_>>()

@@ -2,7 +2,6 @@ use crate::{Directory, Document};
 use serde::Serialize;
 
 use std::ffi::OsStr;
-use std::path::PathBuf;
 
 impl From<&Directory> for Level {
     fn from(dir: &Directory) -> Level {
@@ -31,7 +30,17 @@ impl From<&Directory> for Level {
 impl From<&Document> for Link {
     fn from(doc: &Document) -> Link {
         Link {
-            path: PathBuf::from("/").join(doc.relative_path()),
+            // Need to force forward slashes here, since URIs will always
+            // work the same across all platforms.
+            path: format!(
+                "/{}",
+                doc.relative_path()
+                    .components()
+                    .into_iter()
+                    .map(|c| format!("{}", c.as_os_str().to_string_lossy()))
+                    .collect::<Vec<_>>()
+                    .join("/")
+            ),
             title: doc.title().to_string(),
         }
     }
@@ -46,7 +55,7 @@ pub struct Level {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Link {
-    pub path: PathBuf,
+    pub path: String,
     pub title: String,
 }
 
@@ -83,27 +92,27 @@ mod test {
             Level::from(&root),
             Level {
                 index: Link {
-                    path: PathBuf::from("/index.html"),
-                    title: "Getting Started".to_string(),
+                    path: String::from("/index.html"),
+                    title: String::from("Getting Started"),
                 },
                 links: vec![
                     Link {
-                        path: PathBuf::from("/one.html"),
-                        title: "One".to_string()
+                        path: String::from("/one.html"),
+                        title: String::from("One")
                     },
                     Link {
-                        path: PathBuf::from("/two.html"),
-                        title: "Two".to_string(),
+                        path: String::from("/two.html"),
+                        title: String::from("Two"),
                     }
                 ],
                 children: vec![Level {
                     index: Link {
-                        path: PathBuf::from("/child/index.html"),
-                        title: "Nested Root".to_string()
+                        path: String::from("/child/index.html"),
+                        title: String::from("Nested Root")
                     },
                     links: vec![Link {
-                        path: PathBuf::from("/child/three.html"),
-                        title: "Three".to_string()
+                        path: String::from("/child/three.html"),
+                        title: String::from("Three")
                     },],
                     children: vec![]
                 }]
