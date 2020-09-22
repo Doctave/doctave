@@ -1,10 +1,9 @@
 use std::io;
-use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Instant;
 
 use colored::*;
-use crossbeam_channel::{bounded, Sender};
+use crossbeam_channel::bounded;
 
 use crate::config::Config;
 use crate::livereload_server::LivereloadServer;
@@ -15,18 +14,13 @@ use crate::watcher::Watcher;
 pub struct ServeCommand {
     config: Config,
     site: Site,
-    listeners: Arc<RwLock<Vec<Sender<()>>>>,
 }
 
 impl ServeCommand {
     pub fn run(config: Config) -> io::Result<()> {
-        let site = Site::in_dir(config.out_dir());
+        let site = Site::new(config.clone());
 
-        let cmd = ServeCommand {
-            config,
-            site,
-            listeners: Arc::new(RwLock::new(Vec::with_capacity(8))),
-        };
+        let cmd = ServeCommand { config, site };
 
         println!("{}", "Doctave CLI | Serve".blue().bold());
         println!("🚀 Starting development server...\n");
@@ -34,7 +28,7 @@ impl ServeCommand {
         // Do initial build ---------------------------
 
         let start = Instant::now();
-        cmd.site.build_from(&cmd.config.project_root()).unwrap();
+        cmd.site.build().unwrap();
         let duration = start.elapsed();
 
         // Watcher ------------------------------------
@@ -63,7 +57,7 @@ impl ServeCommand {
 
         // Preview Server -----------------------------
 
-        let http_server = PreviewServer::new("0.0.0.0:4001", &cmd.site.out_dir());
+        let http_server = PreviewServer::new("0.0.0.0:4001", &cmd.config.out_dir());
         thread::Builder::new()
             .name("http-server".into())
             .spawn(move || http_server.run())
@@ -76,7 +70,7 @@ impl ServeCommand {
             println!("    File {} {}.", path.display().to_string().bold(), msg);
 
             let start = Instant::now();
-            cmd.site.build_from(cmd.config.project_root()).unwrap();
+            cmd.site.build().unwrap();
             let duration = start.elapsed();
 
             println!("    Site rebuilt in {}\n", format!("{:?}", duration).bold());

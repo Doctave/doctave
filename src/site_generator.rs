@@ -2,41 +2,30 @@ use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io;
-use std::path::{Path, PathBuf};
-
-use crate::markdown::Heading;
-use crate::navigation::{Level, Link};
-use crate::site::Site;
-use crate::{Directory, Document};
+use std::path::Path;
 
 use elasticlunr::Index;
 use serde::Serialize;
 use walkdir::WalkDir;
 
+use crate::config::Config;
+use crate::markdown::Heading;
+use crate::navigation::{Level, Link};
+use crate::site::Site;
+use crate::{Directory, Document};
+
 pub struct SiteGenerator<'a> {
-    project_root: PathBuf,
-    docs_dir: PathBuf,
-    out_dir: PathBuf,
+    config: &'a Config,
     site: &'a Site,
 }
 
 impl<'a> SiteGenerator<'a> {
-    pub fn new<P, D, O>(site: &'a Site, project_root: P, docs_dir: D, out_dir: O) -> Self
-    where
-        P: Into<PathBuf>,
-        D: Into<PathBuf>,
-        O: Into<PathBuf>,
-    {
-        SiteGenerator {
-            site,
-            project_root: project_root.into(),
-            docs_dir: docs_dir.into(),
-            out_dir: out_dir.into(),
-        }
+    pub fn new(config: &'a Config, site: &'a Site) -> Self {
+        SiteGenerator { config, site }
     }
 
     pub fn run(&self) -> io::Result<()> {
-        let root = self.find_docs(&self.project_root);
+        let root = self.find_docs(self.config.project_root());
         let navigation = Level::from(&root);
 
         self.site.reset()?;
@@ -49,38 +38,44 @@ impl<'a> SiteGenerator<'a> {
     }
 
     fn build_assets(&self) -> io::Result<()> {
-        fs::create_dir_all(self.out_dir.join("assets"))?;
+        fs::create_dir_all(self.config.out_dir().join("assets"))?;
 
         // Add JS
         fs::write(
-            self.out_dir.join("assets").join("mermaid.js"),
+            self.config.out_dir().join("assets").join("mermaid.js"),
             crate::MERMAID_JS,
         )?;
         fs::write(
-            self.out_dir.join("assets").join("elasticlunr.js"),
+            self.config.out_dir().join("assets").join("elasticlunr.js"),
             crate::ELASTIC_LUNR,
         )?;
         fs::write(
-            self.out_dir.join("assets").join("livereload.js"),
+            self.config.out_dir().join("assets").join("livereload.js"),
             crate::LIVERELOAD_JS,
         )?;
-        fs::write(self.out_dir.join("assets").join("app.js"), crate::APP_JS)?;
+        fs::write(
+            self.config.out_dir().join("assets").join("app.js"),
+            crate::APP_JS,
+        )?;
 
         // Add styles
         fs::write(
-            self.out_dir.join("assets").join("normalize.css"),
+            self.config.out_dir().join("assets").join("normalize.css"),
             crate::NORMALIZE_CSS,
         )?;
-        fs::write(self.out_dir.join("assets").join("style.css"), crate::STYLES)?;
+        fs::write(
+            self.config.out_dir().join("assets").join("style.css"),
+            crate::STYLES,
+        )?;
 
         Ok(())
     }
 
     fn build_directory(&self, dir: &Directory, nav: &Level) -> io::Result<()> {
-        fs::create_dir_all(dir.destination(&self.out_dir))?;
+        fs::create_dir_all(dir.destination(&self.config.out_dir()))?;
 
         for doc in &dir.docs {
-            let mut file = File::create(doc.destination(&self.out_dir))?;
+            let mut file = File::create(doc.destination(&self.config.out_dir()))?;
 
             let data = TemplateData {
                 content: doc.html().to_string(),
@@ -107,7 +102,7 @@ impl<'a> SiteGenerator<'a> {
         self.build_search_index_for_dir(root, &mut index);
 
         fs::write(
-            self.out_dir.join("search_index.json"),
+            self.config.out_dir().join("search_index.json"),
             index.to_json().as_bytes(),
         )
     }
@@ -164,7 +159,7 @@ impl<'a> SiteGenerator<'a> {
             if entry.file_type().is_file() {
                 let path = entry.path();
 
-                docs.push(Document::load(&self.docs_dir, path));
+                docs.push(Document::load(&self.config.docs_dir(), path));
             } else {
                 let path = entry.into_path();
 
@@ -187,7 +182,8 @@ impl<'a> SiteGenerator<'a> {
 
     fn generate_missing_indices(&self, dirs: &mut [Directory]) {
         for mut dir in dirs {
-            if dir.docs
+            if dir
+                .docs
                 .iter()
                 .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
                 .is_none()
@@ -199,15 +195,10 @@ impl<'a> SiteGenerator<'a> {
     }
 
     fn generate_missing_index(&self, dir: &mut Directory) -> Document {
-        let content = dir.docs
+        let content = dir
+            .docs
             .iter()
-            .map(|d| {
-                format!(
-                    "* [{}]({})",
-                    Link::from(d).title,
-                    Link::from(d).path,
-                )
-            })
+            .map(|d| format!("* [{}]({})", Link::from(d).title, Link::from(d).path,))
             .collect::<Vec<_>>()
             .join("\n");
 
@@ -219,7 +210,7 @@ impl<'a> SiteGenerator<'a> {
 
         Document::new(
             dir.path().join("README.md"),
-            &self.docs_dir,
+            &self.config.docs_dir(),
             format!(
                 "# Index of {}\n \
                 \n \
@@ -231,7 +222,10 @@ impl<'a> SiteGenerator<'a> {
                 \n\
                 {}",
                 dir.path().file_name().unwrap().to_string_lossy(),
-                dir.path().strip_prefix(&self.project_root).unwrap_or(dir.path()).display(),
+                dir.path()
+                    .strip_prefix(self.config.project_root())
+                    .unwrap_or(dir.path())
+                    .display(),
                 content
             ),
             frontmatter,

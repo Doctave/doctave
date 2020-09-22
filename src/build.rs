@@ -14,7 +14,7 @@ pub struct BuildCommand {
 
 impl BuildCommand {
     pub fn run(config: Config) -> io::Result<()> {
-        let site = Site::in_dir(config.out_dir());
+        let site = Site::new(config.clone());
         let cmd = BuildCommand { config, site };
 
         println!("{}", "Doctave CLI | Serve".blue().bold());
@@ -22,17 +22,17 @@ impl BuildCommand {
             "🏗️  Building site into {}\n",
             format!(
                 "{}",
-                &cmd.site
+                &cmd.config
                     .out_dir()
                     .strip_prefix(current_dir()?)
                     .map(|d| d.display())
-                    .unwrap_or(cmd.site.out_dir().display())
+                    .unwrap_or(cmd.config.out_dir().display())
             )
             .bold()
         );
 
         let start = Instant::now();
-        let result = cmd.site.build_from(&cmd.config.project_root());
+        let result = cmd.site.build();
         let duration = start.elapsed();
 
         if result.is_ok() {
