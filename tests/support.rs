@@ -141,3 +141,42 @@ pub fn assert_success(result: &std::process::Output) {
         )
     );
 }
+
+pub fn assert_failed(result: &std::process::Output) {
+    assert!(
+        !result.status.success(),
+        format!(
+            "Command was unexpectedly successful! \nSTDOUT:\n---\n{}\n--- \n\nSTDERR:\n---\n{}\n---",
+            std::str::from_utf8(&result.stdout).unwrap(),
+            std::str::from_utf8(&result.stderr).unwrap()
+            )
+        );
+}
+
+pub fn assert_output(result: &std::process::Output, needle: &str) {
+    let stdout = std::str::from_utf8(&result.stdout).unwrap();
+    let stderr = std::str::from_utf8(&result.stderr).unwrap();
+
+    assert!(
+        stdout.contains(needle) || stderr.contains(needle),
+        format!(
+            "Could not find {} in STDOUT or STDERR:\n\n------ STDOUT ------\n{}\n \
+            ------ STDERR ------\n{}\n",
+            needle, stdout, stderr
+        )
+    )
+}
+
+pub fn refute_output(result: &std::process::Output, needle: &str) {
+    let stdout = std::str::from_utf8(&result.stdout).unwrap();
+    let stderr = std::str::from_utf8(&result.stderr).unwrap();
+
+    assert!(
+        !stdout.contains(needle) && !stderr.contains(needle),
+        format!(
+            "Found {} in the command output, even though it shoudn't be there: \
+            \n\n------ STDOUT ------\n{}\n------ STDERR --------\n{}\n",
+            needle, stdout, stderr
+        )
+    );
+}
