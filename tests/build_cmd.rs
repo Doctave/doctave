@@ -31,6 +31,7 @@ integration_test!(build_smoke_test, |area| {
 
     area.assert_contains(&index, ">Some content</h1>");
     area.assert_contains(&index, "<p>This is some text</p>");
+    area.assert_contains(&index, "<title>Test Project</title>");
     area.assert_contains(&index, "<li>Look</li>");
     area.assert_contains(&index, "<li>At</li>");
     area.assert_contains(&index, "<li>My</li>");

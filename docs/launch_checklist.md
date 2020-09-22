@@ -20,8 +20,8 @@ What do we need to get Doctave out to the general public?
 - [x] Swap hyper for [Tiny HTTP](https://github.com/tiny-http/tiny-http)
 - [ ] In-memory serving during development (post launch)
 - [ ] Styles/themes for mermaid diagrams (post launch)
-- [ ] Terminal feedback (for `init` command)
-- [ ] Project Title, through a config system
+- [x] Terminal feedback (for `init` command)
+- [x] Project Title, through a config system
 - [x] Scrollspy
 - [x] Active links
 - [ ] Write docs!

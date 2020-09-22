@@ -77,11 +77,19 @@ impl<'a> SiteGenerator<'a> {
         for doc in &dir.docs {
             let mut file = File::create(doc.destination(&self.config.out_dir()))?;
 
+            let page_title = if Link::from(doc).path == "/" {
+                self.config.title().to_string()
+            } else {
+                doc.title().to_string()
+            };
+
             let data = TemplateData {
                 content: doc.html().to_string(),
                 headings: doc.headings().to_vec(),
                 navigation: &nav,
                 current_page: Link::from(doc),
+                project_title: self.config.title().to_string(),
+                page_title,
             };
 
             crate::HANDLEBARS
@@ -239,4 +247,6 @@ pub struct TemplateData<'a> {
     pub headings: Vec<Heading>,
     pub navigation: &'a Level,
     pub current_page: Link,
+    pub page_title: String,
+    pub project_title: String,
 }
