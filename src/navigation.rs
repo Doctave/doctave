@@ -2,6 +2,7 @@ use crate::{Directory, Document};
 use serde::Serialize;
 
 use std::ffi::OsStr;
+use std::path::PathBuf;
 
 impl From<&Directory> for Level {
     fn from(dir: &Directory) -> Level {
@@ -29,18 +30,26 @@ impl From<&Directory> for Level {
 
 impl From<&Document> for Link {
     fn from(doc: &Document) -> Link {
+        let mut tmp = doc.relative_path().clone();
+
+        // Default to stipping .html extensions
+        tmp.set_extension("");
+
+        if tmp.file_name() == Some(OsStr::new("index")) {
+            tmp = tmp.parent().map(|p| p.to_owned()).unwrap_or(PathBuf::from(""));
+        }
+
+        // Need to force forward slashes here, since URIs will always
+        // work the same across all platforms.
+        let uri_path = tmp
+            .components()
+            .into_iter()
+            .map(|c| format!("{}", c.as_os_str().to_string_lossy()))
+            .collect::<Vec<_>>()
+            .join("/");
+
         Link {
-            // Need to force forward slashes here, since URIs will always
-            // work the same across all platforms.
-            path: format!(
-                "/{}",
-                doc.relative_path()
-                    .components()
-                    .into_iter()
-                    .map(|c| format!("{}", c.as_os_str().to_string_lossy()))
-                    .collect::<Vec<_>>()
-                    .join("/")
-            ),
+            path: format!("/{}", uri_path),
             title: doc.title().to_string(),
         }
     }
@@ -92,26 +101,26 @@ mod test {
             Level::from(&root),
             Level {
                 index: Link {
-                    path: String::from("/index.html"),
+                    path: String::from("/"),
                     title: String::from("Getting Started"),
                 },
                 links: vec![
                     Link {
-                        path: String::from("/one.html"),
+                        path: String::from("/one"),
                         title: String::from("One")
                     },
                     Link {
-                        path: String::from("/two.html"),
+                        path: String::from("/two"),
                         title: String::from("Two"),
                     }
                 ],
                 children: vec![Level {
                     index: Link {
-                        path: String::from("/child/index.html"),
+                        path: String::from("/child"),
                         title: String::from("Nested Root")
                     },
                     links: vec![Link {
-                        path: String::from("/child/three.html"),
+                        path: String::from("/child/three"),
                         title: String::from("Three")
                     },],
                     children: vec![]

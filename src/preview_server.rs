@@ -73,7 +73,7 @@ fn resolve_file(path: &Path, out_dir: &Path) -> Option<(PathBuf, Option<&'static
 
     let mut components = path.components();
     components.next();
-    let path = out_dir.join(components.as_path());
+    let mut path = out_dir.join(components.as_path());
 
     if path.is_file() && path.exists() {
         Some((path.to_path_buf(), content_type_for(path.extension())))
@@ -83,7 +83,14 @@ fn resolve_file(path: &Path, out_dir: &Path) -> Option<(PathBuf, Option<&'static
 
         Some((p.clone(), content_type_for(extension)))
     } else {
-        None
+        // Try with a .html extension
+        path.set_extension("html");
+
+        if path.exists() {
+            Some((path.clone(), content_type_for(path.extension())))
+        } else {
+            None
+        }
     }
 }
 

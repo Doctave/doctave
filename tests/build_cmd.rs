@@ -66,8 +66,8 @@ integration_test!(build_navigation, |area| {
     assert_success(&result);
 
     let index = Path::new("site").join("index.html");
-    area.assert_contains(&index, "<a href=\"/howto_build.html\">How-To Build</a>");
-    area.assert_contains(&index, "<a href=\"/runbooks.html\">Runbooks</a>");
+    area.assert_contains(&index, "<a href=\"/howto_build\">How-To Build</a>");
+    area.assert_contains(&index, "<a href=\"/runbooks\">Runbooks</a>");
 
     area.assert_exists(Path::new("site").join("howto_build.html"));
     area.assert_exists(Path::new("site").join("runbooks.html"));
@@ -75,7 +75,7 @@ integration_test!(build_navigation, |area| {
     let howto = Path::new("site").join("howto_build.html");
     area.assert_contains(
         &howto,
-        "<a class=\"active\" href=\"/howto_build.html\">How-To Build</a>",
+        "<a class=\"active\" href=\"/howto_build\">How-To Build</a>",
     );
 });
 
@@ -121,10 +121,10 @@ integration_test!(build_navigation_nested, |area| {
     assert_success(&result);
 
     let index = Path::new("site").join("index.html");
-    area.assert_contains(&index, "<a href=\"/nested/index.html\">Nested</a>");
+    area.assert_contains(&index, "<a href=\"/nested\">Nested</a>");
     area.assert_contains(
         &index,
-        "<a href=\"/nested/howto_build.html\">How-To Build</a>",
+        "<a href=\"/nested/howto_build\">How-To Build</a>",
     );
 
     area.assert_exists(Path::new("site").join("nested").join("index.html"));

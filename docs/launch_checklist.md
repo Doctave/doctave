@@ -12,21 +12,21 @@ What do we need to get Doctave out to the general public?
 - [x] Fix frontmatter line being injected into the page
 - [x] Fix livereload socket/protocol errors
 - [x] Automatically create a index.html for a subdirectory without a README.md
-- [ ] Extensionless URLs for `serve` command
+- [x] Extensionless URLs for `serve` command
 
 ## Tasks
 
 - [x] Implement a better styling
 - [x] Swap hyper for [Tiny HTTP](https://github.com/tiny-http/tiny-http)
-- [ ] In-memory serving during development (Push out)
-- [ ] Styles/themes for mermaid diagrams
-- [ ] Terminal feedback
-- [ ] Project Title
+- [ ] In-memory serving during development (post launch)
+- [ ] Styles/themes for mermaid diagrams (post launch)
+- [ ] Terminal feedback (for `init` command)
+- [ ] Project Title, through a config system
 - [x] Scrollspy
 - [x] Active links
 - [ ] Write docs!
 - [ ] Host docs
-- [ ] Setup CI/CD for all platforms
+- [x] Setup CI/CD for all platforms
 - [ ] Packaging
     - [ ] Linux
     - [ ] Mac
