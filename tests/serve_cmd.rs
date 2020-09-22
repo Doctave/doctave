@@ -6,6 +6,7 @@ use std::sync::mpsc::channel;
 use support::*;
 
 integration_test!(serve_smoke_test, |area| {
+    area.create_config();
     area.write_file("README.md", b"# Some content");
     let binary = area.binary();
     let path = area.path.to_path_buf();

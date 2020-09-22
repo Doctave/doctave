@@ -1,23 +1,21 @@
 use std::env::current_dir;
 use std::io;
-use std::path::PathBuf;
 use std::time::Instant;
 
 use colored::*;
 
+use crate::config::Config;
 use crate::site::Site;
 
 pub struct BuildCommand {
-    project_root: PathBuf,
+    config: Config,
     site: Site,
 }
 
 impl BuildCommand {
-    pub fn run(root: PathBuf) -> io::Result<()> {
-        let cmd = BuildCommand {
-            project_root: root.clone(),
-            site: Site::in_dir(root.join("site")),
-        };
+    pub fn run(config: Config) -> io::Result<()> {
+        let site = Site::in_dir(config.out_dir());
+        let cmd = BuildCommand { config, site };
 
         println!("{}", "Doctave CLI | Serve".blue().bold());
         println!(
@@ -34,7 +32,7 @@ impl BuildCommand {
         );
 
         let start = Instant::now();
-        let result = cmd.site.build_from(&cmd.project_root);
+        let result = cmd.site.build_from(&cmd.config.project_root());
         let duration = start.elapsed();
 
         if result.is_ok() {

@@ -79,6 +79,11 @@ impl TestArea {
         create_dir_all(self.path.join(name)).expect("Could not create dir");
     }
 
+    pub fn create_config(&self) {
+        let mut file = File::create(self.path.join("doctave.yaml")).unwrap();
+        file.write(b"---\ntitle: Test Project\n").unwrap();
+    }
+
     pub fn write_file<P: AsRef<Path>>(&self, name: P, content: &[u8]) {
         let mut file = File::create(self.path.join(name)).unwrap();
         file.write(content).unwrap();

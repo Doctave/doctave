@@ -8,6 +8,7 @@ use std::path::Path;
 use support::*;
 
 integration_test!(build_smoke_test, |area| {
+    area.create_config();
     area.write_file(
         "README.md",
         indoc! {"
@@ -37,6 +38,7 @@ integration_test!(build_smoke_test, |area| {
 });
 
 integration_test!(build_navigation, |area| {
+    area.create_config();
     area.mkdir("docs");
     area.write_file("README.md", b"# Some content");
     area.write_file(
@@ -80,6 +82,7 @@ integration_test!(build_navigation, |area| {
 });
 
 integration_test!(build_navigation_nested, |area| {
+    area.create_config();
     area.mkdir("docs");
     area.mkdir(Path::new("docs").join("nested"));
     area.write_file("README.md", b"# Some content");
@@ -132,6 +135,7 @@ integration_test!(build_navigation_nested, |area| {
 });
 
 integration_test!(mermaid_js, |area| {
+    area.create_config();
     area.write_file(
         "README.md",
         indoc! {"
@@ -160,6 +164,7 @@ integration_test!(mermaid_js, |area| {
 });
 
 integration_test!(regular_code, |area| {
+    area.create_config();
     area.write_file(
         "README.md",
         indoc! {"
@@ -182,6 +187,7 @@ integration_test!(regular_code, |area| {
 });
 
 integration_test!(search_index, |area| {
+    area.create_config();
     area.write_file(
         "README.md",
         indoc! {"
@@ -204,6 +210,7 @@ integration_test!(search_index, |area| {
 });
 
 integration_test!(frontmatter, |area| {
+    area.create_config();
     area.write_file(
         "README.md",
         indoc! {"
@@ -227,6 +234,7 @@ integration_test!(frontmatter, |area| {
 });
 
 integration_test!(page_nav, |area| {
+    area.create_config();
     area.write_file(
         "README.md",
         indoc! {"
@@ -257,6 +265,7 @@ integration_test!(page_nav, |area| {
 });
 
 integration_test!(missing_directory_index, |area| {
+    area.create_config();
     area.mkdir(Path::new("docs").join("nested"));
 
     area.write_file(Path::new("docs").join("README.md"), b"# Some content");
@@ -274,6 +283,7 @@ integration_test!(missing_directory_index, |area| {
 });
 
 integration_test!(missing_directory_index_root, |area| {
+    area.create_config();
     area.mkdir(Path::new("docs"));
 
     area.write_file(Path::new("README.md"), b"# Some content");

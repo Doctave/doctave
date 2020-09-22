@@ -6,12 +6,13 @@ extern crate indoc;
 extern crate lazy_static;
 
 mod build;
+pub mod config;
 mod frontmatter;
 mod init;
 mod livereload_server;
-mod preview_server;
 mod markdown;
 mod navigation;
+mod preview_server;
 #[allow(dead_code, unused_variables)]
 mod serve;
 mod site;

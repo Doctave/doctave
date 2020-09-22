@@ -1,5 +1,4 @@
 use std::io;
-use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Instant;
@@ -7,22 +6,25 @@ use std::time::Instant;
 use colored::*;
 use crossbeam_channel::{bounded, Sender};
 
+use crate::config::Config;
 use crate::livereload_server::LivereloadServer;
 use crate::preview_server::PreviewServer;
 use crate::site::Site;
 use crate::watcher::Watcher;
 
 pub struct ServeCommand {
-    project_root: PathBuf,
+    config: Config,
     site: Site,
     listeners: Arc<RwLock<Vec<Sender<()>>>>,
 }
 
 impl ServeCommand {
-    pub fn run(root: PathBuf) -> io::Result<()> {
+    pub fn run(config: Config) -> io::Result<()> {
+        let site = Site::in_dir(config.out_dir());
+
         let cmd = ServeCommand {
-            project_root: root.clone(),
-            site: Site::in_dir(root.join("site")),
+            config,
+            site,
             listeners: Arc::new(RwLock::new(Vec::with_capacity(8))),
         };
 
@@ -32,7 +34,7 @@ impl ServeCommand {
         // Do initial build ---------------------------
 
         let start = Instant::now();
-        cmd.site.build_from(&cmd.project_root).unwrap();
+        cmd.site.build_from(&cmd.config.project_root()).unwrap();
         let duration = start.elapsed();
 
         // Watcher ------------------------------------
@@ -40,8 +42,8 @@ impl ServeCommand {
         let (watch_snd, watch_rcv) = bounded(128);
         let watcher = Watcher::new(
             vec![
-                cmd.project_root.join("README.md"),
-                cmd.project_root.join("docs"),
+                cmd.config.project_root().join("README.md"),
+                cmd.config.project_root().join("docs"),
             ],
             watch_snd,
         );
@@ -74,7 +76,7 @@ impl ServeCommand {
             println!("    File {} {}.", path.display().to_string().bold(), msg);
 
             let start = Instant::now();
-            cmd.site.build_from(&cmd.project_root).unwrap();
+            cmd.site.build_from(cmd.config.project_root()).unwrap();
             let duration = start.elapsed();
 
             println!("    Site rebuilt in {}\n", format!("{:?}", duration).bold());
