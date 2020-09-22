@@ -19,7 +19,7 @@ notify = "4.0.12"
 tungstenite = { version = "0.11", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 crossbeam-channel = "0.4"
-elasticlunr-rs = "2.3"
+elasticlunr-rs = { version = "2.3", default-features = false }
 colored = "2"
 scoped_threadpool = "0.1"
 bus = "2.2.3"
