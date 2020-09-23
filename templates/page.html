@@ -7,6 +7,7 @@
 
     <title>{{ page_title }}</title>
     <meta name="description" content="Documentation for {{ project_title }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
 
@@ -17,6 +18,10 @@
 
 <body>
     <div class='container'>
+        <label for='menu-toggle-switch' class='menu-toggle-button menu-toggle-button-open'>
+            ☰
+        </label>
+        <input type="checkbox" id="menu-toggle-switch" value='0' />
         <div class='sidebar'>
             {{> navigation level=navigation current_page=current_page }}
             <svg class='wave' viewBox="0 0 1428 174" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -32,7 +37,12 @@
                     </g>
                 </g>
             </svg>
-            <div class='wave-body'>Made with Doctave</div>
+            <div class='wave-body'>
+                Made with Doctave
+                <label for='menu-toggle-switch' class='menu-toggle-button menu-toggle-button-close'>
+                    ×
+                </label>
+            </div>
         </div>
         <div class='content'>
             {{> search }}
