@@ -46,13 +46,21 @@ li {
     margin-bottom: 0.5em;
 }
 
+img {
+    border-radius: 5px;
+    max-width: 100%;
+}
+
 pre {
+    position: relative;
     padding: 1.5rem;
-    background: #4F4F4F;
+    background: #4d4c4c;
     color: white;
     border-radius: 10px;
-    box-shadow: 0 0.1rem 1rem rgba(0, 0, 0, 0.275);
+    box-shadow: 0 4px 7px rgba(0, 0, 0, 0.275);
     margin-bottom: 2rem;
+
+    overflow: auto;
 }
 
 p code {
@@ -63,6 +71,44 @@ p code {
     border-radius: 5px;
     padding-bottom: 2px;
     padding-top: 2px;
+}
+
+blockquote {
+    font-size: 1.4em;
+    font-style: italic;
+}
+
+blockquote::before {
+    content: '›';
+    display: inline-block;
+    font-size: 1.4em;
+    font-style: italic;
+    font-family: "Times New Roman", Times, serif;
+    padding-right: 15px;
+    float: left;
+    line-height: 1.5rem;
+}
+
+table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+    overflow-x: auto;
+    display: block;
+    width: fit-content;
+}
+
+thead tr:last-child {
+    font-size: 1.2rem;
+}
+
+thead tr:last-child {
+    border-bottom: 1px solid #C2C2C2;
+}
+
+td,
+th {
+    padding: 15px;
 }
 
 .container {
@@ -321,7 +367,9 @@ p code {
     line-height: 1.4rem;
 }
 
-.page-nav a.page-nav-level-4 .page-nav a.page-nav-level-5 .page-nav a.page-nav-level-5 {
+.page-nav a.page-nav-level-4,
+.page-nav a.page-nav-level-5,
+.page-nav a.page-nav-level-6 {
     display: none;
 }
 

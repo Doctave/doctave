@@ -35,7 +35,15 @@ started with.
 You'll also find a `doctave.yaml` in your project root now. Lets take a look at it.
 
 ```
+# On Mac / Linux
 $ cat doctave.yaml
+---
+title: "My project"
+
+
+
+# On Windows
+$ type doctave.yaml
 ---
 title: "My project"
 

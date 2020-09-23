@@ -1,0 +1,3 @@
+---
+title: Mermaid.js diagrams
+---
