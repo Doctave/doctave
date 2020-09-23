@@ -11,7 +11,6 @@ function search() {
         fields: {
             title: {
                 boost: 2,
-                bool: "AND"
             },
             body: {
                 boost: 1
@@ -24,10 +23,22 @@ function search() {
     INDEX.search(box.value, config).forEach(function(result) {
         listItem = document.createElement("li");
         listItem.className = "search-result-item";
-        listItem.innerHTML = "<a href='" + result.doc.uri + "'>" + result.doc.title + "</a>";
+        listItem.innerHTML =
+            "<a href='" + result.doc.uri + "'>" + result.doc.title +
+            "<p class='search-result-item-preview'>" + searchPreview(result.doc.body) + "</p>" +
+            "</a>";
 
         list.appendChild(listItem);
     });
+}
+
+function searchPreview(body) {
+    return body.substring(0, 100)
+        .replace(/=+/g, "")
+        .replace(/#+/g, "")
+        .replace(/\*+/g, "")
+        .replace(/_+/g, "") +
+        "...";
 }
 
 function scrollTop() {
@@ -103,3 +114,40 @@ fetch('/search_index.json')
     });
 
 dragPageNav();
+
+// Setup keyboard shortcuts
+
+document.onkeydown = function(e) {
+    var searchResults = document.getElementById('search-results');
+    var first = searchResults.firstChild;
+    var searchBox = document.getElementById('search-box');
+
+    switch (e.keyCode) {
+        case 83: // The S key
+            if (document.activeElement == searchBox) {
+                break;
+            } else {
+                searchBox.focus();
+                e.preventDefault();
+            }
+        case 38: // if the UP key is pressed
+            if (document.activeElement == (searchBox || first)) {
+                break;
+            }
+            else {
+                document.activeElement.parentNode.previousSibling.firstChild.focus();
+                e.preventDefault();
+            }
+            break;
+        case 40: // if the DOWN key is pressed
+            if (document.activeElement == searchBox) {
+                first.firstChild.focus();
+                e.preventDefault();
+            } 
+            else {
+                document.activeElement.parentNode.nextSibling.firstChild.focus();
+                e.preventDefault();
+            }
+            break;
+    }
+}

@@ -126,6 +126,9 @@ impl<'a> SiteGenerator<'a> {
                 ],
             );
         }
+        for dir in &root.dirs {
+            self.build_search_index_for_dir(&dir, index);
+        }
     }
 
     fn find_docs(&self, project_root: &Path) -> Directory {
