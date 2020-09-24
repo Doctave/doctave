@@ -164,38 +164,12 @@ integration_test!(mermaid_js, |area| {
     area.assert_contains(&index, "Car]\n</div>");
 });
 
-integration_test!(regular_code, |area| {
-    area.create_config();
-    area.write_file(
-        "README.md",
-        indoc! {"
-        # Code Block 
-
-        ```ruby
-        1 + 1
-        ```
-    "}
-        .as_bytes(),
-    );
-
-    let index = Path::new("site").join("index.html");
-
-    let result = area.cmd(&["build"]);
-    assert_success(&result);
-
-    area.assert_contains(&index, ">Code Block</h1>");
-    area.assert_contains(&index, "<code class=\"language-ruby\">");
-});
-
 integration_test!(search_index, |area| {
     area.create_config();
     area.write_file(
         "README.md",
         indoc! {"
-        # Code Block 
-
-        ```ruby
-        1 + 1
+        # An Search!
         ```
     "}
         .as_bytes(),
@@ -205,9 +179,7 @@ integration_test!(search_index, |area| {
     assert_success(&result);
 
     let search_index = Path::new("site").join("search_index.json");
-
-    area.assert_contains(&search_index, "Code Block");
-    area.assert_contains(&search_index, "1 + 1");
+    assert!(search_index.exists(), "Could not find search index");
 });
 
 integration_test!(frontmatter, |area| {
@@ -297,7 +269,30 @@ integration_test!(missing_directory_index_root, |area| {
     assert_success(&result);
 
     // Assert we auto-generated an index page
-    let nested_index = Path::new("site").join("index.html");
-    area.refute_contains(&nested_index, "This page was generated automatically by Doctave");
-    area.assert_contains(&nested_index, "Some content");
+    let index = Path::new("site").join("index.html");
+    area.refute_contains(&index, "This page was generated automatically by Doctave");
+    area.assert_contains(&index, "Some content");
+});
+
+integration_test!(code_syntax_highlight, |area| {
+    area.create_config();
+    area.write_file(Path::new("README.md"), indoc! {"
+    # Some code
+
+    ```ruby
+    class Parser
+        def initialize(input)
+            @input = input
+        end
+    end
+
+    ```
+
+    "}.as_bytes());
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    let index = Path::new("site").join("index.html");
+    area.assert_contains(&index, "<code class=\"language-ruby\"><span style=\"color:");
 });
