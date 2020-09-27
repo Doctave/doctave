@@ -126,10 +126,7 @@ integration_test!(build_navigation_nested, |area| {
 
     let index = Path::new("site").join("index.html");
     area.assert_contains(&index, "<a href=\"/nested\">Nested</a>");
-    area.assert_contains(
-        &index,
-        "<a href=\"/nested/howto_build\">How-To Build</a>",
-    );
+    area.assert_contains(&index, "<a href=\"/nested/howto_build\">How-To Build</a>");
 
     area.assert_exists(Path::new("site").join("nested").join("index.html"));
     area.assert_exists(Path::new("site").join("nested").join("howto_build.html"));
@@ -252,7 +249,10 @@ integration_test!(missing_directory_index, |area| {
 
     // Assert we auto-generated an index page
     let nested_index = Path::new("site").join("nested").join("index.html");
-    area.assert_contains(&nested_index, "This page was generated automatically by Doctave");
+    area.assert_contains(
+        &nested_index,
+        "This page was generated automatically by Doctave",
+    );
 });
 
 integration_test!(missing_directory_index_root, |area| {
@@ -276,7 +276,9 @@ integration_test!(missing_directory_index_root, |area| {
 
 integration_test!(code_syntax_highlight, |area| {
     area.create_config();
-    area.write_file(Path::new("README.md"), indoc! {"
+    area.write_file(
+        Path::new("README.md"),
+        indoc! {"
     # Some code
 
     ```ruby
@@ -288,11 +290,30 @@ integration_test!(code_syntax_highlight, |area| {
 
     ```
 
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
     let index = Path::new("site").join("index.html");
-    area.assert_contains(&index, "<code class=\"language-ruby\"><span style=\"color:");
+    area.assert_contains(&index, "<code class=\"language-ruby\"><span style=\"");
+});
+
+integration_test!(assets_folder, |area| {
+    area.create_config();
+    area.write_file(Path::new("README.md"), b"# Hi");
+
+    area.mkdir(Path::new("docs").join("_assets"));
+    area.write_file(
+        Path::new("docs").join("_assets").join("custom_style.css"),
+        b"body { background-color: pink !important }",
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    let css = Path::new("site").join("assets").join("custom_style.css");
+    area.assert_contains(&css, "body { background-color: pink !important }");
 });

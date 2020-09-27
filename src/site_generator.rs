@@ -55,7 +55,7 @@ impl<'a> SiteGenerator<'a> {
             crate::LIVERELOAD_JS,
         )?;
         fs::write(
-            self.config.out_dir().join("assets").join("app.js"),
+            self.config.out_dir().join("assets").join("doctave-app.js"),
             crate::APP_JS,
         )?;
 
@@ -65,9 +65,34 @@ impl<'a> SiteGenerator<'a> {
             crate::NORMALIZE_CSS,
         )?;
         fs::write(
-            self.config.out_dir().join("assets").join("style.css"),
+            self.config.out_dir().join("assets").join("doctave-style.css"),
             crate::STYLES,
         )?;
+
+        // Copy over all custom assets from the _assets directory
+        let custom_assets_dir = self.config.docs_dir().join("_assets");
+
+        for asset in WalkDir::new(&custom_assets_dir)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| e.path().is_file())
+        {
+            let stripped_path = asset
+                .path()
+                .strip_prefix(&custom_assets_dir)
+                .expect("asset directory was not parent of found asset");
+
+            let destination = self.config.out_dir().join("assets").join(stripped_path);
+
+            File::create(&destination)?;
+            fs::create_dir_all(
+                asset
+                    .path()
+                    .parent()
+                    .expect("asset did not have parent directory"),
+            )?;
+            fs::copy(asset.path(), destination)?;
+        }
 
         Ok(())
     }
