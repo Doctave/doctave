@@ -5,6 +5,7 @@ use std::io;
 use std::path::Path;
 
 use elasticlunr::Index;
+use rayon::prelude::*;
 use serde::Serialize;
 use walkdir::WalkDir;
 
@@ -74,34 +75,40 @@ impl<'a> SiteGenerator<'a> {
     fn build_directory(&self, dir: &Directory, nav: &Level) -> io::Result<()> {
         fs::create_dir_all(dir.destination(&self.config.out_dir()))?;
 
-        for doc in &dir.docs {
-            let mut file = File::create(doc.destination(&self.config.out_dir()))?;
+        let results: Result<Vec<()>, io::Error> = dir
+            .docs
+            .par_iter()
+            .map(|doc| {
+                let mut file = File::create(doc.destination(&self.config.out_dir()))?;
 
-            let page_title = if Link::from(doc).path == "/" {
-                self.config.title().to_string()
-            } else {
-                doc.title().to_string()
-            };
+                let page_title = if Link::from(doc).path == "/" {
+                    self.config.title().to_string()
+                } else {
+                    doc.title().to_string()
+                };
 
-            let data = TemplateData {
-                content: doc.html().to_string(),
-                headings: doc.headings().to_vec(),
-                navigation: &nav,
-                current_page: Link::from(doc),
-                project_title: self.config.title().to_string(),
-                page_title,
-            };
+                let data = TemplateData {
+                    content: doc.html().to_string(),
+                    headings: doc.headings().to_vec(),
+                    navigation: &nav,
+                    current_page: Link::from(doc),
+                    project_title: self.config.title().to_string(),
+                    page_title,
+                };
 
-            crate::HANDLEBARS
-                .render_to_write("page", &data, &mut file)
-                .unwrap();
-        }
+                crate::HANDLEBARS
+                    .render_to_write("page", &data, &mut file)
+                    .unwrap();
 
-        for dir in &dir.dirs {
-            self.build_directory(&dir, &nav)?;
-        }
+                Ok(())
+            })
+            .collect();
+        let _ok = results?;
 
-        Ok(())
+        dir.dirs
+            .par_iter()
+            .map(|d| self.build_directory(&d, &nav))
+            .collect()
     }
 
     fn build_search_index(&self, root: &Directory) -> io::Result<()> {

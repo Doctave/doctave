@@ -51,6 +51,10 @@ pub fn parse(input: &str) -> Markdown {
                     Some(Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(inner))))
                 }
             }
+            e @ Event::Start(Tag::CodeBlock(CodeBlockKind::Indented)) => {
+                codeblock_language = Some(SYNTAX_SET.find_syntax_plain_text());
+                Some(e)
+            }
             Event::End(Tag::CodeBlock(CodeBlockKind::Fenced(inner))) => {
                 codeblock_language = None;
 
@@ -60,6 +64,10 @@ pub fn parse(input: &str) -> Markdown {
                 } else {
                     Some(Event::End(Tag::CodeBlock(CodeBlockKind::Fenced(inner))))
                 }
+            }
+            e @ Event::End(Tag::CodeBlock(CodeBlockKind::Indented)) => {
+                codeblock_language = None;
+                Some(e)
             }
 
             // Apply heading anchor tags
@@ -95,7 +103,8 @@ pub fn parse(input: &str) -> Markdown {
                     heading_level = 0;
                     return tmp;
                 } else if let Some(lang) = codeblock_language {
-                    let mut h = HighlightLines::new(lang, &THEME_SET.themes["base16-ocean.dark"]);
+                    let mut h =
+                        HighlightLines::new(lang, &THEME_SET.themes["InspiredGitHub"]);
                     let regions = h.highlight(&text, &SYNTAX_SET);
                     let html = styled_line_to_highlighted_html(&regions[..], IncludeBackground::No);
 

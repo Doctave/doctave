@@ -24,6 +24,7 @@ colored = "2"
 scoped_threadpool = "0.1"
 bus = "2.2.3"
 syntect = { version = "4.4", default-features = false, features = ["default-fancy"] }
+rayon = "1.4"
 
 [dev-dependencies]
 indoc = "1.0.2"

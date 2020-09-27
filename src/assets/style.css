@@ -54,10 +54,9 @@ img {
 pre {
     position: relative;
     padding: 1.5rem;
-    background: #4d4c4c;
+    background: #F3F5F8;
     color: white;
     border-radius: 10px;
-    box-shadow: 0 4px 7px rgba(0, 0, 0, 0.275);
     margin-bottom: 2rem;
 
     overflow: auto;
@@ -125,12 +124,14 @@ th {
     padding-left: 3.0rem;
     padding-right: 1rem;
     padding-top: 50px;
+    padding-bottom: 120px;
 
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 
     background: #F9FAFB;
+    overflow: auto;
 }
 
 .menu-toggle-button-open,

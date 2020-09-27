@@ -127,6 +127,7 @@ For the same effect:
     For().your().code()
 
 You can specify the language for syntax highlighting using the backticks syntax.
+
 ~~~
 ```ruby
 def initialize(table_name_singularised)
