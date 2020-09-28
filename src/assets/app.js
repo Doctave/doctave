@@ -65,22 +65,6 @@ function isVisible(element) {
     return isVisible;
 }
 
-function dragPageNav() {
-    if (shouldDragPageNav()) {
-        pageNav = document.getElementById('page-nav');
-        pageNav.style.position = 'fixed';
-        pageNav.style.top = '13.5rem';
-    } else {
-        pageNav = document.getElementById('page-nav');
-        pageNav.style.position = '';
-        pageNav.style.top = '';
-    }
-}
-
-// Page nav listeners
-window.addEventListener('scroll', function(e) {
-    dragPageNav();
-});
 // Don't reset scrolling on livereload
 window.addEventListener('scroll', function() {
     localStorage.setItem('scrollPosition', window.scrollY);
@@ -112,8 +96,6 @@ fetch('/search_index.json')
         document.getElementById('search-box').oninput = search;
         search();
     });
-
-dragPageNav();
 
 // Setup keyboard shortcuts
 

@@ -17,9 +17,34 @@
 </head>
 
 <body>
+    <div class='background'>
+        <div class='sidebar-left'>
+            {{> navigation level=navigation current_page=current_page }}
+        </div>
+        <div class='search'>
+            {{> search }}
+        </div>
+        <div class='sidebar-right'>
+            <p class='page-nav-header'>On this page</p>
+            <hr />
+            <ul>
+                {{#each headings}}
+                    <li class='page-nav-level-{{this.level}}'>
+                        <a href='#{{this.anchor}}'>{{this.title}}</a>
+                    </li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
     <div class='container'>
+        <div class='content-dummy-left'>
+            &nbsp
+        </div>
         <div class='content'>
             {{{ content }}}
+        </div>
+        <div class='content-dummy-right'>
+            &nbsp
         </div>
         <div class='wave-container'>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
@@ -28,25 +53,6 @@
                 <path fill="#445282" fill-opacity="0.2" d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
             </svg>
             <p>Powered by <a href='https://cli.doctave.com' target='_blank'>Doctave</a></p>
-        </div>
-        <div class='background'>
-            <div class='sidebar-left'>
-                {{> navigation level=navigation current_page=current_page }}
-            </div>
-            <div class='search'>
-                {{> search }}
-            </div>
-            <div class='sidebar-right'>
-                <p class='page-nav-header'>On this page</p>
-                <hr />
-                <ul>
-                    {{#each headings}}
-                        <li class='page-nav-level-{{this.level}}'>
-                            <a href='#{{this.anchor}}'>{{this.title}}</a>
-                        </li>
-                    {{/each}}
-                </ul>
-            </div>
         </div>
     </div>
 

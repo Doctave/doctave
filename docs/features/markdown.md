@@ -25,8 +25,8 @@ H1
 ###### H6
 ```
 
-Note that headings smaller than H3 will not show up on the left-side navigation. Also, the first H1
-on the page will be emphasized, like "Markdown syntax" title on this page.
+Note that headings smaller than H3 will not show up on the right-side navigation. Also, the first
+heading on the page will be emphasized, like the "Markdown syntax" title on this page.
 
 ## Emphasis
 
