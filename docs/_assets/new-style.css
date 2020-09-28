@@ -107,16 +107,19 @@ th {
 .sidebar-left,
 .content-dummy-right,
 .sidebar-right {
-    width: 300px;
-    min-width: 300px;
-    padding: 50px;
+    width: 330px;
+    min-width: 330px;
+    padding: 40px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .content,
 .search {
     pointer-events: auto;
-    min-width: 600px;
-    max-width: 860px;
+    min-width: 500px;
+    max-width: 760px;
     flex-grow: 1;
     padding: 80px;
 
@@ -134,8 +137,6 @@ th {
     flex-direction: row;
     padding-top: 20px;
     padding-bottom: 20px;
-    padding-left: 0px;
-    padding-right: 0px;
 }
 
 .content {
@@ -165,6 +166,127 @@ th {
     bottom: 0;
 }
 
+.menu-toggle-button-open,
+.menu-toggle-button-close,
+#menu-toggle-switch {
+    display: none;
+}
+
+/* Changes to apply to "large" devices
+ *
+ * * Hide left navigation
+ *
+ */
+@media screen and (max-width: 1200px) {
+
+    .content-dummy-right,
+    .sidebar-right {
+        display: none;
+    }
+}
+
+/* Changes to apply to "medium" devices
+ *
+ * * Hide right navigation
+ * * Start showing the menu toggle button
+ *
+ */
+@media screen and (max-width: 768px) {
+    .background {
+        justify-content: flex-start;
+    }
+
+    .content,
+    .search {
+        padding: 40px;
+    }
+
+    .content {
+        justify-content: flex-start;
+    }
+
+    .search {
+        padding-left: 0px;
+    }
+
+    .content-dummy-left {
+        min-width: 0px;
+        width: 0px;
+        padding: 0;
+        display: none;
+    }
+
+    .sidebar-left {
+        padding-left: 40px;
+    }
+
+    #menu-toggle-switch:checked+.page .container .content-dummy-left {
+        min-width: 660px;
+        width: 660px;
+        padding: 40px;
+        display: block;
+    }
+
+    #menu-toggle-switch:checked+.page .container .content {
+        flex: 0 0 100%;
+    }
+
+    #menu-toggle-switch:checked+.page .container {
+        overflow: hidden;
+    }
+
+    .menu-toggle-button-open {
+        display: block;
+        cursor: pointer;
+        position: fixed;
+        bottom: 15px;
+        left: 15px;
+        font-size: 1.6rem;
+        z-index: 2;
+        height: 25px;
+        width: 25px;
+        background: #445282;
+        color: white;
+        padding: 10px;
+        border-radius: 25px;
+        line-height: 1.45rem;
+        text-align: center;
+
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-toggle-button-close {
+        display: inline-block;
+        cursor: pointer;
+
+        float: right;
+        height: 20px;
+        width: 20px;
+        padding: 10px;
+
+        font-size: 2rem;
+        line-height: 1.15rem;
+
+        background: white;
+        color: #FF8552;
+        border-radius: 20px;
+        text-align: center;
+        margin-top: -10px;
+    }
+}
+
+/* Changes to apply to "small" devices
+ *
+ * * Hide right navigation
+ *
+ */
+@media screen and (max-width: 576px) {
+    .content,
+    .search {
+        min-width: 100%;
+    }
+}
+
 /* Main content -------------------------------------------------------- */
 
 .content {
@@ -181,7 +303,7 @@ th {
 }
 
 .project-name {
-    margin-top: 0;
+    margin-top: 10px;
 }
 
 .project-name:after {
