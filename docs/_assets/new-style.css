@@ -295,6 +295,7 @@ th {
     }
 
     .menu-toggle-button {
+        z-index: 20;
         display: block;
         cursor: pointer;
         position: fixed;
@@ -314,8 +315,11 @@ th {
     }
 
     #menu-toggle-switch:checked+.page .background .sidebars {
-        overflow: auto;
         justify-content: flex-start;
+    }
+
+    #menu-toggle-switch:checked+.page .background .header {
+        margin-left: 95%;
     }
 
     #menu-toggle-switch:checked+.page {
@@ -328,8 +332,10 @@ th {
     }
 
     #menu-toggle-switch:checked+.page .background .sidebars .sidebar-left {
-        overflow: auto;
+        margin-top: -120px;
+        height: calc(100% + 120px);
         width: 95%;
+        overflow: auto;
     }
 
     #menu-toggle-switch:checked+.page .container .content {
@@ -502,19 +508,19 @@ nav ul ul a {
 }
 
 #search-results {
-    z-index: 11;
-    box-shadow: 0 0.1rem 1rem rgba(0, 0, 0, 0.075);
+    z-index: 30;
     position: absolute;
-    margin-top: 0;
-    padding: 10px;
-    padding: 0;
-    background: none;
-    width: 100%;
-    list-style: none;
-    border-radius: 10px;
-    margin-left: -80px;
+    overflow: auto;
+
     width: 100%;
     top: -65px;
+    left: 0px;
+
+    padding-left: 0px;
+
+    background: none;
+    list-style: none;
+    border-radius: 10px;
     box-sizing: border-box;
 }
 
@@ -522,6 +528,7 @@ nav ul ul a {
     margin: 0;
     margin-top: -1px;
     border: 1px solid #E3E3E3;
+    box-shadow: 0 0.1rem 1rem rgba(0, 0, 0, 0.075);
     background: #FFF;
 }
 
