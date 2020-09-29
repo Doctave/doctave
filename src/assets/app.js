@@ -24,7 +24,7 @@ function search() {
         listItem = document.createElement("li");
         listItem.className = "search-result-item";
         listItem.innerHTML =
-            "<a href='" + result.doc.uri + "'>" + result.doc.title +
+            "<a tabindex='2' href='" + result.doc.uri + "'>" + result.doc.title +
             "<p class='search-result-item-preview'>" + searchPreview(result.doc.body) + "</p>" +
             "</a>";
 
@@ -126,23 +126,24 @@ document.onkeydown = function(e) {
                 searchBox.focus();
                 e.preventDefault();
             }
-            case 38: // if the UP key is pressed
-                if (document.activeElement == (searchBox || first)) {
-                    break;
-                } else {
-                    document.activeElement.parentNode.previousSibling.firstChild.focus();
-                    e.preventDefault();
-                }
+            break;
+        case 38: // if the UP key is pressed
+            if (document.activeElement == (searchBox || first)) {
                 break;
-            case 40: // if the DOWN key is pressed
-                if (document.activeElement == searchBox) {
-                    first.firstChild.focus();
-                    e.preventDefault();
-                } else {
-                    document.activeElement.parentNode.nextSibling.firstChild.focus();
-                    e.preventDefault();
-                }
-                break;
+            } else {
+                document.activeElement.parentNode.previousSibling.firstChild.focus();
+                e.preventDefault();
+            }
+            break;
+        case 40: // if the DOWN key is pressed
+            if (document.activeElement == searchBox) {
+                first.firstChild.focus();
+                e.preventDefault();
+            } else {
+                document.activeElement.parentNode.nextSibling.firstChild.focus();
+                e.preventDefault();
+            }
+            break;
     }
 }
 

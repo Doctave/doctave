@@ -78,6 +78,11 @@ th {
 
 /* General layout ------------------------------------------------------ */
 
+.page {
+    position: relative;
+    z-index: 0;
+}
+
 .container {
     pointer-events: none;
     position: relative;
@@ -92,6 +97,7 @@ th {
     top: 0;
     left: 0;
     right: 0;
+    z-index: -1;
 }
 
 .container,
@@ -160,6 +166,7 @@ th {
 }
 
 .content {
+    position: relative;
     z-index: 10;
     pointer-events: auto;
     max-width: 760px;
@@ -181,7 +188,7 @@ th {
 }
 
 .wave-container {
-    z-index: 1;
+    z-index: 9;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -294,7 +301,6 @@ th {
         bottom: 15px;
         left: 15px;
         font-size: 1.6rem;
-        z-index: 12;
         height: 25px;
         width: 25px;
         background: #445282;
@@ -480,6 +486,7 @@ nav ul ul a {
 .search #search-form {
     width: 100%;
     display: flex;
+    position: relative;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
@@ -494,7 +501,62 @@ nav ul ul a {
     box-sizing: border-box;
 }
 
-.search ul {
+#search-results {
+    z-index: 11;
+    box-shadow: 0 0.1rem 1rem rgba(0, 0, 0, 0.075);
     position: absolute;
-    top: 10px;
+    margin-top: 0;
+    padding: 10px;
+    padding: 0;
+    background: none;
+    width: 100%;
+    list-style: none;
+    border-radius: 10px;
+    margin-left: -80px;
+    width: 100%;
+    top: -65px;
+    box-sizing: border-box;
+}
+
+#search-results li {
+    margin: 0;
+    margin-top: -1px;
+    border: 1px solid #E3E3E3;
+    background: #FFF;
+}
+
+#search-results a {
+    padding: 15px;
+    width: 100%;
+    display: inline-block;
+    text-decoration: none;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+#search-results a:hover,
+#search-results a:focus {
+    background: #F4F4F4;
+    outline: none;
+}
+
+#search-results .search-result-item-preview {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #9B9B9B;
+    text-decoration: none !important;
+    font-size: 1rem;
+}
+
+#search-results li:first-child {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    margin-top: -5px;
+}
+
+#search-results li:last-child {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
