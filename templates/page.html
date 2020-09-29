@@ -17,39 +17,48 @@
 </head>
 
 <body>
-    <label for='menu-toggle-switch' class='menu-toggle-button menu-toggle-button-open'>
+    <label for='menu-toggle-switch' class='menu-toggle-button'>
         ☰
     </label>
     <input type="checkbox" id="menu-toggle-switch" value='0' />
     <div class='page'>
         <div class='background'>
-            <div class='sidebar-left'>
-                {{> navigation level=navigation current_page=current_page }}
+            <div class='header'>
+                <div class='logo'>
+                    <h2 class='project-name'><a href='/'>{{ project_title }}</a></h2>
+                </div>
+                <div class='search'>
+                    {{> search }}
+                </div>
+                <div class='header-dummy-right'>
+                </div>
             </div>
-            <div class='search'>
-                {{> search }}
-            </div>
-            <div class='sidebar-right'>
-                <p class='page-nav-header'>On this page</p>
-                <hr />
-                <ul>
-                    {{#each headings}}
-                        <li class='page-nav-level-{{this.level}}'>
-                            <a href='#{{this.anchor}}'>{{this.title}}</a>
-                        </li>
-                    {{/each}}
-                </ul>
+            <div class='sidebars'>
+                <div class='sidebar-left'>
+                    {{> navigation level=navigation current_page=current_page }}
+                </div>
+                <div class='sidebar-dummy-center'>
+                </div>
+                <div class='sidebar-right'>
+                    <p class='page-nav-header'>On this page</p>
+                    <hr />
+                    <ul>
+                        {{#each headings}}
+                            <li class='page-nav-level-{{this.level}}'>
+                                <a href='#{{this.anchor}}'>{{this.title}}</a>
+                            </li>
+                        {{/each}}
+                    </ul>
+                </div>
             </div>
         </div>
         <div class='container'>
             <div class='content-dummy-left'>
-                &nbsp
             </div>
             <div class='content'>
                 {{{ content }}}
             </div>
             <div class='content-dummy-right'>
-                &nbsp
             </div>
             <div class='wave-container'>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
