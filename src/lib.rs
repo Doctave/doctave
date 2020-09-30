@@ -35,9 +35,12 @@ static APP_JS: &'static str = include_str!("assets/app.js");
 static MERMAID_JS: &'static str = include_str!("assets/mermaid.min.js");
 static ELASTIC_LUNR: &'static str = include_str!("assets/elasticlunr.min.js");
 static LIVERELOAD_JS: &'static str = include_str!("assets/livereload.min.js");
+static PRISM_JS: &'static str = include_str!("assets/prism.min.js");
 
 static STYLES: &'static str = include_str!("assets/style.css");
 static NORMALIZE_CSS: &'static str = include_str!("assets/normalize.css");
+static ATOM_DARK_CSS: &'static str = include_str!("assets/prism-atom-dark.css");
+static GH_COLORS_CSS: &'static str = include_str!("assets/prism-ghcolors.css");
 
 lazy_static! {
     pub static ref HANDLEBARS: Handlebars<'static> = {

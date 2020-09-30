@@ -44,6 +44,10 @@ table {
     width: fit-content;
 }
 
+code {
+	font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+}
+
 pre {
     position: relative;
     padding: 1.5rem;
@@ -438,6 +442,13 @@ th {
 .dark pre {
     background: #202B33;
     color: #FFF;
+}
+
+.dark code {
+    color: #FFF;
+}
+.dark p code {
+    color: #404040;
 }
 
 /* Main content -------------------------------------------------------- */

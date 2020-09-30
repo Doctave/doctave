@@ -123,9 +123,11 @@ function setColor() {
     var color = localStorage.getItem('doctave-color')
 
     if (color === 'dark') {
+        document.querySelector("link[rel='stylesheet'][href*='prism-']").href = "/assets/prism-atom-dark.css";
         document.getElementsByTagName('html')[0].classList.remove('light');
         document.getElementsByTagName('html')[0].classList.add('dark');
     } else {
+        document.querySelector("link[rel='stylesheet'][href*='prism-']").href = "/assets/prism-ghcolors.css";
         document.getElementsByTagName('html')[0].classList.remove('dark');
         document.getElementsByTagName('html')[0].classList.add('light');
     }
@@ -214,3 +216,4 @@ document.onkeydown = function(e) {
 
 disableScrollifMenuOpen();
 dragRightMenu();
+setColor();

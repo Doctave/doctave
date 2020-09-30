@@ -1,14 +1,5 @@
 use pulldown_cmark::{html, CodeBlockKind, CowStr, Event, Options, Parser, Tag};
 use serde::Serialize;
-use syntect::easy::HighlightLines;
-use syntect::highlighting::ThemeSet;
-use syntect::html::{styled_line_to_highlighted_html, IncludeBackground};
-use syntect::parsing::SyntaxSet;
-
-lazy_static! {
-    static ref SYNTAX_SET: SyntaxSet = SyntaxSet::load_defaults_newlines();
-    static ref THEME_SET: ThemeSet = ThemeSet::load_defaults();
-}
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Markdown {
@@ -32,7 +23,6 @@ pub fn parse(input: &str) -> Markdown {
     let mut headings = vec![];
     let mut heading_level = 0;
     let mut heading_index = 1u32;
-    let mut codeblock_language = None;
 
     let parser = Parser::new_ext(input, options).filter_map(|event| {
         match event {
@@ -43,31 +33,16 @@ pub fn parse(input: &str) -> Markdown {
                 if lang == "mermaid" {
                     Some(Event::Html(CowStr::Borrowed("<div class=\"mermaid\">")))
                 } else {
-                    codeblock_language = Some(
-                        SYNTAX_SET
-                            .find_syntax_by_token(lang)
-                            .unwrap_or_else(|| SYNTAX_SET.find_syntax_plain_text()),
-                    );
                     Some(Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(inner))))
                 }
             }
-            e @ Event::Start(Tag::CodeBlock(CodeBlockKind::Indented)) => {
-                codeblock_language = Some(SYNTAX_SET.find_syntax_plain_text());
-                Some(e)
-            }
             Event::End(Tag::CodeBlock(CodeBlockKind::Fenced(inner))) => {
-                codeblock_language = None;
-
                 let lang = inner.split(' ').next().unwrap();
                 if lang == "mermaid" {
                     Some(Event::Html(CowStr::Borrowed("</div>")))
                 } else {
                     Some(Event::End(Tag::CodeBlock(CodeBlockKind::Fenced(inner))))
                 }
-            }
-            e @ Event::End(Tag::CodeBlock(CodeBlockKind::Indented)) => {
-                codeblock_language = None;
-                Some(e)
             }
 
             // Apply heading anchor tags
@@ -102,13 +77,6 @@ pub fn parse(input: &str) -> Markdown {
 
                     heading_level = 0;
                     return tmp;
-                } else if let Some(lang) = codeblock_language {
-                    let mut h =
-                        HighlightLines::new(lang, &THEME_SET.themes["InspiredGitHub"]);
-                    let regions = h.highlight(&text, &SYNTAX_SET);
-                    let html = styled_line_to_highlighted_html(&regions[..], IncludeBackground::No);
-
-                    Some(Event::Html(html.into()))
                 } else {
                     Some(Event::Text(text))
                 }

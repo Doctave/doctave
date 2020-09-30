@@ -199,8 +199,10 @@ integration_test!(frontmatter, |area| {
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    area.assert_contains(&index, ">This is the end</h1>");
-    area.refute_contains(&index, "<hr />");
+    area.assert_contains(
+        &index,
+        "<div class='content'>\n                <h1 id=\"this-is-the-end-1\">This is the end</h1>",
+    );
 });
 
 integration_test!(page_nav, |area| {
@@ -225,13 +227,14 @@ integration_test!(page_nav, |area| {
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    area.assert_contains(
-        &index,
-        "<a class='page-nav-level-1' href='#this-1'>This</a>",
-    );
-    area.assert_contains(&index, "<a class='page-nav-level-1' href='#is-2'>Is</a>");
-    area.assert_contains(&index, "<a class='page-nav-level-1' href='#the-3'>The</a>");
-    area.assert_contains(&index, "<a class='page-nav-level-1' href='#end-4'>End</a>");
+    area.assert_contains(&index, "<li class='page-nav-level-1'>");
+    area.assert_contains(&index, "  <a href='#this-1'>This</a>");
+    area.assert_contains(&index, "<li class='page-nav-level-1'>");
+    area.assert_contains(&index, "  <a href='#is-2'>Is</a>");
+    area.assert_contains(&index, "<li class='page-nav-level-1'>");
+    area.assert_contains(&index, "  <a href='#the-3'>The</a>");
+    area.assert_contains(&index, "<li class='page-nav-level-1'>");
+    area.assert_contains(&index, "  <a href='#end-4'>End</a>");
 });
 
 integration_test!(missing_directory_index, |area| {
@@ -298,7 +301,7 @@ integration_test!(code_syntax_highlight, |area| {
     assert_success(&result);
 
     let index = Path::new("site").join("index.html");
-    area.assert_contains(&index, "<code class=\"language-ruby\"><span style=\"");
+    area.assert_contains(&index, "<code class=\"language-ruby\">");
 });
 
 integration_test!(assets_folder, |area| {

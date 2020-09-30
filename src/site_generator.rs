@@ -55,11 +55,23 @@ impl<'a> SiteGenerator<'a> {
             crate::LIVERELOAD_JS,
         )?;
         fs::write(
+            self.config.out_dir().join("assets").join("prism.js"),
+            crate::PRISM_JS,
+        )?;
+        fs::write(
             self.config.out_dir().join("assets").join("doctave-app.js"),
             crate::APP_JS,
         )?;
 
         // Add styles
+        fs::write(
+            self.config.out_dir().join("assets").join("prism-atom-dark.css"),
+            crate::ATOM_DARK_CSS,
+        )?;
+        fs::write(
+            self.config.out_dir().join("assets").join("prism-ghcolors.css"),
+            crate::GH_COLORS_CSS,
+        )?;
         fs::write(
             self.config.out_dir().join("assets").join("normalize.css"),
             crate::NORMALIZE_CSS,
