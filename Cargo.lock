@@ -178,6 +178,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "colorsys"
+version = "0.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be475c891fad1522a7bfd1cb7204ba8e8fe48a93a0ad6992356aca07a4e0cbce"
+
+[[package]]
 name = "cpuid-bool"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -256,6 +262,7 @@ dependencies = [
  "bus",
  "clap",
  "colored",
+ "colorsys",
  "crossbeam-channel",
  "elasticlunr-rs",
  "handlebars",

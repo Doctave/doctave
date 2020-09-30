@@ -12,7 +12,7 @@ h3,
 h4,
 h5,
 h6 {
-    color: #445282;
+    color: {{ theme_main }};
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     margin-top: 34pt;
@@ -27,7 +27,7 @@ li {
 }
 
 a {
-    color: #445282;
+    color: {{ theme_main }};
 }
 
 img {
@@ -45,7 +45,7 @@ table {
 }
 
 code {
-	font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
 }
 
 pre {
@@ -182,6 +182,10 @@ th {
     bottom: 0;
 }
 
+.wave-container svg path {
+    fill: {{ theme_main }};
+}
+
 .menu-toggle-button,
 #menu-toggle-switch {
     display: none;
@@ -245,7 +249,7 @@ th {
         z-index: 50;
         height: 25px;
         width: 25px;
-        background: #445282;
+        background: {{ theme_main }};
         color: white;
         padding: 10px;
         border-radius: 25px;
@@ -372,7 +376,7 @@ th {
 .dark h4,
 .dark h5,
 .dark h6 {
-    color: #A7B4E3;
+    color: {{ theme_main_dark }};
 }
 
 .dark * {
@@ -380,7 +384,7 @@ th {
 }
 
 .dark a {
-    color: #A7B4E3;
+    color: {{ theme_main_dark }};
 }
 
 .dark h2.project-name a {
@@ -388,19 +392,23 @@ th {
 }
 
 .dark h2.project-name:after {
-    color: #A7B4E3;
+    color: {{ theme_main_dark }};
 }
 
 .dark h2.project-name:after {
-    color: #A7B4E3;
+    color: {{ theme_main_dark }};
 }
 
 .dark nav a {
-    color: #A7B4E3;
+    color: {{ theme_main_dark }};
 }
 
 .dark nav a.active:before {
-    border-color: #A7B4E3;
+    border-color: {{ theme_main_dark }};
+}
+
+.dark nav a.active {
+    color: {{ theme_main_dark }};
 }
 
 .dark nav ul ul a {
@@ -436,7 +444,7 @@ th {
 }
 
 .dark .sidebar-right li a:hover {
-    border-bottom: 1px solid #A7B4E3;
+    border-bottom: 1px solid {{ theme_main_dark }};
 }
 
 .dark .mermaid * {
@@ -491,7 +499,7 @@ th {
     content: "DOCS";
     font-size: 12pt;
     display: block;
-    color: #445282;
+    color: {{ theme_main }};
     opacity: 56%;
 }
 
@@ -507,17 +515,17 @@ nav a {
 }
 
 nav a.active {
-    color: #445282;
+    color: {{ theme_main }};
 }
 
 nav a.active:before {
     content: "";
-    border-left: 3px solid #445282;
+    border-left: 3px solid {{ theme_main }};
     padding-left: 10px;
 }
 
 nav a:hover {
-    border-bottom: 1px solid #445282;
+    border-bottom: 1px solid {{ theme_main }};
 }
 
 nav ul {
@@ -583,7 +591,7 @@ nav ul ul a {
 }
 
 .sidebar-right li a:hover {
-    border-bottom: 1px solid #445282;
+    border-bottom: 1px solid {{ theme_main }};
 }
 
 .sidebar-right a:hover {}

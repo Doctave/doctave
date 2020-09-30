@@ -24,6 +24,7 @@ colored = "2"
 scoped_threadpool = "0.1"
 bus = "2.2.3"
 rayon = "1.4"
+colorsys = "0.5.7"
 
 [dev-dependencies]
 indoc = "1.0.2"

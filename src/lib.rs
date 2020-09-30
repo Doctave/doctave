@@ -37,7 +37,6 @@ static ELASTIC_LUNR: &'static str = include_str!("assets/elasticlunr.min.js");
 static LIVERELOAD_JS: &'static str = include_str!("assets/livereload.min.js");
 static PRISM_JS: &'static str = include_str!("assets/prism.min.js");
 
-static STYLES: &'static str = include_str!("assets/style.css");
 static NORMALIZE_CSS: &'static str = include_str!("assets/normalize.css");
 static ATOM_DARK_CSS: &'static str = include_str!("assets/prism-atom-dark.css");
 static GH_COLORS_CSS: &'static str = include_str!("assets/prism-ghcolors.css");
@@ -60,6 +59,9 @@ lazy_static! {
                 "nested_navigation",
                 include_str!("../templates/nested_navigation.html"),
             )
+            .unwrap();
+        handlebars
+            .register_template_string("style.css", include_str!("../templates/style.css"))
             .unwrap();
 
         handlebars

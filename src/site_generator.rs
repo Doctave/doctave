@@ -82,13 +82,26 @@ impl<'a> SiteGenerator<'a> {
             self.config.out_dir().join("assets").join("normalize.css"),
             crate::NORMALIZE_CSS,
         )?;
-        fs::write(
+
+        let mut style = File::create(
             self.config
                 .out_dir()
                 .join("assets")
                 .join("doctave-style.css"),
-            crate::STYLES,
         )?;
+        let mut data = serde_json::Map::new();
+        data.insert(
+            "theme_main".to_string(),
+            serde_json::Value::String(self.config.main_color().to_css_string()),
+        );
+        data.insert(
+            "theme_main_dark".to_string(),
+            serde_json::Value::String(self.config.main_color_dark().to_css_string()),
+        );
+
+        crate::HANDLEBARS
+            .render_to_write("style.css", &data, &mut style)
+            .unwrap();
 
         // Copy over all custom assets from the _assets directory
         let custom_assets_dir = self.config.docs_dir().join("_assets");

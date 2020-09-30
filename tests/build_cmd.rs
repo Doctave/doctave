@@ -317,11 +317,42 @@ integration_test!(assets_folder, |area| {
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    println!("{}", std::str::from_utf8(&result.stdout).unwrap());
-
     let css = Path::new("site").join("assets").join("custom_style.css");
     area.assert_contains(&css, "body { background-color: pink !important }");
 
     let index = Path::new("site").join("index.html");
     area.refute_contains(&index, "<a href=\"/_assets\">_assets</a>");
+});
+
+integration_test!(custom_colors, |area| {
+    area.write_file(Path::new("doctave.yaml"), indoc! {"
+    ---
+    title: Custom colors
+    colors:
+      main: \"#5f658a\"
+    "}.as_bytes());
+
+    area.write_file(Path::new("README.md"), b"# Hi");
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    let css = Path::new("site").join("assets").join("doctave-style.css");
+    // Should contain the RGB value for #5f658a
+    area.assert_contains(&css, "color: rgb(95,101,138);");
+});
+
+integration_test!(custom_colors_invalid, |area| {
+    area.write_file(Path::new("doctave.yaml"), indoc! {"
+    ---
+    title: Custom colors
+    colors:
+      main: not-a-color
+    "}.as_bytes());
+
+    area.write_file(Path::new("README.md"), b"# Hi");
+
+    let result = area.cmd(&["build"]);
+    assert_failed(&result);
+    assert_output(&result, "Could not parse color code \"not-a-color\" from doctave.yaml");
 });

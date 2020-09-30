@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io;
 use std::path::{Path, PathBuf};
 
+use colorsys::prelude::*;
+use colorsys::Rgb;
 use serde::Deserialize;
 
 #[derive(Debug, Clone)]
@@ -15,14 +17,26 @@ pub struct Config {
 #[derive(Debug, Clone, Deserialize)]
 struct DoctaveYaml {
     title: String,
+    colors: Option<Colors>,
+}
+
+static DEFAULT_THEME_COLOR: &'static str = "#445282";
+
+#[derive(Debug, Clone, Deserialize, Default)]
+struct Colors {
+    main: Option<String>,
 }
 
 impl Config {
     pub fn load(project_root: &Path) -> io::Result<Self> {
         let file = File::open(project_root.join("doctave.yaml"))?;
 
-        let doctave_yaml: DoctaveYaml =
+        let mut doctave_yaml: DoctaveYaml =
             serde_yaml::from_reader(file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+
+        if doctave_yaml.colors.is_none() {
+            doctave_yaml.colors = Some(Colors::default());
+        }
 
         Ok(Config {
             doctave_yaml,
@@ -50,6 +64,36 @@ impl Config {
     /// The directory that contains all the Markdown documentation
     pub fn docs_dir(&self) -> &Path {
         &self.docs_dir
+    }
+
+    /// The main theme color. Other shades are computed based off of this
+    /// color.
+    ///
+    pub fn main_color(&self) -> Rgb {
+        let color = self
+            .doctave_yaml
+            .colors
+            .as_ref()
+            .unwrap()
+            .main
+            .as_deref()
+            .unwrap_or(DEFAULT_THEME_COLOR);
+
+        Rgb::from_hex_str(color).unwrap_or_else(|_| {
+            println!(
+                "Could not parse color code \"{}\" from doctave.yaml",
+                self.doctave_yaml.colors.as_ref().unwrap().main.as_deref().unwrap()
+            );
+            println!("Colors must be specified as HEX values. For example: #5F658A");
+
+            std::process::exit(1);
+        })
+    }
+
+    pub fn main_color_dark(&self) -> Rgb {
+        let mut color = self.main_color();
+        color.lighten(25.0);
+        color
     }
 }
 
