@@ -65,11 +65,17 @@ impl<'a> SiteGenerator<'a> {
 
         // Add styles
         fs::write(
-            self.config.out_dir().join("assets").join("prism-atom-dark.css"),
+            self.config
+                .out_dir()
+                .join("assets")
+                .join("prism-atom-dark.css"),
             crate::ATOM_DARK_CSS,
         )?;
         fs::write(
-            self.config.out_dir().join("assets").join("prism-ghcolors.css"),
+            self.config
+                .out_dir()
+                .join("assets")
+                .join("prism-ghcolors.css"),
             crate::GH_COLORS_CSS,
         )?;
         fs::write(
@@ -77,7 +83,10 @@ impl<'a> SiteGenerator<'a> {
             crate::NORMALIZE_CSS,
         )?;
         fs::write(
-            self.config.out_dir().join("assets").join("doctave-style.css"),
+            self.config
+                .out_dir()
+                .join("assets")
+                .join("doctave-style.css"),
             crate::STYLES,
         )?;
 
@@ -211,7 +220,7 @@ impl<'a> SiteGenerator<'a> {
             .into_iter()
             .filter_map(|e| e.ok())
         {
-            if entry.file_type().is_file() {
+            if entry.file_type().is_file() && entry.path().extension() == Some(OsStr::new("md")) {
                 let path = entry.path();
 
                 docs.push(Document::load(&self.config.docs_dir(), path));

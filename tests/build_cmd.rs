@@ -306,9 +306,9 @@ integration_test!(code_syntax_highlight, |area| {
 
 integration_test!(assets_folder, |area| {
     area.create_config();
-    area.write_file(Path::new("README.md"), b"# Hi");
-
     area.mkdir(Path::new("docs").join("_assets"));
+
+    area.write_file(Path::new("docs").join("README.md"), b"# Hi");
     area.write_file(
         Path::new("docs").join("_assets").join("custom_style.css"),
         b"body { background-color: pink !important }",
@@ -317,6 +317,11 @@ integration_test!(assets_folder, |area| {
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
+    println!("{}", std::str::from_utf8(&result.stdout).unwrap());
+
     let css = Path::new("site").join("assets").join("custom_style.css");
     area.assert_contains(&css, "body { background-color: pink !important }");
+
+    let index = Path::new("site").join("index.html");
+    area.refute_contains(&index, "<a href=\"/_assets\">_assets</a>");
 });
