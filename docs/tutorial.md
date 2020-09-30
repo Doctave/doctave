@@ -72,7 +72,8 @@ immediately see your page update. Try it! Open up `docs/README.md` in your favor
 and make a change. You should see the browser refresh and show your changes automatically. This way
 you can quickly see what your changes look like.
 
-If you are not familiar with Markdown syntax, or need a refresher, you can check out [this
+If you are not familiar with Markdown syntax, or need a refresher, you can read our [Markdown
+reference](/features/markdown) or check out [this
 guide](https://guides.github.com/features/mastering-markdown/) by GitHub. Note that there are a few
 different flavors of Markdown. Doctave supports all the "basics" Markdown features, as well as a few
 "GitHub flavored Markdown" features - namely task lists and tables.
