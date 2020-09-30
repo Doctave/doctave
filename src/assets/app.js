@@ -52,7 +52,9 @@ function disableScrollifMenuOpen() {
 }
 
 function atTop() {
-    return window.scrollY === 0;
+    var nav = document.getElementsByClassName("sidebar-right")[0];
+
+    return window.scrollY <= nav.offsetTop + 50;
 }
 
 function navTouchingBottom() {
@@ -65,7 +67,7 @@ function navTouchingBottom() {
     );
                                                                          // Magic number determined
                                                                          // by height of bottom wave
-    return window.scrollY + nav.offsetTop + nav.offsetHeight >= height - 220;
+    return window.scrollY + nav.offsetTop + nav.offsetHeight >= height - 230;
 }
 
 function scrolledUp() {
@@ -77,24 +79,21 @@ function scrolledUp() {
 
                                                          // Magic number determined
                                                          // by height of bottom wave
-    return window.scrollY + window.innerHeight < height - 220;
+    return window.scrollY + window.innerHeight < height - 230;
 }
 
 function dragRightMenu() {
     if (atTop()) {
-        console.log("At top");
+        console.log("AT TOP");
         document.getElementById('page-nav').classList.remove('fixed');
         document.getElementsByClassName('sidebar-right')[0].classList.remove('bottom');
     } else if (scrolledUp()) {
-        console.log("Moved Up");
         document.getElementById('page-nav').classList.add('fixed');
         document.getElementsByClassName('sidebar-right')[0].classList.remove('bottom');
     } else if (navTouchingBottom()) {
-        console.log("At Bottom");
         document.getElementById('page-nav').classList.remove('fixed');
         document.getElementsByClassName('sidebar-right')[0].classList.add('bottom');
     } else {
-        console.log("Going down/up");
         document.getElementById('page-nav').classList.add('fixed');
         document.getElementsByClassName('sidebar-right')[0].classList.remove('bottom');
     }
@@ -178,6 +177,11 @@ document.onkeydown = function(e) {
             } else {
                 document.activeElement.parentNode.nextSibling.firstChild.focus();
                 e.preventDefault();
+            }
+            break;
+        case 27: // if the ESC key is pressed
+            if (first) {
+                searchResults.innerHTML = '';
             }
             break;
     }
