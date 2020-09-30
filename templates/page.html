@@ -38,6 +38,9 @@
     <div class='page'>
         <div class='header'>
             <div class='logo'>
+                {{#if logo }}
+                    <img src="{{ logo }}" alt='{{ project_title }} logo'></img>
+                {{/if}}
                 <h2 class='project-name'><a href='/'>{{ project_title }}</a></h2>
             </div>
             <div class='search'>

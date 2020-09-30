@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use elasticlunr::Index;
 use rayon::prelude::*;
@@ -152,6 +152,7 @@ impl<'a> SiteGenerator<'a> {
                     navigation: &nav,
                     current_page: Link::from(doc),
                     project_title: self.config.title().to_string(),
+                    logo: self.config.logo(),
                     page_title,
                 };
 
@@ -317,5 +318,6 @@ pub struct TemplateData<'a> {
     pub navigation: &'a Level,
     pub current_page: Link,
     pub page_title: String,
+    pub logo: Option<PathBuf>,
     pub project_title: String,
 }

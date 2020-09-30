@@ -18,6 +18,7 @@ pub struct Config {
 struct DoctaveYaml {
     title: String,
     colors: Option<Colors>,
+    logo: Option<PathBuf>,
 }
 
 static DEFAULT_THEME_COLOR: &'static str = "#445282";
@@ -69,6 +70,7 @@ impl Config {
     /// The main theme color. Other shades are computed based off of this
     /// color.
     ///
+    /// Must be a valid HEX color.
     pub fn main_color(&self) -> Rgb {
         let color = self
             .doctave_yaml
@@ -82,7 +84,13 @@ impl Config {
         Rgb::from_hex_str(color).unwrap_or_else(|_| {
             println!(
                 "Could not parse color code \"{}\" from doctave.yaml",
-                self.doctave_yaml.colors.as_ref().unwrap().main.as_deref().unwrap()
+                self.doctave_yaml
+                    .colors
+                    .as_ref()
+                    .unwrap()
+                    .main
+                    .as_deref()
+                    .unwrap()
             );
             println!("Colors must be specified as HEX values. For example: #5F658A");
 
@@ -90,10 +98,30 @@ impl Config {
         })
     }
 
+    /// A lighter version of the main color, meant to be used in _dark_ mode.
     pub fn main_color_dark(&self) -> Rgb {
         let mut color = self.main_color();
         color.lighten(25.0);
         color
+    }
+
+    /// Path to a logo that will show up at the top left next to the title
+    pub fn logo(&self) -> Option<PathBuf> {
+        if let Some(p) = &self.doctave_yaml.logo {
+            let location = self.docs_dir.join("_assets").join(p);
+            if !location.exists() {
+                println!(
+                    "Could not find logo specified in doctave.yaml at {}",
+                    p.display()
+                );
+
+                std::process::exit(1);
+            } else {
+                Some(PathBuf::from("/assets").join(p))
+            }
+        } else {
+            None
+        }
     }
 }
 

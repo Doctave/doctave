@@ -119,6 +119,16 @@ th {
     padding-bottom: 20px;
 }
 
+.logo {
+    display: flex;
+}
+
+.logo img {
+    height: 45px;
+    width: 45px;
+    padding-right: 20px;
+}
+
 .logo,
 .sidebar-left,
 .sidebar-right,
