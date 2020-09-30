@@ -93,6 +93,10 @@ th {
     justify-content: center;
 
     width: 100%;
+    padding-left: 40px;
+    padding-right: 40px;
+
+    box-sizing: border-box;
 }
 
 .container {
@@ -102,7 +106,7 @@ th {
 .search,
 .content {
     max-width: 800px;
-    min-width: 560px;
+    min-width: 530px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -125,7 +129,8 @@ th {
 .sidebar-left,
 .sidebar-right,
 .header-dummy-right {
-    width: 330px;
+    width: 300px;
+    min-width: 300px;
 }
 
 .sidebar-left,
@@ -169,6 +174,7 @@ th {
 
 .wave-container p {
     padding-left: 40px;
+    margin-bottom: 10px;
     color: #FFF;
 }
 
@@ -192,7 +198,12 @@ th {
  * * Hide right navigation
  *
  */
-@media screen and (max-width: 1200px) {}
+@media screen and (max-width: 1200px) {
+    .header-dummy-right,
+    .sidebar-right {
+        display: none;
+    }
+}
 
 /* Changes to apply to "medium" devices
  *
@@ -201,14 +212,111 @@ th {
  * * Remove page shadow
  *
  */
-@media screen and (max-width: 768px) {}
+@media screen and (max-width: 768px) {
+    .page .container {
+        overflow: hidden;
+        justify-content: flex-start;
+    }
+
+    .header {
+        flex-direction: column;
+    }
+
+    .sidebar-left {
+        position: fixed;
+        display: none;
+        top: 0;
+        padding-top: 10px;
+        overflow: auto;
+        height: 100vh !important;
+        max-height: 100vh !important;
+    }
+
+    .sidebar-left nav {
+        padding-bottom: 50px;
+    }
+
+    .page .container .content {
+        padding: 40px;
+    }
+
+    .menu-toggle-button {
+        display: block;
+        cursor: pointer;
+        position: fixed;
+        bottom: 15px;
+        right: 50px;
+        font-size: 1.6rem;
+        z-index: 50;
+        height: 25px;
+        width: 25px;
+        background: #445282;
+        color: white;
+        padding: 10px;
+        border-radius: 25px;
+        line-height: 1.45rem;
+        text-align: center;
+
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    #menu-toggle-switch:checked+.page {
+        overflow: hidden;
+    }
+
+    #menu-toggle-switch:checked+.page .container .content {
+        overflow-x: hidden;
+        margin-left: 300px;
+    }
+    #menu-toggle-switch:checked+.page .header {
+        margin-left: 300px;
+    }
+
+    #menu-toggle-switch:checked+.page .container .sidebar-left {
+        display: block;
+    }
+}
 
 /* Changes to apply to "small" devices
  *
  * * Hide right navigation
  *
  */
-@media screen and (max-width: 576px) {}
+@media screen and (max-width: 576px) {
+    .page {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .header {
+        padding-top: 20px;
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+
+    .header .logo .project-name {
+        padding-bottom: 0px;
+    }
+
+    .content,
+    .header,
+    .header .search {
+        min-width: 100%;
+    }
+
+    .page .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .page .container .content {
+        padding: 20px;
+    }
+
+    .menu-toggle-button {
+        right: 15px;
+    }
+}
 
 /* Main content -------------------------------------------------------- */
 

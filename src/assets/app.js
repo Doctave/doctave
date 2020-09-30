@@ -84,7 +84,6 @@ function scrolledUp() {
 
 function dragRightMenu() {
     if (atTop()) {
-        console.log("AT TOP");
         document.getElementById('page-nav').classList.remove('fixed');
         document.getElementsByClassName('sidebar-right')[0].classList.remove('bottom');
     } else if (scrolledUp()) {
