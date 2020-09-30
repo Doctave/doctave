@@ -108,7 +108,7 @@ th {
 
 .search,
 .content {
-    max-width: 800px;
+    max-width: 830px;
     min-width: 530px;
     width: 100%;
     box-sizing: border-box;
@@ -435,6 +435,10 @@ th {
     color: #FFF;
 }
 
+.dark .sidebar-right li a:hover {
+    border-bottom: 1px solid #A7B4E3;
+}
+
 .dark .mermaid * {
     color: #3C3C3C;
 }
@@ -447,6 +451,7 @@ th {
 .dark code {
     color: #FFF;
 }
+
 .dark p code {
     color: #404040;
 }
