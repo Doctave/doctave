@@ -48,7 +48,6 @@ pre {
     position: relative;
     padding: 1.5rem;
     background: #F8F9FB;
-    color: white;
     border-radius: 10px;
     margin-bottom: 2rem;
     overflow: auto;
@@ -111,18 +110,9 @@ th {
     box-sizing: border-box;
 }
 
-.content {
-}
-
 .header {
     padding-top: 50px;
     padding-bottom: 20px;
-}
-
-.search {
-}
-
-.logo {
 }
 
 .logo,
@@ -199,6 +189,7 @@ th {
  *
  */
 @media screen and (max-width: 1200px) {
+
     .header-dummy-right,
     .sidebar-right {
         display: none;
@@ -268,6 +259,7 @@ th {
         overflow-x: hidden;
         margin-left: 300px;
     }
+
     #menu-toggle-switch:checked+.page .header {
         margin-left: 300px;
     }
@@ -279,7 +271,7 @@ th {
 
 /* Changes to apply to "small" devices
  *
- * * Hide right navigation
+ * * Tighten things up
  *
  */
 @media screen and (max-width: 576px) {
@@ -316,6 +308,136 @@ th {
     .menu-toggle-button {
         right: 15px;
     }
+}
+
+/* Dark mode ----------------------------------------------------------- */
+
+#light-dark-mode-switch:hover:after {
+    background: #E6E6E6;
+}
+
+#light-dark-mode-switch:after {
+    display: block;
+    cursor: pointer;
+    content: "☾";
+    font-family: 'Inter', sans-serif;
+    font-size: 1.9em;
+    color: #979797;
+    background: #F3F3F3;
+    width: 35px;
+    height: 35px;
+    line-height: 1.2em;
+    text-align: center;
+    padding-left: 5px;
+    box-sizing: border-box;
+    border-radius: 5px;
+}
+
+.dark #light-dark-mode-switch:after {
+    content: "☼";
+    padding-left: 0px;
+    background: #676767;
+    color: #AFAFAF;
+}
+
+.dark #light-dark-mode-switch:hover:after {
+    background: #4d4d4d;
+}
+
+.dark {
+    background: #202B33;
+}
+
+.dark .search #search-form input {
+    background: #202B33;
+    border-color: #6B747B;
+}
+
+.dark .search .search-icon {
+    background: #676767;
+    color: #AFAFAF;
+}
+
+.dark .content {
+    background: #30404D;
+}
+
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+    color: #A7B4E3;
+}
+
+.dark * {
+    color: #FFF;
+}
+
+.dark a {
+    color: #A7B4E3;
+}
+
+.dark h2.project-name a {
+    color: #FFF;
+}
+
+.dark h2.project-name:after {
+    color: #A7B4E3;
+}
+
+.dark h2.project-name:after {
+    color: #A7B4E3;
+}
+
+.dark nav a {
+    color: #A7B4E3;
+}
+
+.dark nav a.active:before {
+    border-color: #A7B4E3;
+}
+
+.dark nav ul ul a {
+    color: #FFF;
+}
+
+.dark code {
+    color: #323232;
+}
+
+.dark #search-results li {
+    background: #202B33;
+    border-color: #30404D;
+}
+
+.dark #search-results a:hover,
+.dark #search-results a:focus {
+    background: #30404D;
+}
+
+.dark .sidebar-right p {
+    color: #888
+}
+
+.dark .sidebar-right hr {
+    border-color: #888;
+}
+
+.dark .sidebar-right li a {
+    font-size: 14pt;
+    font-weight: 400;
+    color: #FFF;
+}
+
+.dark .mermaid * {
+    color: #3C3C3C;
+}
+
+.dark pre {
+    background: #202B33;
+    color: #FFF;
 }
 
 /* Main content -------------------------------------------------------- */
@@ -416,8 +538,7 @@ nav ul ul a {
 
 /* Right sidebar ------------------------------------------------------- */
 
-.sidebar-right {
-}
+.sidebar-right {}
 
 .page-nav-header {
     text-transform: uppercase;

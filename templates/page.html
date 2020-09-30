@@ -14,6 +14,17 @@
     <link rel="stylesheet" type="text/css" href="/assets/normalize.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="/assets/new-style.css" media="screen" />
     <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
+    <script>
+    var color = localStorage.getItem('doctave-color')
+
+    if (color === 'dark') {
+        document.getElementsByTagName('html')[0].classList.remove('light');
+        document.getElementsByTagName('html')[0].classList.add('dark');
+    } else {
+        document.getElementsByTagName('html')[0].classList.remove('dark');
+        document.getElementsByTagName('html')[0].classList.add('light');
+    }
+    </script>
 </head>
 
 <body>

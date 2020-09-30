@@ -107,16 +107,42 @@ function isVisible(element) {
     return isVisible;
 }
 
+function toggleColor() {
+    var color = localStorage.getItem('doctave-color')
+
+    if (color === 'dark') {
+        localStorage.setItem('doctave-color', 'light');
+    } else {
+        localStorage.setItem('doctave-color', 'dark');
+    }
+
+    setColor();
+}
+
+function setColor() {
+    var color = localStorage.getItem('doctave-color')
+
+    if (color === 'dark') {
+        document.getElementsByTagName('html')[0].classList.remove('light');
+        document.getElementsByTagName('html')[0].classList.add('dark');
+    } else {
+        document.getElementsByTagName('html')[0].classList.remove('dark');
+        document.getElementsByTagName('html')[0].classList.add('light');
+    }
+}
+
+document.getElementById("light-dark-mode-switch").addEventListener("click", toggleColor);
+
 // Don't reset scrolling on livereload
 window.addEventListener('scroll', function() {
-    localStorage.setItem('scrollPosition', window.scrollY);
+    localStorage.setItem('doctave-scrollPosition', window.scrollY);
 
     dragRightMenu();
 }, false);
 
 window.addEventListener('load', function() {
-    if (localStorage.getItem('scrollPosition') !== null)
-        window.scrollTo(0, localStorage.getItem('scrollPosition'));
+    if (localStorage.getItem('doctave-scrollPosition') !== null)
+        window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
 
     document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
         disableScrollifMenuOpen();
