@@ -175,8 +175,7 @@ integration_test!(search_index, |area| {
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    let search_index = Path::new("site").join("search_index.json");
-    assert!(search_index.exists(), "Could not find search index");
+    area.assert_exists(Path::new("site").join("search_index.json"));
 });
 
 integration_test!(frontmatter, |area| {
