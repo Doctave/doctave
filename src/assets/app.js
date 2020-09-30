@@ -24,7 +24,7 @@ function search() {
         listItem = document.createElement("li");
         listItem.className = "search-result-item";
         listItem.innerHTML =
-            "<a tabindex='2' href='" + result.doc.uri + "'>" + result.doc.title +
+            "<a href='" + result.doc.uri + "'>" + result.doc.title +
             "<p class='search-result-item-preview'>" + searchPreview(result.doc.body) + "</p>" +
             "</a>";
 
@@ -41,13 +41,6 @@ function searchPreview(body) {
         "...";
 }
 
-function scrollTop() {
-    var supportPageOffset = window.pageXOffset !== undefined;
-    var isCSS1Compat = ((document.compatMode || "") === "CSS1Compat");
-
-    return supportPageOffset ? window.pageYOffset : isCSS1Compat ? document.documentElement.scrollTop : document.body.scrollTop;
-}
-
 function disableScrollifMenuOpen() {
     var checkbox = document.getElementById('menu-toggle-switch');
 
@@ -58,12 +51,53 @@ function disableScrollifMenuOpen() {
     }
 }
 
-// Checks if the search bar is visible, as a proxy for
-// determining when we should start scrolling.
-function shouldDragPageNav() {
-    var search = document.getElementById('search-form');
+function atTop() {
+    return window.scrollY === 0;
+}
 
-    return !isVisible(search);
+function navTouchingBottom() {
+    var nav = document.getElementsByClassName("page-nav")[0];
+
+    var height = Math.max(
+        document.body.scrollHeight, document.documentElement.scrollHeight,
+        document.body.offsetHeight, document.documentElement.offsetHeight,
+        document.body.clientHeight, document.documentElement.clientHeight
+    );
+                                                                         // Magic number determined
+                                                                         // by height of bottom wave
+    return window.scrollY + nav.offsetTop + nav.offsetHeight >= height - 220;
+}
+
+function scrolledUp() {
+    var height = Math.max(
+        document.body.scrollHeight, document.documentElement.scrollHeight,
+        document.body.offsetHeight, document.documentElement.offsetHeight,
+        document.body.clientHeight, document.documentElement.clientHeight
+    );
+
+                                                         // Magic number determined
+                                                         // by height of bottom wave
+    return window.scrollY + window.innerHeight < height - 220;
+}
+
+function dragRightMenu() {
+    if (atTop()) {
+        console.log("At top");
+        document.getElementById('page-nav').classList.remove('fixed');
+        document.getElementsByClassName('sidebar-right')[0].classList.remove('bottom');
+    } else if (scrolledUp()) {
+        console.log("Moved Up");
+        document.getElementById('page-nav').classList.add('fixed');
+        document.getElementsByClassName('sidebar-right')[0].classList.remove('bottom');
+    } else if (navTouchingBottom()) {
+        console.log("At Bottom");
+        document.getElementById('page-nav').classList.remove('fixed');
+        document.getElementsByClassName('sidebar-right')[0].classList.add('bottom');
+    } else {
+        console.log("Going down/up");
+        document.getElementById('page-nav').classList.add('fixed');
+        document.getElementsByClassName('sidebar-right')[0].classList.remove('bottom');
+    }
 }
 
 function isVisible(element) {
@@ -78,6 +112,8 @@ function isVisible(element) {
 // Don't reset scrolling on livereload
 window.addEventListener('scroll', function() {
     localStorage.setItem('scrollPosition', window.scrollY);
+
+    dragRightMenu();
 }, false);
 
 window.addEventListener('load', function() {
@@ -148,3 +184,4 @@ document.onkeydown = function(e) {
 }
 
 disableScrollifMenuOpen();
+dragRightMenu();

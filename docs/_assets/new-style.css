@@ -1,6 +1,7 @@
 /* Base ---------------------------------------------------------------- */
 body {
     font-family: 'Source Sans Pro', sans-serif;
+    min-height: 100vh;
     height: 100%;
     max-width: 100%;
 }
@@ -80,101 +81,141 @@ th {
 
 .page {
     position: relative;
-    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 100vh;
+}
+
+.header,
+.container {
+    display: flex;
+    justify-content: center;
+
+    width: 100%;
 }
 
 .container {
-    pointer-events: none;
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
+    flex: 1;
 }
 
-.background {
-    flex-wrap: wrap;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: -1;
-}
-
-.container,
-.background {
-    height: 100%;
+.search,
+.content {
+    max-width: 800px;
+    min-width: 560px;
     width: 100%;
-}
-
-.background .header {
-    display: flex;
-    width: 100%;
-    max-width: 100vw;
-    height: 160px;
-    justify-content: center;
-}
-
-.background .sidebars {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-}
-
-.background .header .search {
-    max-width: 760px;
-    flex-grow: 1;
-
-    height: 160px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-    padding-top: 20px;
-    padding-bottom: 20px;
-
-    box-sizing: border-box;
-}
-
-.background .header .header-dummy-right,
-.background .header .logo {}
-
-.sidebar-right,
-.sidebar-left {
-    pointer-events: auto;
-}
-
-.container .content-dummy-left,
-.container .content-dummy-right,
-.background .header .header-dummy-right,
-.background .header .logo,
-.background .sidebar-left,
-.background .sidebar-right {
-    width: 330px;
-    min-width: 330px;
-    padding: 40px;
-    box-sizing: border-box;
-}
-
-.sidebar-dummy-center {
-    width: 100%;
-    max-width: 760px;
-    flex-grow: 1;
-    padding: 80px;
-
     box-sizing: border-box;
 }
 
 .content {
-    position: relative;
-    z-index: 10;
-    pointer-events: auto;
-    max-width: 760px;
-    flex-grow: 1;
-    padding: 80px;
-    margin-top: 160px;
+}
 
+.header {
+    padding-top: 50px;
+}
+
+.search {
+}
+
+.logo {
+}
+
+.logo,
+.sidebar-left,
+.sidebar-right,
+.header-dummy-right {
+    width: 330px;
+}
+
+.sidebar-left,
+.sidebar-right {
+    padding-top: 50px;
     box-sizing: border-box;
+}
+
+.sidebar-right {
+    padding-left: 50px;
+}
+
+.sidebar-right .page-nav.fixed {
+    position: fixed;
+    width: 280px;
+}
+
+.sidebar-right.bottom {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 220px;
+}
+
+.sidebar-right.bottom .page-nav {
+    width: 280px;
+    margin-top: -100px;
+}
+
+.sidebar-left {
+    padding-bottom: 160px;
+    padding-right: 50px;
+}
+
+.wave-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+.wave-container p {
+    padding-left: 40px;
+    color: #FFF;
+}
+
+.wave-container a {
+    color: #FFF;
+}
+
+.wave-container svg {
+    z-index: -1;
+    position: absolute;
+    bottom: 0;
+}
+
+.menu-toggle-button,
+#menu-toggle-switch {
+    display: none;
+}
+
+/* Changes to apply to "large" devices
+ *
+ * * Hide right navigation
+ *
+ */
+@media screen and (max-width: 1200px) {}
+
+/* Changes to apply to "medium" devices
+ *
+ * * Hide main left navigation
+ * * Start showing the menu toggle button
+ * * Remove page shadow
+ *
+ */
+@media screen and (max-width: 768px) {}
+
+/* Changes to apply to "small" devices
+ *
+ * * Hide right navigation
+ *
+ */
+@media screen and (max-width: 576px) {}
+
+/* Main content -------------------------------------------------------- */
+
+.content {
+    z-index: 10;
+    padding: 80px;
+    background: #FFF;
+    box-shadow: 0px 0px 9px rgba(0, 0, 0, 0.07);
+    border-radius: 10px 10px 0px 0px;
 }
 
 .content h1:first-child,
@@ -187,183 +228,6 @@ th {
     margin-top: 0;
 }
 
-.wave-container {
-    z-index: 9;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-}
-
-.wave-container svg {
-    position: absolute;
-    bottom: 0;
-}
-
-.menu-toggle-button-open,
-.menu-toggle-button-close,
-#menu-toggle-switch {
-    display: none;
-}
-
-/* Changes to apply to "large" devices
- *
- * * Hide right navigation
- *
- */
-@media screen and (max-width: 1200px) {
-
-    .header-dummy-right,
-    .content-dummy-right,
-    .sidebar-right {
-        display: none;
-    }
-
-    .search {
-        padding-right: 10px;
-        padding-left: 10px;
-    }
-
-    .content {
-        margin-right: 10px;
-        margin-left: 10px;
-    }
-}
-
-/* Changes to apply to "medium" devices
- *
- * * Hide main left navigation
- * * Start showing the menu toggle button
- * * Remove page shadow
- *
- */
-@media screen and (max-width: 768px) {
-
-    .content-dummy-left,
-    .sidebar-dummy-center,
-    .sidebar-dummy-right {
-        display: none;
-    }
-
-    .background .sidebars .sidebar-left {
-        overflow: hidden;
-    }
-
-    .background .header {
-        padding-bottom: 20px;
-        flex-wrap: wrap;
-    }
-
-    .background .header .logo {
-        flex: 0 0 100%;
-        width: 100%;
-        height: 100px;
-        padding-top: 10px;
-        padding-bottom: 0px;
-    }
-
-    .background .header .logo .project-name {
-        margin-top: 20px;
-        padding-top: 0px;
-        padding-left: 0px;
-    }
-
-    .background .header .search {
-        box-sizing: content-box;
-        padding-left: 40px;
-        padding-right: 40px;
-        height: 40px;
-    }
-
-    .container {
-        justify-content: flex-start;
-    }
-
-    .container .content {
-        margin-right: 0px;
-        margin-left: 0px;
-        margin-top: 200px;
-        padding: 40px;
-        box-shadow: none;
-        box-sizing: content-box;
-        border: 1px solid #E3E3E3;
-        width: inherit;
-    }
-
-    .wave-container {
-        display: none;
-    }
-
-    .menu-toggle-button {
-        z-index: 20;
-        display: block;
-        cursor: pointer;
-        position: fixed;
-        bottom: 15px;
-        left: 15px;
-        font-size: 1.6rem;
-        height: 25px;
-        width: 25px;
-        background: #445282;
-        color: white;
-        padding: 10px;
-        border-radius: 25px;
-        line-height: 1.45rem;
-        text-align: center;
-
-        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    #menu-toggle-switch:checked+.page .background .sidebars {
-        justify-content: flex-start;
-    }
-
-    #menu-toggle-switch:checked+.page .background .header {
-        margin-left: 95%;
-    }
-
-    #menu-toggle-switch:checked+.page {
-        overflow: hidden;
-    }
-
-    #menu-toggle-switch:checked+.page .container {
-        overflow: hidden;
-        justify-content: flex-start;
-    }
-
-    #menu-toggle-switch:checked+.page .background .sidebars .sidebar-left {
-        margin-top: -120px;
-        height: calc(100% + 120px);
-        width: 95%;
-        overflow: auto;
-    }
-
-    #menu-toggle-switch:checked+.page .container .content {
-        margin-left: 95%;
-        height: 100%;
-    }
-}
-
-/* Changes to apply to "small" devices
- *
- * * Hide right navigation
- *
- */
-@media screen and (max-width: 576px) {
-    .container .content {
-        min-width: 100%;
-        box-sizing: border-box;
-    }
-}
-
-/* Main content -------------------------------------------------------- */
-
-.content {
-    background: #FFF;
-    box-shadow: 0px 0px 9px rgba(0, 0, 0, 0.07);
-    border-radius: 10px 10px 0px 0px;
-}
-
 /* Left sidebar -------------------------------------------------------- */
 
 .sidebar-left {
@@ -372,7 +236,7 @@ th {
 }
 
 .project-name {
-    margin-top: 10px;
+    margin-top: 0px;
 }
 
 .project-name:after {
@@ -433,7 +297,6 @@ nav ul ul a {
 /* Right sidebar ------------------------------------------------------- */
 
 .sidebar-right {
-    padding-top: 180px;
 }
 
 .page-nav-header {
@@ -499,6 +362,7 @@ nav ul ul a {
 }
 
 .search #search-form input {
+    outline: none;
     width: 100%;
     padding: 10px;
     border: 1px solid #EEEEEE;
@@ -508,27 +372,28 @@ nav ul ul a {
 }
 
 #search-results {
-    z-index: 30;
+    z-index: 50;
     position: absolute;
     overflow: auto;
 
     width: 100%;
-    top: -65px;
+    top: 30px;
     left: 0px;
 
     padding-left: 0px;
+    padding-right: 0px;
 
     background: none;
     list-style: none;
     border-radius: 10px;
     box-sizing: border-box;
+    box-shadow: 0 0.1rem 1rem rgba(0, 0, 0, 0.1);
 }
 
 #search-results li {
     margin: 0;
     margin-top: -1px;
     border: 1px solid #E3E3E3;
-    box-shadow: 0 0.1rem 1rem rgba(0, 0, 0, 0.075);
     background: #FFF;
 }
 
