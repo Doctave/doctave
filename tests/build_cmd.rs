@@ -198,10 +198,13 @@ integration_test!(frontmatter, |area| {
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    area.assert_contains(
-        &index,
-        "<div class='content'>\n                <h1 id=\"this-is-the-end-1\">This is the end</h1>",
-    );
+    let index = std::fs::read_to_string(&index).unwrap();
+
+    let start = index.find("<div class='content'>").unwrap();
+    let end = index.find("<div class='sidebar-right'>").unwrap();
+
+    // Check that there is no line between the beginning and end of the content
+    assert!(!index[start..end].contains("<hr />"));
 });
 
 integration_test!(page_nav, |area| {
