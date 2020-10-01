@@ -193,7 +193,7 @@ integration_test!(frontmatter, |area| {
         .as_bytes(),
     );
 
-    let index = Path::new("site").join("index.html");
+    let index = area.path.join("site").join("index.html");
 
     let result = area.cmd(&["build"]);
     assert_success(&result);
