@@ -227,23 +227,12 @@ impl<'a> SiteGenerator<'a> {
         let mut root_dir = self
             .walk_dir(project_root.join("docs"))
             .unwrap_or(Directory {
+                path: project_root.join("docs"),
                 docs: vec![],
                 dirs: vec![],
             });
 
-        // Set doc directory's root README with the repo's root readme
-        // if one didn't exist
-        if let None = root_dir
-            .docs
-            .iter()
-            .find(|doc| doc.original_file_name() == Some(OsStr::new("README.md")))
-        {
-            root_dir
-                .docs
-                .push(Document::load(project_root, "README.md"));
-        }
-
-        self.generate_missing_indices(&mut root_dir.dirs);
+        self.generate_missing_indices(&mut root_dir);
 
         root_dir
     }
@@ -279,21 +268,27 @@ impl<'a> SiteGenerator<'a> {
         if docs.is_empty() {
             None
         } else {
-            Some(Directory { docs, dirs })
+            Some(Directory {
+                path: current_dir.to_path_buf(),
+                docs,
+                dirs,
+            })
         }
     }
 
-    fn generate_missing_indices(&self, dirs: &mut [Directory]) {
-        for mut dir in dirs {
-            if dir
-                .docs
-                .iter()
-                .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
-                .is_none()
-            {
-                let new_index = self.generate_missing_index(&mut dir);
-                dir.docs.push(new_index);
-            }
+    fn generate_missing_indices(&self, dir: &mut Directory) {
+        if dir
+            .docs
+            .iter()
+            .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
+            .is_none()
+        {
+            let new_index = self.generate_missing_index(dir);
+            dir.docs.push(new_index);
+        }
+
+        for mut child in &mut dir.dirs {
+            self.generate_missing_indices(&mut child);
         }
     }
 
@@ -321,7 +316,7 @@ impl<'a> SiteGenerator<'a> {
                 `{}` did not contain an index `README.md` file. You can customize this page by \
                 creating one yourself.\
                 \n\
-                # Pages\n\
+                ## Pages\n\
                 \n\
                 {}",
                 dir.path().file_name().unwrap().to_string_lossy(),

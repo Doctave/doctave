@@ -74,13 +74,14 @@ pub type Result<T> = std::result::Result<T, error::Error>;
 
 #[derive(Debug, Clone)]
 struct Directory {
+    path: PathBuf,
     docs: Vec<Document>,
     dirs: Vec<Directory>,
 }
 
 impl Directory {
     fn path(&self) -> &Path {
-        &self.docs[0].path.parent().unwrap()
+        &self.path
     }
 
     fn destination(&self, out: &Path) -> PathBuf {

@@ -83,12 +83,14 @@ mod test {
     #[test]
     fn basic() {
         let root = Directory {
+            path: PathBuf::from("docs"),
             docs: vec![
                 page("docs/README.md", "Getting Started"),
                 page("docs/one.md", "One"),
                 page("docs/two.md", "Two"),
             ],
             dirs: vec![Directory {
+            path: PathBuf::from("docs").join("child"),
                 docs: vec![
                     page("docs/child/README.md", "Nested Root"),
                     page("docs/child/three.md", "Three"),

@@ -3,11 +3,13 @@ mod support;
 
 use std::process::Command;
 use std::sync::mpsc::channel;
+use std::path::Path;
 use support::*;
 
 integration_test!(serve_smoke_test, |area| {
     area.create_config();
-    area.write_file("README.md", b"# Some content");
+    area.mkdir("docs");
+    area.write_file(Path::new("docs").join("README.md"), b"# Some content");
     let binary = area.binary();
     let path = area.path.to_path_buf();
 

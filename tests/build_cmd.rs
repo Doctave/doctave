@@ -9,8 +9,9 @@ use support::*;
 
 integration_test!(build_smoke_test, |area| {
     area.create_config();
+    area.mkdir("docs");
     area.write_file(
-        "README.md",
+        Path::new("docs").join("README.md"),
         indoc! {"
         # Some content
 
@@ -41,7 +42,7 @@ integration_test!(build_smoke_test, |area| {
 integration_test!(build_navigation, |area| {
     area.create_config();
     area.mkdir("docs");
-    area.write_file("README.md", b"# Some content");
+    area.write_file(Path::new("docs").join("README.md"), b"# Some content");
     area.write_file(
         Path::new("docs").join("howto_build.md"),
         indoc! {"
@@ -86,7 +87,7 @@ integration_test!(build_navigation_nested, |area| {
     area.create_config();
     area.mkdir("docs");
     area.mkdir(Path::new("docs").join("nested"));
-    area.write_file("README.md", b"# Some content");
+    area.write_file(Path::new("docs").join("README.md"), b"# Some content");
     area.write_file(
         Path::new("docs").join("runbooks.md"),
         indoc! {"
@@ -133,9 +134,10 @@ integration_test!(build_navigation_nested, |area| {
 });
 
 integration_test!(mermaid_js, |area| {
+    area.mkdir("docs");
     area.create_config();
     area.write_file(
-        "README.md",
+        Path::new("docs").join("README.md"),
         indoc! {"
         # Mermaid 
 
@@ -162,9 +164,10 @@ integration_test!(mermaid_js, |area| {
 });
 
 integration_test!(search_index, |area| {
+    area.mkdir("docs");
     area.create_config();
     area.write_file(
-        "README.md",
+        Path::new("docs").join("README.md"),
         indoc! {"
         # An Search!
         ```
@@ -179,9 +182,10 @@ integration_test!(search_index, |area| {
 });
 
 integration_test!(frontmatter, |area| {
+    area.mkdir("docs");
     area.create_config();
     area.write_file(
-        "README.md",
+        Path::new("docs").join("README.md"),
         indoc! {"
         ---
         title: \"The start\"
@@ -208,9 +212,10 @@ integration_test!(frontmatter, |area| {
 });
 
 integration_test!(page_nav, |area| {
+    area.mkdir("docs");
     area.create_config();
     area.write_file(
-        "README.md",
+        Path::new("docs").join("README.md"),
         indoc! {"
         # This
 
@@ -260,29 +265,11 @@ integration_test!(missing_directory_index, |area| {
     );
 });
 
-integration_test!(missing_directory_index_root, |area| {
-    area.create_config();
-    area.mkdir(Path::new("docs"));
-
-    area.write_file(Path::new("README.md"), b"# Some content");
-    area.write_file(
-        Path::new("docs").join("not_the_index.md"),
-        b"# Some other content",
-    );
-
-    let result = area.cmd(&["build"]);
-    assert_success(&result);
-
-    // Assert we auto-generated an index page
-    let index = Path::new("site").join("index.html");
-    area.refute_contains(&index, "This page was generated automatically by Doctave");
-    area.assert_contains(&index, "Some content");
-});
-
 integration_test!(code_syntax_highlight, |area| {
     area.create_config();
+    area.mkdir(Path::new("docs"));
     area.write_file(
-        Path::new("README.md"),
+        Path::new("docs").join("README.md"),
         indoc! {"
     # Some code
 
@@ -327,14 +314,19 @@ integration_test!(assets_folder, |area| {
 });
 
 integration_test!(custom_colors, |area| {
-    area.write_file(Path::new("doctave.yaml"), indoc! {"
+    area.mkdir(Path::new("docs"));
+    area.write_file(
+        Path::new("doctave.yaml"),
+        indoc! {"
     ---
     title: Custom colors
     colors:
       main: \"#5f658a\"
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
-    area.write_file(Path::new("README.md"), b"# Hi");
+    area.write_file(Path::new("docs").join("README.md"), b"# Hi");
 
     let result = area.cmd(&["build"]);
     assert_success(&result);
@@ -345,16 +337,24 @@ integration_test!(custom_colors, |area| {
 });
 
 integration_test!(custom_colors_invalid, |area| {
-    area.write_file(Path::new("doctave.yaml"), indoc! {"
+    area.mkdir(Path::new("docs"));
+    area.write_file(
+        Path::new("doctave.yaml"),
+        indoc! {"
     ---
     title: Custom colors
     colors:
       main: not-a-color
-    "}.as_bytes());
+    "}
+        .as_bytes(),
+    );
 
-    area.write_file(Path::new("README.md"), b"# Hi");
+    area.write_file(Path::new("docs").join("README.md"), b"# Hi");
 
     let result = area.cmd(&["build"]);
     assert_failed(&result);
-    assert_output(&result, "Could not parse color code \"not-a-color\" from doctave.yaml");
+    assert_output(
+        &result,
+        "Could not parse color code \"not-a-color\" from doctave.yaml",
+    );
 });

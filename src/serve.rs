@@ -34,13 +34,7 @@ impl ServeCommand {
         // Watcher ------------------------------------
 
         let (watch_snd, watch_rcv) = bounded(128);
-        let watcher = Watcher::new(
-            vec![
-                cmd.config.project_root().join("README.md"),
-                cmd.config.project_root().join("docs"),
-            ],
-            watch_snd,
-        );
+        let watcher = Watcher::new(vec![cmd.config.project_root().join("docs")], watch_snd);
         thread::Builder::new()
             .name("watcher".into())
             .spawn(move || watcher.run())
