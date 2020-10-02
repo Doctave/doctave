@@ -12,13 +12,17 @@ impl From<&Directory> for Level {
             .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
             .expect("No index file found for directory");
 
-        let links = dir
+        let mut links = dir
             .docs
             .iter()
             .filter(|d| *d != index)
             .map(|d| d.into())
-            .collect();
-        let children = dir.dirs.iter().map(|d| d.into()).collect();
+            .collect::<Vec<Link>>();
+
+        let mut children = dir.dirs.iter().map(|d| d.into()).collect::<Vec<Level>>();
+
+        links.sort_by(|a, b| a.title.cmp(&b.title));
+        children.sort_by(|a, b| a.index.title.cmp(&b.index.title));
 
         Level {
             index: index.into(),
@@ -36,7 +40,10 @@ impl From<&Document> for Link {
         tmp.set_extension("");
 
         if tmp.file_name() == Some(OsStr::new("index")) {
-            tmp = tmp.parent().map(|p| p.to_owned()).unwrap_or(PathBuf::from(""));
+            tmp = tmp
+                .parent()
+                .map(|p| p.to_owned())
+                .unwrap_or(PathBuf::from(""));
         }
 
         // Need to force forward slashes here, since URIs will always
@@ -90,7 +97,7 @@ mod test {
                 page("docs/two.md", "Two"),
             ],
             dirs: vec![Directory {
-            path: PathBuf::from("docs").join("child"),
+                path: PathBuf::from("docs").join("child"),
                 docs: vec![
                     page("docs/child/README.md", "Nested Root"),
                     page("docs/child/three.md", "Three"),
@@ -127,6 +134,114 @@ mod test {
                     },],
                     children: vec![]
                 }]
+            }
+        )
+    }
+
+    #[test]
+    fn sorting_alphanumerically() {
+        let root = Directory {
+            path: PathBuf::from("docs"),
+            docs: vec![
+                page("docs/README.md", "Getting Started"),
+                page("docs/001.md", "bb"),
+                page("docs/002.md", "11"),
+            ],
+            dirs: vec![
+                Directory {
+                    path: PathBuf::from("docs").join("bb_child"),
+                    docs: vec![
+                        page("docs/child/README.md", "Index"),
+                        page("docs/child/001.md", "BB"),
+                        page("docs/child/002.md", "22"),
+                        page("docs/child/003.md", "AA"),
+                        page("docs/child/004.md", "11"),
+                    ],
+                    dirs: vec![],
+                },
+                Directory {
+                    path: PathBuf::from("docs").join("aa_child"),
+                    docs: vec![
+                        page("docs/child2/README.md", "Index"),
+                        page("docs/child2/001.md", "123"),
+                        page("docs/child2/002.md", "aa"),
+                        page("docs/child2/003.md", "cc"),
+                        page("docs/child2/004.md", "bb"),
+                    ],
+                    dirs: vec![],
+                },
+            ],
+        };
+
+        assert_eq!(
+            Level::from(&root),
+            Level {
+                index: Link {
+                    path: String::from("/"),
+                    title: String::from("Getting Started"),
+                },
+                links: vec![
+                    Link {
+                        path: String::from("/002"),
+                        title: String::from("11")
+                    },
+                    Link {
+                        path: String::from("/001"),
+                        title: String::from("bb"),
+                    }
+                ],
+                children: vec![
+                    Level {
+                        index: Link {
+                            path: String::from("/child"),
+                            title: String::from("Index")
+                        },
+                        links: vec![
+                            Link {
+                                path: String::from("/child/004"),
+                                title: String::from("11")
+                            },
+                            Link {
+                                path: String::from("/child/002"),
+                                title: String::from("22")
+                            },
+                            Link {
+                                path: String::from("/child/003"),
+                                title: String::from("AA")
+                            },
+                            Link {
+                                path: String::from("/child/001"),
+                                title: String::from("BB")
+                            },
+                        ],
+                        children: vec![]
+                    },
+                    Level {
+                        index: Link {
+                            path: String::from("/child2"),
+                            title: String::from("Index")
+                        },
+                        links: vec![
+                            Link {
+                                path: String::from("/child2/001"),
+                                title: String::from("123")
+                            },
+                            Link {
+                                path: String::from("/child2/002"),
+                                title: String::from("aa")
+                            },
+                            Link {
+                                path: String::from("/child2/004"),
+                                title: String::from("bb")
+                            },
+                            Link {
+                                path: String::from("/child2/003"),
+                                title: String::from("cc")
+                            },
+                        ],
+                        children: vec![]
+                    }
+                ]
             }
         )
     }
