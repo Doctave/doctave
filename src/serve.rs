@@ -1,4 +1,3 @@
-use std::io;
 use std::thread;
 use std::time::Instant;
 
@@ -10,6 +9,7 @@ use crate::livereload_server::LivereloadServer;
 use crate::preview_server::PreviewServer;
 use crate::site::Site;
 use crate::watcher::Watcher;
+use crate::Result;
 
 pub struct ServeCommand {
     config: Config,
@@ -17,7 +17,7 @@ pub struct ServeCommand {
 }
 
 impl ServeCommand {
-    pub fn run(config: Config) -> io::Result<()> {
+    pub fn run(config: Config) -> Result<()> {
         let site = Site::new(config.clone());
 
         let cmd = ServeCommand { config, site };

@@ -1,10 +1,11 @@
 use std::fs::File;
-use std::io;
 use std::path::{Path, PathBuf};
 
 use colorsys::prelude::*;
 use colorsys::Rgb;
 use serde::Deserialize;
+
+use crate::{Error, Result};
 
 #[derive(Debug, Clone)]
 pub struct Config {
@@ -29,11 +30,12 @@ struct Colors {
 }
 
 impl Config {
-    pub fn load(project_root: &Path) -> io::Result<Self> {
-        let file = File::open(project_root.join("doctave.yaml"))?;
+    pub fn load(project_root: &Path) -> Result<Self> {
+        let file = File::open(project_root.join("doctave.yaml"))
+            .map_err(|_| Error::new("Could not open doctave.yaml file"))?;
 
-        let mut doctave_yaml: DoctaveYaml =
-            serde_yaml::from_reader(file).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+        let mut doctave_yaml: DoctaveYaml = serde_yaml::from_reader(file)
+            .map_err(|e| Error::yaml(e, "Could not parse doctave.yaml"))?;
 
         if doctave_yaml.colors.is_none() {
             doctave_yaml.colors = Some(Colors::default());

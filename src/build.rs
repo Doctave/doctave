@@ -1,11 +1,11 @@
 use std::env::current_dir;
-use std::io;
 use std::time::Instant;
 
 use colored::*;
 
 use crate::config::Config;
 use crate::site::Site;
+use crate::{Error, Result};
 
 pub struct BuildCommand {
     config: Config,
@@ -13,7 +13,7 @@ pub struct BuildCommand {
 }
 
 impl BuildCommand {
-    pub fn run(config: Config) -> io::Result<()> {
+    pub fn run(config: Config) -> Result<()> {
         let site = Site::new(config.clone());
         let cmd = BuildCommand { config, site };
 
@@ -24,7 +24,10 @@ impl BuildCommand {
                 "{}",
                 &cmd.config
                     .out_dir()
-                    .strip_prefix(current_dir()?)
+                    .strip_prefix(current_dir().map_err(|e| Error::io(
+                        e,
+                        "Could not determine current directory"
+                    ))?)
                     .map(|d| d.display())
                     .unwrap_or(cmd.config.out_dir().display())
             )

@@ -32,12 +32,12 @@ fn main() {
     }
 }
 
-fn init() -> std::io::Result<()> {
+fn init() -> doctave::Result<()> {
     let root_dir = std::env::current_dir().expect("Unable to determine current directory");
     doctave::InitCommand::run(root_dir)
 }
 
-fn build() -> std::io::Result<()> {
+fn build() -> doctave::Result<()> {
     let project_dir = doctave::config::project_root().unwrap_or_else(|| {
         println!("Could not find a doctave project in this directory, or its parents.");
         std::process::exit(1);
@@ -48,7 +48,7 @@ fn build() -> std::io::Result<()> {
     doctave::BuildCommand::run(config)
 }
 
-fn serve() -> std::io::Result<()> {
+fn serve() -> doctave::Result<()> {
     let project_dir = doctave::config::project_root().unwrap_or_else(|| {
         println!("Could not find a doctave project in this directory, or its parents.");
         std::process::exit(1);

@@ -6,6 +6,7 @@ extern crate indoc;
 extern crate lazy_static;
 
 mod build;
+mod error;
 pub mod config;
 mod frontmatter;
 mod init;
@@ -24,6 +25,7 @@ use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+pub use error::Error;
 pub use build::BuildCommand;
 pub use init::InitCommand;
 pub use markdown::{Heading, Markdown};
@@ -67,6 +69,8 @@ lazy_static! {
         handlebars
     };
 }
+
+pub type Result<T> = std::result::Result<T, error::Error>;
 
 #[derive(Debug, Clone)]
 struct Directory {

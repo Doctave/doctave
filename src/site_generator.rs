@@ -1,7 +1,6 @@
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs::{self, File};
-use std::io;
 use std::path::{Path, PathBuf};
 
 use elasticlunr::Index;
@@ -14,6 +13,7 @@ use crate::markdown::Heading;
 use crate::navigation::{Level, Link};
 use crate::site::Site;
 use crate::{Directory, Document};
+use crate::{Error, Result};
 
 pub struct SiteGenerator<'a> {
     config: &'a Config,
@@ -25,7 +25,7 @@ impl<'a> SiteGenerator<'a> {
         SiteGenerator { config, site }
     }
 
-    pub fn run(&self) -> io::Result<()> {
+    pub fn run(&self) -> Result<()> {
         let root = self.find_docs(self.config.project_root());
         let navigation = Level::from(&root);
 
@@ -38,30 +38,36 @@ impl<'a> SiteGenerator<'a> {
         Ok(())
     }
 
-    fn build_assets(&self) -> io::Result<()> {
-        fs::create_dir_all(self.config.out_dir().join("assets"))?;
+    fn build_assets(&self) -> Result<()> {
+        fs::create_dir_all(self.config.out_dir().join("assets"))
+            .map_err(|e| Error::io(e, "Could not create assets directory"))?;
 
         // Add JS
         fs::write(
             self.config.out_dir().join("assets").join("mermaid.js"),
             crate::MERMAID_JS,
-        )?;
+        )
+        .map_err(|e| Error::io(e, "Could not write mermaid.js to assets directory"))?;
         fs::write(
             self.config.out_dir().join("assets").join("elasticlunr.js"),
             crate::ELASTIC_LUNR,
-        )?;
+        )
+        .map_err(|e| Error::io(e, "Could not write elasticlunr.js to assets directory"))?;
         fs::write(
             self.config.out_dir().join("assets").join("livereload.js"),
             crate::LIVERELOAD_JS,
-        )?;
+        )
+        .map_err(|e| Error::io(e, "Could not write livereload.js to assets directory"))?;
         fs::write(
             self.config.out_dir().join("assets").join("prism.js"),
             crate::PRISM_JS,
-        )?;
+        )
+        .map_err(|e| Error::io(e, "Could not write prism.js to assets directory"))?;
         fs::write(
             self.config.out_dir().join("assets").join("doctave-app.js"),
             crate::APP_JS,
-        )?;
+        )
+        .map_err(|e| Error::io(e, "Could not write doctave-app.js to assets directory"))?;
 
         // Add styles
         fs::write(
@@ -70,25 +76,30 @@ impl<'a> SiteGenerator<'a> {
                 .join("assets")
                 .join("prism-atom-dark.css"),
             crate::ATOM_DARK_CSS,
-        )?;
+        )
+        .map_err(|e| Error::io(e, "Could not write prism-atom-dark.css to assets directory"))?;
         fs::write(
             self.config
                 .out_dir()
                 .join("assets")
                 .join("prism-ghcolors.css"),
             crate::GH_COLORS_CSS,
-        )?;
+        )
+        .map_err(|e| Error::io(e, "Could not write prism-ghcolors.css to assets directory"))?;
         fs::write(
             self.config.out_dir().join("assets").join("normalize.css"),
             crate::NORMALIZE_CSS,
-        )?;
+        )
+        .map_err(|e| Error::io(e, "Could not write normalize.css to assets directory"))?;
 
         let mut style = File::create(
             self.config
                 .out_dir()
                 .join("assets")
                 .join("doctave-style.css"),
-        )?;
+        )
+        .map_err(|e| Error::io(e, "Could not create doctave-style.css in assets directory"))?;
+
         let mut data = serde_json::Map::new();
         data.insert(
             "theme_main".to_string(),
@@ -118,27 +129,40 @@ impl<'a> SiteGenerator<'a> {
 
             let destination = self.config.out_dir().join("assets").join(stripped_path);
 
-            File::create(&destination)?;
+            File::create(&destination)
+                .map_err(|e| Error::io(e, "Could not create custom asset in assets directory"))?;
             fs::create_dir_all(
                 asset
                     .path()
                     .parent()
                     .expect("asset did not have parent directory"),
-            )?;
-            fs::copy(asset.path(), destination)?;
+            )
+            .map_err(|e| Error::io(e, "Could not create custom asset parent directory"))?;
+            fs::copy(asset.path(), destination)
+                .map_err(|e| Error::io(e, "Could not copy custom asset"))?;
         }
 
         Ok(())
     }
 
-    fn build_directory(&self, dir: &Directory, nav: &Level) -> io::Result<()> {
-        fs::create_dir_all(dir.destination(&self.config.out_dir()))?;
+    fn build_directory(&self, dir: &Directory, nav: &Level) -> Result<()> {
+        fs::create_dir_all(dir.destination(&self.config.out_dir()))
+            .map_err(|e| Error::io(e, "Could not create site directory"))?;
 
-        let results: Result<Vec<()>, io::Error> = dir
+        let results: Result<Vec<()>> = dir
             .docs
             .par_iter()
             .map(|doc| {
-                let mut file = File::create(doc.destination(&self.config.out_dir()))?;
+                let mut file =
+                    File::create(doc.destination(&self.config.out_dir())).map_err(|e| {
+                        Error::io(
+                            e,
+                            format!(
+                                "Could not create page {}",
+                                doc.destination(&self.config.out_dir()).display()
+                            ),
+                        )
+                    })?;
 
                 let page_title = if Link::from(doc).path == "/" {
                     self.config.title().to_string()
@@ -158,7 +182,7 @@ impl<'a> SiteGenerator<'a> {
 
                 crate::HANDLEBARS
                     .render_to_write("page", &data, &mut file)
-                    .unwrap();
+                    .map_err(|e| Error::handlebars(e, "Could not render template"))?;
 
                 Ok(())
             })
@@ -171,7 +195,7 @@ impl<'a> SiteGenerator<'a> {
             .collect()
     }
 
-    fn build_search_index(&self, root: &Directory) -> io::Result<()> {
+    fn build_search_index(&self, root: &Directory) -> Result<()> {
         let mut index = Index::new(&["title", "uri", "body"]);
 
         self.build_search_index_for_dir(root, &mut index);
@@ -180,6 +204,7 @@ impl<'a> SiteGenerator<'a> {
             self.config.out_dir().join("search_index.json"),
             index.to_json().as_bytes(),
         )
+        .map_err(|e| Error::io(e, "Could not create search index"))
     }
 
     fn build_search_index_for_dir(&self, root: &Directory, index: &mut Index) {
