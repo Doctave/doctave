@@ -7,19 +7,23 @@ use serde::Deserialize;
 
 use crate::{Error, Result};
 
-#[derive(Debug, Clone)]
-pub struct Config {
-    doctave_yaml: DoctaveYaml,
-    project_root: PathBuf,
-    out_dir: PathBuf,
-    docs_dir: PathBuf,
-}
-
 #[derive(Debug, Clone, Deserialize)]
 struct DoctaveYaml {
     title: String,
     colors: Option<Colors>,
     logo: Option<PathBuf>,
+}
+
+impl DoctaveYaml {
+    fn find(root: &Path) -> Option<PathBuf> {
+        if root.join("doctave.yaml").exists() {
+            Some(root.join("doctave.yaml"))
+        } else if root.join("doctave.yml").exists() {
+            Some(root.join("doctave.yml"))
+        } else {
+            None
+        }
+    }
 }
 
 static DEFAULT_THEME_COLOR: &'static str = "#445282";
@@ -29,10 +33,21 @@ struct Colors {
     main: Option<String>,
 }
 
+#[derive(Debug, Clone)]
+pub struct Config {
+    doctave_yaml: DoctaveYaml,
+    project_root: PathBuf,
+    out_dir: PathBuf,
+    docs_dir: PathBuf,
+}
+
 impl Config {
     pub fn load(project_root: &Path) -> Result<Self> {
-        let file = File::open(project_root.join("doctave.yaml"))
-            .map_err(|_| Error::new("Could not open doctave.yaml file"))?;
+        let file = if let Some(path) = DoctaveYaml::find(&project_root) {
+            File::open(path).map_err(|_| Error::new("Could not open doctave.yaml file"))?
+        } else {
+            return Err(Error::new("Could not find doctave config file"));
+        };
 
         let mut doctave_yaml: DoctaveYaml = serde_yaml::from_reader(file)
             .map_err(|e| Error::yaml(e, "Could not parse doctave.yaml"))?;
@@ -132,7 +147,7 @@ pub fn project_root() -> Option<PathBuf> {
 
     loop {
         // If we are in the root dir, just return it
-        if current_dir.join("doctave.yaml").exists() {
+        if current_dir.join("doctave.yaml").exists() || current_dir.join("doctave.yml").exists() {
             return Some(current_dir);
         }
 
