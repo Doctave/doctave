@@ -24,10 +24,10 @@ impl BuildCommand {
                 "{}",
                 &cmd.config
                     .out_dir()
-                    .strip_prefix(current_dir().map_err(|e| Error::io(
-                        e,
-                        "Could not determine current directory"
-                    ))?)
+                    .strip_prefix(
+                        current_dir()
+                            .map_err(|e| Error::io(e, "Could not determine current directory"))?
+                    )
                     .map(|d| d.display())
                     .unwrap_or(cmd.config.out_dir().display())
             )

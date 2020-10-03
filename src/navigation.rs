@@ -1,8 +1,70 @@
-use crate::{Directory, Document};
+use crate::config::Config;
+use crate::{Directory, Document, Error, Result};
 use serde::Serialize;
 
 use std::ffi::OsStr;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+
+pub struct Navigation<'a> {
+    config: &'a Config,
+}
+
+impl<'a> Navigation<'a> {
+    fn new(config: &'a Config) -> Self {
+        Navigation { config }
+    }
+
+    fn build(&self) -> Level {
+        unimplemented!()
+    }
+}
+
+/// If the user has provided a custom navigation layout, this function
+/// will construct a matching `Level` data structure.
+pub fn build_from_config(config: &Config, fs_root: &Level) -> Result<Level> {
+    let root = Level {
+        index: fs_root.index.clone(),
+        links: vec![],
+        children: vec![],
+    };
+
+    println!("{:#?}", config);
+    println!("-------------------------------");
+    println!("{:#?}", fs_root);
+
+    unimplemented!()
+}
+
+/// Takes a path to a markdown file and converts it into the
+/// URI path that would resolve to it when it gets converted
+/// to an HTML file.
+///
+/// Expects the path to be relative to the root of the docs
+/// directory.
+fn markdown_path_to_uri_path(path: &Path) -> String {
+    let mut tmp = path.to_path_buf();
+
+    // Default to stipping .html extensions
+    tmp.set_extension("");
+
+    if tmp.file_name() == Some(OsStr::new("index")) {
+        tmp = tmp
+            .parent()
+            .map(|p| p.to_owned())
+            .unwrap_or(PathBuf::from(""));
+    }
+
+    // Need to force forward slashes here, since URIs will always
+    // work the same across all platforms.
+    let uri_path = tmp
+        .components()
+        .into_iter()
+        .map(|c| format!("{}", c.as_os_str().to_string_lossy()))
+        .collect::<Vec<_>>()
+        .join("/");
+
+    format!("/{}", uri_path)
+}
 
 impl From<&Directory> for Level {
     fn from(dir: &Directory) -> Level {
@@ -79,6 +141,7 @@ pub struct Link {
 mod test {
     use super::*;
     use std::collections::BTreeMap;
+    use std::path::Path;
 
     fn page(path: &str, name: &str) -> Document {
         let mut frontmatter = BTreeMap::new();
@@ -244,5 +307,86 @@ mod test {
                 ]
             }
         )
+    }
+
+    #[test]
+    fn manual_menu_simple() {
+        let root = Directory {
+            path: PathBuf::from("docs"),
+            docs: vec![
+                page("docs/README.md", "Getting Started"),
+                page("docs/one.md", "One"),
+                page("docs/two.md", "Two"),
+            ],
+            dirs: vec![Directory {
+                path: PathBuf::from("docs").join("child"),
+                docs: vec![
+                    page("docs/child/README.md", "Nested Root"),
+                    page("docs/child/three.md", "Three"),
+                ],
+                dirs: vec![],
+            }],
+        };
+
+        let config = crate::config::Config::from_yaml_str(
+            &Path::new("project"),
+            &indoc! {"
+            ---
+            title: My project
+            navigation:
+              - path: docs/one.md
+              - path: docs/child/README.md
+                children: \"*\"
+            "},
+        )
+        .unwrap();
+
+        let filesystem = Level::from(&root);
+        let customized = build_from_config(&config, &filesystem).unwrap();
+
+        assert_eq!(
+            customized,
+            Level {
+                index: Link {
+                    path: String::from("/"),
+                    title: String::from("Getting Started"),
+                },
+                links: vec![Link {
+                    path: String::from("/one"),
+                    title: String::from("One")
+                },],
+                children: vec![Level {
+                    index: Link {
+                        path: String::from("/child"),
+                        title: String::from("Nested Root")
+                    },
+                    links: vec![Link {
+                        path: String::from("/child/three"),
+                        title: String::from("Three")
+                    },],
+                    children: vec![]
+                }]
+            }
+        )
+    }
+
+    #[test]
+    fn path_to_uri_path() {
+        assert_eq!(
+            markdown_path_to_uri_path(&Path::new("README.md")),
+            String::from("/")
+        );
+        assert_eq!(
+            markdown_path_to_uri_path(&Path::new("tutorial.md")),
+            String::from("/tutorial")
+        );
+        assert_eq!(
+            markdown_path_to_uri_path(&Path::new("tutorial/README.md")),
+            String::from("/tutorial")
+        );
+        assert_eq!(
+            markdown_path_to_uri_path(&Path::new("tutorial/installation.md")),
+            String::from("/tutorial/installation")
+        );
     }
 }

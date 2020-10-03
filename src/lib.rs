@@ -6,8 +6,8 @@ extern crate indoc;
 extern crate lazy_static;
 
 mod build;
-mod error;
 pub mod config;
+mod error;
 mod frontmatter;
 mod init;
 mod livereload_server;
@@ -25,8 +25,8 @@ use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub use error::Error;
 pub use build::BuildCommand;
+pub use error::Error;
 pub use init::InitCommand;
 pub use markdown::{Heading, Markdown};
 pub use serve::ServeCommand;
@@ -148,8 +148,8 @@ impl Document {
 
         Document {
             id: DOCUMENT_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
-            path: path.into(),
-            root: root.into(),
+            path,
+            root,
             raw,
             markdown,
             rename,

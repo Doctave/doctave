@@ -146,7 +146,7 @@ impl<'a> SiteGenerator<'a> {
     }
 
     fn build_directory(&self, dir: &Directory, nav: &Level) -> Result<()> {
-        fs::create_dir_all(dir.destination(&self.config.out_dir()))
+        fs::create_dir_all(dir.destination(self.config.out_dir()))
             .map_err(|e| Error::io(e, "Could not create site directory"))?;
 
         let results: Result<Vec<()>> = dir
@@ -154,12 +154,12 @@ impl<'a> SiteGenerator<'a> {
             .par_iter()
             .map(|doc| {
                 let mut file =
-                    File::create(doc.destination(&self.config.out_dir())).map_err(|e| {
+                    File::create(doc.destination(self.config.out_dir())).map_err(|e| {
                         Error::io(
                             e,
                             format!(
                                 "Could not create page {}",
-                                doc.destination(&self.config.out_dir()).display()
+                                doc.destination(self.config.out_dir()).display()
                             ),
                         )
                     })?;

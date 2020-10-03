@@ -6,17 +6,17 @@ fn main() {
         .about(
             "An opinionated static site generator designed specifically \
                for technical documentation.",
-               )
+        )
         .subcommand(SubCommand::with_name("init").about("Initialize a new project (start here!)"))
         .subcommand(
             SubCommand::with_name("build")
-            .about("Builds your site from the project's Markdown files"),
-            )
+                .about("Builds your site from the project's Markdown files"),
+        )
         .subcommand(
             SubCommand::with_name("serve").about(
                 "Starts a live reloading development server to serve your documentation site",
-                ),
-                )
+            ),
+        )
         .get_matches();
 
     let result = match matches.subcommand() {

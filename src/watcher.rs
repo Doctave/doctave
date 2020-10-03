@@ -37,7 +37,7 @@ impl Watcher {
                     DebouncedEvent::Rename(p, new) => {
                         self.notify(p, format!("renamed to {}", new.display()))
                     }
-                    _ => true
+                    _ => true,
                 },
                 Err(e) => {
                     println!("watch error: {:?}", e);
@@ -46,7 +46,7 @@ impl Watcher {
             };
 
             if !should_continue {
-                break
+                break;
             }
         }
     }

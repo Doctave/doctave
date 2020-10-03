@@ -1,9 +1,9 @@
 #[allow(dead_code)]
 mod support;
 
+use std::path::Path;
 use std::process::Command;
 use std::sync::mpsc::channel;
-use std::path::Path;
 use support::*;
 
 integration_test!(serve_smoke_test, |area| {
