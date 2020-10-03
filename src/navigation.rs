@@ -1,4 +1,4 @@
-use crate::config::{Config, Navigation as NavRule};
+use crate::config::{Config, DirIncludeRule, NavRule};
 use crate::{Directory, Document, Error, Result};
 use serde::Serialize;
 
@@ -19,25 +19,79 @@ impl<'a> Navigation<'a> {
 
         match &self.config.navigation() {
             None => default,
-            Some(_nav) => self.customize(default),
+            Some(nav) => self.customize(nav, &default),
         }
     }
 
-    fn customize(&self, default: Level) -> Level {
-        let rules = self.config.navigation().unwrap();
-
-        let root = Level {
+    fn customize(&self, rules: &[NavRule], default: &Level) -> Level {
+        let mut root = Level {
             index: default.index.clone(),
             links: vec![],
             children: vec![],
         };
 
-        // for rule in rules {
-        //     if self.config.project_root().join(rule.path).is_file() {
-        //     }
-        // }
+        for rule in rules {
+            match rule {
+                NavRule::File(path) => root.links.push(self.find_matching_link(path, &default)),
+                NavRule::Dir(path, dir_rule) => {
+                    let level = self.find_matching_level(path, &default);
+
+                    match dir_rule {
+                        // Don't include any children
+                        None => root.children.push(Level {
+                            index: level.index.clone(),
+                            links: vec![],
+                            children: vec![],
+                        }),
+                        // Include all children
+                        Some(DirIncludeRule::WildCard) => root.children.push(Level {
+                            index: level.index.clone(),
+                            links: level.links.clone(),
+                            children: level.children.clone(),
+                        }),
+                        // Include only children that match the description
+                        Some(DirIncludeRule::Explicit(nested_rules)) => {
+                            root.children.push(self.customize(nested_rules, &level));
+                        }
+                    }
+                }
+            }
+        }
 
         root
+    }
+
+    fn find_matching_link(&self, path: &Path, level: &Level) -> Link {
+        level
+            .links
+            .iter()
+            .find(|link| {
+                let mut without_docs_part = path.components();
+                let _ = without_docs_part.next();
+
+                println!("{} vs {}", without_docs_part.as_path().display(), link.path);
+
+                link.path == Link::path_to_uri(without_docs_part.as_path())
+            })
+            .expect("Could not find matching doc for rule")
+            .clone()
+    }
+
+    fn find_matching_level(&self, path: &Path, level: &Level) -> Level {
+        level
+            .children
+            .iter()
+            .find(|level| {
+                let mut without_docs_part = path.components();
+                let _ = without_docs_part.next();
+
+                level.index.path == Link::path_to_uri(&without_docs_part.as_path())
+            })
+            .expect(&format!(
+                "Could not find matching dir for rule {}",
+                path.display()
+            ))
+            .clone()
     }
 }
 
@@ -71,7 +125,29 @@ impl From<&Directory> for Level {
 
 impl From<&Document> for Link {
     fn from(doc: &Document) -> Link {
-        let mut tmp = doc.html_path().clone();
+        Link {
+            path: Link::path_to_uri(&doc.html_path()),
+            title: doc.title().to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Level {
+    index: Link,
+    links: Vec<Link>,
+    children: Vec<Level>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Link {
+    pub path: String,
+    pub title: String,
+}
+
+impl Link {
+    fn path_to_uri(path: &Path) -> String {
+        let mut tmp = path.to_owned();
 
         // Default to stipping .html extensions
         tmp.set_extension("");
@@ -92,24 +168,8 @@ impl From<&Document> for Link {
             .collect::<Vec<_>>()
             .join("/");
 
-        Link {
-            path: format!("/{}", uri_path),
-            title: doc.title().to_string(),
-        }
+        format!("/{}", uri_path)
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct Level {
-    index: Link,
-    links: Vec<Link>,
-    children: Vec<Level>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct Link {
-    pub path: String,
-    pub title: String,
 }
 
 #[cfg(test)]
@@ -315,18 +375,16 @@ mod test {
             }],
         };
 
-        let config = config(Some(&indoc! {"
-            ---
-            title: My project
-            navigation:
-              - path: docs/one.md
-              - path: docs/child/README.md
-                children: \"*\"
-            "}));
+        let rules = vec![
+            NavRule::File(PathBuf::from("docs/one.md")),
+            NavRule::Dir(PathBuf::from("docs/child"), Some(DirIncludeRule::WildCard)),
+        ];
+
+        let config = config(None);
         let navigation = Navigation::new(&config);
 
         assert_eq!(
-            navigation.build_for(&root),
+            navigation.customize(&rules, &Level::from(&root)),
             Level {
                 index: Link {
                     path: String::from("/"),
@@ -346,6 +404,84 @@ mod test {
                         title: String::from("Three")
                     },],
                     children: vec![]
+                }]
+            }
+        )
+    }
+
+    #[test]
+    fn manual_menu_nested() {
+        let root = Directory {
+            path: PathBuf::from("docs"),
+            docs: vec![
+                page("README.md", "Getting Started"),
+                page("one.md", "One"),
+                page("two.md", "Two"),
+            ],
+            dirs: vec![Directory {
+                path: PathBuf::from("docs").join("child"),
+                docs: vec![
+                    page("child/README.md", "Nested Root"),
+                    page("child/three.md", "Three"),
+                ],
+                dirs: vec![Directory {
+                    path: PathBuf::from("docs").join("child").join("nested"),
+                    docs: vec![
+                        page("child/nested/README.md", "Nested Root"),
+                        page("child/nested/four.md", "Four"),
+                    ],
+                    dirs: vec![],
+                }],
+            }],
+        };
+
+        let rules = vec![
+            NavRule::File(PathBuf::from("docs").join("one.md")),
+            NavRule::Dir(
+                PathBuf::from("docs").join("child"),
+                Some(DirIncludeRule::Explicit(vec![NavRule::Dir(
+                    PathBuf::from("docs").join("child").join("nested"),
+                    Some(DirIncludeRule::Explicit(vec![NavRule::File(
+                        PathBuf::from("docs")
+                            .join("child")
+                            .join("nested")
+                            .join("four.md"),
+                    )])),
+                )])),
+            ),
+        ];
+
+        let config = config(None);
+        let navigation = Navigation::new(&config);
+
+        assert_eq!(
+            navigation.customize(&rules, &Level::from(&root)),
+            Level {
+                index: Link {
+                    path: String::from("/"),
+                    title: String::from("Getting Started"),
+                },
+                links: vec![Link {
+                    path: String::from("/one"),
+                    title: String::from("One")
+                },],
+                children: vec![Level {
+                    index: Link {
+                        path: String::from("/child"),
+                        title: String::from("Nested Root")
+                    },
+                    links: vec![],
+                    children: vec![Level {
+                        index: Link {
+                            path: String::from("/child/nested"),
+                            title: String::from("Nested Root")
+                        },
+                        links: vec![Link {
+                            path: String::from("/child/nested/four"),
+                            title: String::from("Four")
+                        }],
+                        children: vec![]
+                    }]
                 }]
             }
         )
