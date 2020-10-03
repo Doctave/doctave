@@ -73,7 +73,7 @@ lazy_static! {
 pub type Result<T> = std::result::Result<T, error::Error>;
 
 #[derive(Debug, Clone)]
-struct Directory {
+pub struct Directory {
     path: PathBuf,
     docs: Vec<Document>,
     dirs: Vec<Directory>,
@@ -111,13 +111,11 @@ struct Document {
 }
 
 impl Document {
-
     /// Loads a document from disk and parses it.
     ///
     /// Must be provided both the absolute path to the file, and the relative
     /// path inside the docs directory to the original file.
     fn load(absolute_path: &Path, relative_docs_path: &Path) -> Self {
-
         let raw = fs::read_to_string(absolute_path).unwrap();
         let frontmatter =
             frontmatter::parse(&raw).expect("TODO: Print an error when frontmatter is busted");

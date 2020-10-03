@@ -355,6 +355,7 @@ integration_test!(custom_colors_invalid, |area| {
     assert_failed(&result);
     assert_output(
         &result,
-        "Could not parse color code \"not-a-color\" from doctave.yaml",
+        "Error: Invalid HEX color provided for colors.main in doctave.yaml.",
     );
+    assert_output(&result, "Found 'not-a-color'");
 });

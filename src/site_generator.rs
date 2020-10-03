@@ -10,7 +10,7 @@ use walkdir::WalkDir;
 
 use crate::config::Config;
 use crate::markdown::Heading;
-use crate::navigation::{Level, Link};
+use crate::navigation::{Level, Link, Navigation};
 use crate::site::Site;
 use crate::{Directory, Document};
 use crate::{Error, Result};
@@ -27,7 +27,8 @@ impl<'a> SiteGenerator<'a> {
 
     pub fn run(&self) -> Result<()> {
         let root = self.find_docs(self.config.project_root());
-        let navigation = Level::from(&root);
+        let nav_builder = Navigation::new(&self.config);
+        let navigation = nav_builder.build_for(&root);
 
         self.site.reset()?;
 

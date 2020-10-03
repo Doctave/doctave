@@ -167,10 +167,9 @@ impl NavRule {
     fn build_directory_rules(dir: &Navigation) -> NavRule {
         match &dir.children {
             None => NavRule::Dir(dir.path.clone(), None),
-            Some(NavChildren::WildCard(_)) => NavRule::Dir(
-                dir.path.clone(),
-                Some(DirIncludeRule::WildCard),
-            ),
+            Some(NavChildren::WildCard(_)) => {
+                NavRule::Dir(dir.path.clone(), Some(DirIncludeRule::WildCard))
+            }
             Some(NavChildren::List(paths)) => NavRule::Dir(
                 dir.path.clone(),
                 Some(DirIncludeRule::Explicit(
@@ -228,7 +227,7 @@ impl Config {
                 .map(|c| c.into())
                 .unwrap_or(Colors::default()),
             logo: doctave_yaml.logo,
-            navigation: doctave_yaml.navigation.map(|n| NavRule::from_yaml_input(n))
+            navigation: doctave_yaml.navigation.map(|n| NavRule::from_yaml_input(n)),
         };
 
         Ok(config)
