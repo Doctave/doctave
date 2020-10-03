@@ -102,8 +102,8 @@ static DOCUMENT_ID: AtomicU32 = AtomicU32::new(1);
 #[derive(Debug, Clone, PartialEq)]
 struct Document {
     pub id: u32,
+    /// The relative path in the docs folder to the file
     path: PathBuf,
-    root: PathBuf,
     rename: Option<String>,
     raw: String,
     markdown: Markdown,
@@ -111,33 +111,22 @@ struct Document {
 }
 
 impl Document {
-    /// Loads a markdown document from disk, given a root directory and the relative
-    /// path inside the root directory.
-    fn load<R: Into<PathBuf>, S: Into<PathBuf>>(root: R, markdown_source: S) -> Self {
-        let root = root.into();
-        let path = markdown_source.into();
 
-        let raw = fs::read_to_string(root.join(&path)).unwrap();
+    /// Loads a document from disk and parses it.
+    ///
+    /// Must be provided both the absolute path to the file, and the relative
+    /// path inside the docs directory to the original file.
+    fn load(absolute_path: &Path, relative_docs_path: &Path) -> Self {
+
+        let raw = fs::read_to_string(absolute_path).unwrap();
         let frontmatter =
             frontmatter::parse(&raw).expect("TODO: Print an error when frontmatter is busted");
 
-        Document::new(path, root, raw, frontmatter)
+        Document::new(relative_docs_path, raw, frontmatter)
     }
 
     /// Creates a new document from its raw components
-    fn new<P: Into<PathBuf>, R: Into<PathBuf>>(
-        path: P,
-        root: R,
-        raw: String,
-        frontmatter: BTreeMap<String, String>,
-    ) -> Self {
-        let root = root.into();
-        let mut path = path.into();
-
-        if path.starts_with(&root) {
-            path = path.strip_prefix(&root).unwrap().to_path_buf();
-        }
-
+    fn new(path: &Path, raw: String, frontmatter: BTreeMap<String, String>) -> Self {
         let rename = if path.ends_with("README.md") {
             Some("index".to_string())
         } else {
@@ -148,8 +137,7 @@ impl Document {
 
         Document {
             id: DOCUMENT_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
-            path,
-            root,
+            path: path.to_path_buf(),
             raw,
             markdown,
             rename,
@@ -162,10 +150,10 @@ impl Document {
     }
 
     fn destination(&self, out: &Path) -> PathBuf {
-        out.join(self.relative_path())
+        out.join(self.html_path())
     }
 
-    fn relative_path(&self) -> PathBuf {
+    fn html_path(&self) -> PathBuf {
         // TODO(Nik): Refactor this mess to be readable
         match self.rename {
             None => self.path.with_file_name(&format!(

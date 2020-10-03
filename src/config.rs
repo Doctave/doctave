@@ -54,6 +54,16 @@ pub struct Config {
     docs_dir: PathBuf,
 }
 
+pub enum NavRule {
+    File(PathBuf),
+    Dir(PathBuf, DirIncludeRule),
+}
+
+pub enum DirIncludeRule {
+    WildCard,
+    Explicit(Vec<NavRule>)
+}
+
 impl Config {
     pub fn load(project_root: &Path) -> Result<Self> {
         let path = DoctaveYaml::find(&project_root)
@@ -79,8 +89,6 @@ impl Config {
             out_dir: project_root.join("site"),
             docs_dir: project_root.join("docs"),
         };
-
-        config.validate()?;
 
         Ok(config)
     }
@@ -111,8 +119,16 @@ impl Config {
             }
         }
 
+        // Validate navigation paths exist
         // Validate navigation wildcards recursively
-        fn validate_level(nav: &Navigation) -> Result<()> {
+        fn validate_level(nav: &Navigation, config: &Config) -> Result<()> {
+            if !config.project_root().join(&nav.path).exists() {
+                return Err(Error::new(format!(
+                    "Could not find file specified in navigation at {}",
+                    nav.path.display()
+                )));
+            }
+
             if let Some(children) = &nav.children {
                 match children {
                     NavChildren::WildCard(pattern) => {
@@ -126,7 +142,7 @@ impl Config {
                     }
                     NavChildren::List(navs) => {
                         for nav in navs {
-                            validate_level(&nav)?;
+                            validate_level(&nav, config)?;
                         }
                     }
                 }
@@ -137,7 +153,7 @@ impl Config {
 
         if let Some(navs) = &self.doctave_yaml.navigation {
             for nav in navs {
-                validate_level(nav)?;
+                validate_level(nav, &self)?;
             }
         }
 
@@ -245,7 +261,8 @@ mod test {
                main: not-a-color
         "};
 
-        let error = Config::from_yaml_str(Path::new("docs/"), yaml).unwrap_err();
+        let config = Config::from_yaml_str(Path::new(""), yaml).unwrap();
+        let error = config.validate().unwrap_err();
 
         assert!(
             format!("{}", error)
@@ -266,7 +283,8 @@ mod test {
             logo: i-do-not-exist.png
         "};
 
-        let error = Config::from_yaml_str(Path::new("docs/"), yaml).unwrap_err();
+        let config = Config::from_yaml_str(Path::new(""), yaml).unwrap();
+        let error = config.validate().unwrap_err();
 
         assert!(
             format!("{}", error)
@@ -283,35 +301,10 @@ mod test {
             navigation:
               - path: docs/tutorial.md
                 children: not-wildcard
-              - path: docs/getting-started/README.md
         "};
 
-        let error = Config::from_yaml_str(Path::new("docs/"), yaml).unwrap_err();
-
-        assert!(
-            format!("{}", error).contains(
-                "Invalid pattern for navigation children. \
-                Found 'not-wildcard', expected \"*\" or a list of child pages"
-            ),
-            format!("Error message was: {}", error)
-        );
-    }
-
-    #[test]
-    fn validate_navigation_wildcard_nested() {
-        let yaml = indoc! {"
-            ---
-            title: The Title
-            navigation:
-              - path: docs/tutorial.md
-                children: \"*\"
-              - path: docs/getting-started/README.md
-                children:
-                  - path: docs/getting-started/deploying/README.md
-                    children: not-wildcard
-        "};
-
-        let error = Config::from_yaml_str(Path::new("docs/"), yaml).unwrap_err();
+        let config = Config::from_yaml_str(Path::new(""), yaml).unwrap();
+        let error = config.validate().unwrap_err();
 
         assert!(
             format!("{}", error).contains(

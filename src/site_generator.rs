@@ -249,9 +249,9 @@ impl<'a> SiteGenerator<'a> {
             .filter_map(|e| e.ok())
         {
             if entry.file_type().is_file() && entry.path().extension() == Some(OsStr::new("md")) {
-                let path = entry.path();
+                let path = entry.path().strip_prefix(self.config.docs_dir()).unwrap();
 
-                docs.push(Document::load(&self.config.docs_dir(), path));
+                docs.push(Document::load(entry.path(), path));
             } else {
                 let path = entry.into_path();
 
@@ -306,9 +306,11 @@ impl<'a> SiteGenerator<'a> {
             format!("{}", dir.path().file_name().unwrap().to_string_lossy()),
         );
 
+        let tmp = dir.path().join("README.md");
+        let path = tmp.strip_prefix(self.config.docs_dir()).unwrap();
+
         Document::new(
-            dir.path().join("README.md"),
-            &self.config.docs_dir(),
+            path,
             format!(
                 "# Index of {}\n \
                 \n \

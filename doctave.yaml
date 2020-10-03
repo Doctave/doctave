@@ -5,7 +5,7 @@ colors:
 
 navigation:
   - path: docs/tutorial.md
-  - path: docs/features/readme.md
+  - path: docs/features/README.md
     children: "*"
   - path: docs/contributors/README.md
     children:

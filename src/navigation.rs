@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::{Config, Navigation as NavRule};
 use crate::{Directory, Document, Error, Result};
 use serde::Serialize;
 
@@ -10,60 +10,35 @@ pub struct Navigation<'a> {
 }
 
 impl<'a> Navigation<'a> {
-    fn new(config: &'a Config) -> Self {
+    pub fn new(config: &'a Config) -> Self {
         Navigation { config }
     }
 
-    fn build(&self) -> Level {
-        unimplemented!()
-    }
-}
+    pub fn build_for(&self, dir: &Directory) -> Level {
+        let default = Level::from(dir);
 
-/// If the user has provided a custom navigation layout, this function
-/// will construct a matching `Level` data structure.
-pub fn build_from_config(config: &Config, fs_root: &Level) -> Result<Level> {
-    let root = Level {
-        index: fs_root.index.clone(),
-        links: vec![],
-        children: vec![],
-    };
-
-    println!("{:#?}", config);
-    println!("-------------------------------");
-    println!("{:#?}", fs_root);
-
-    unimplemented!()
-}
-
-/// Takes a path to a markdown file and converts it into the
-/// URI path that would resolve to it when it gets converted
-/// to an HTML file.
-///
-/// Expects the path to be relative to the root of the docs
-/// directory.
-fn markdown_path_to_uri_path(path: &Path) -> String {
-    let mut tmp = path.to_path_buf();
-
-    // Default to stipping .html extensions
-    tmp.set_extension("");
-
-    if tmp.file_name() == Some(OsStr::new("index")) {
-        tmp = tmp
-            .parent()
-            .map(|p| p.to_owned())
-            .unwrap_or(PathBuf::from(""));
+        match &self.config.navigation() {
+            None => default,
+            Some(_nav) => self.customize(default),
+        }
     }
 
-    // Need to force forward slashes here, since URIs will always
-    // work the same across all platforms.
-    let uri_path = tmp
-        .components()
-        .into_iter()
-        .map(|c| format!("{}", c.as_os_str().to_string_lossy()))
-        .collect::<Vec<_>>()
-        .join("/");
+    fn customize(&self, default: Level) -> Level {
+        let rules = self.config.navigation().unwrap();
 
-    format!("/{}", uri_path)
+        let root = Level {
+            index: default.index.clone(),
+            links: vec![],
+            children: vec![],
+        };
+
+        // for rule in rules {
+        //     if self.config.project_root().join(rule.path).is_file() {
+        //     }
+        // }
+
+        root
+    }
 }
 
 impl From<&Directory> for Level {
@@ -96,7 +71,7 @@ impl From<&Directory> for Level {
 
 impl From<&Document> for Link {
     fn from(doc: &Document) -> Link {
-        let mut tmp = doc.relative_path().clone();
+        let mut tmp = doc.html_path().clone();
 
         // Default to stipping .html extensions
         tmp.set_extension("");
@@ -147,30 +122,39 @@ mod test {
         let mut frontmatter = BTreeMap::new();
         frontmatter.insert("title".to_string(), name.to_string());
 
-        Document::new(path, "docs/", "Not important".to_string(), frontmatter)
+        Document::new(Path::new(path), "Not important".to_string(), frontmatter)
+    }
+
+    fn config(yaml: Option<&str>) -> Config {
+        let conf = yaml.unwrap_or("---\ntitle: My project\n");
+
+        Config::from_yaml_str(&Path::new("project"), conf).unwrap()
     }
 
     #[test]
     fn basic() {
+        let config = config(None);
         let root = Directory {
             path: PathBuf::from("docs"),
             docs: vec![
-                page("docs/README.md", "Getting Started"),
-                page("docs/one.md", "One"),
-                page("docs/two.md", "Two"),
+                page("README.md", "Getting Started"),
+                page("one.md", "One"),
+                page("two.md", "Two"),
             ],
             dirs: vec![Directory {
                 path: PathBuf::from("docs").join("child"),
                 docs: vec![
-                    page("docs/child/README.md", "Nested Root"),
-                    page("docs/child/three.md", "Three"),
+                    page("child/README.md", "Nested Root"),
+                    page("child/three.md", "Three"),
                 ],
                 dirs: vec![],
             }],
         };
 
+        let navigation = Navigation::new(&config);
+
         assert_eq!(
-            Level::from(&root),
+            navigation.build_for(&root),
             Level {
                 index: Link {
                     path: String::from("/"),
@@ -203,41 +187,44 @@ mod test {
 
     #[test]
     fn sorting_alphanumerically() {
+        let config = config(None);
         let root = Directory {
             path: PathBuf::from("docs"),
             docs: vec![
-                page("docs/README.md", "Getting Started"),
-                page("docs/001.md", "bb"),
-                page("docs/002.md", "11"),
+                page("README.md", "Getting Started"),
+                page("001.md", "bb"),
+                page("002.md", "11"),
             ],
             dirs: vec![
                 Directory {
                     path: PathBuf::from("docs").join("bb_child"),
                     docs: vec![
-                        page("docs/child/README.md", "Index"),
-                        page("docs/child/001.md", "BB"),
-                        page("docs/child/002.md", "22"),
-                        page("docs/child/003.md", "AA"),
-                        page("docs/child/004.md", "11"),
+                        page("child/README.md", "Index"),
+                        page("child/001.md", "BB"),
+                        page("child/002.md", "22"),
+                        page("child/003.md", "AA"),
+                        page("child/004.md", "11"),
                     ],
                     dirs: vec![],
                 },
                 Directory {
                     path: PathBuf::from("docs").join("aa_child"),
                     docs: vec![
-                        page("docs/child2/README.md", "Index"),
-                        page("docs/child2/001.md", "123"),
-                        page("docs/child2/002.md", "aa"),
-                        page("docs/child2/003.md", "cc"),
-                        page("docs/child2/004.md", "bb"),
+                        page("child2/README.md", "Index"),
+                        page("child2/001.md", "123"),
+                        page("child2/002.md", "aa"),
+                        page("child2/003.md", "cc"),
+                        page("child2/004.md", "bb"),
                     ],
                     dirs: vec![],
                 },
             ],
         };
 
+        let navigation = Navigation::new(&config);
+
         assert_eq!(
-            Level::from(&root),
+            navigation.build_for(&root),
             Level {
                 index: Link {
                     path: String::from("/"),
@@ -314,38 +301,32 @@ mod test {
         let root = Directory {
             path: PathBuf::from("docs"),
             docs: vec![
-                page("docs/README.md", "Getting Started"),
-                page("docs/one.md", "One"),
-                page("docs/two.md", "Two"),
+                page("README.md", "Getting Started"),
+                page("one.md", "One"),
+                page("two.md", "Two"),
             ],
             dirs: vec![Directory {
                 path: PathBuf::from("docs").join("child"),
                 docs: vec![
-                    page("docs/child/README.md", "Nested Root"),
-                    page("docs/child/three.md", "Three"),
+                    page("child/README.md", "Nested Root"),
+                    page("child/three.md", "Three"),
                 ],
                 dirs: vec![],
             }],
         };
 
-        let config = crate::config::Config::from_yaml_str(
-            &Path::new("project"),
-            &indoc! {"
+        let config = config(Some(&indoc! {"
             ---
             title: My project
             navigation:
               - path: docs/one.md
               - path: docs/child/README.md
                 children: \"*\"
-            "},
-        )
-        .unwrap();
-
-        let filesystem = Level::from(&root);
-        let customized = build_from_config(&config, &filesystem).unwrap();
+            "}));
+        let navigation = Navigation::new(&config);
 
         assert_eq!(
-            customized,
+            navigation.build_for(&root),
             Level {
                 index: Link {
                     path: String::from("/"),
@@ -368,25 +349,5 @@ mod test {
                 }]
             }
         )
-    }
-
-    #[test]
-    fn path_to_uri_path() {
-        assert_eq!(
-            markdown_path_to_uri_path(&Path::new("README.md")),
-            String::from("/")
-        );
-        assert_eq!(
-            markdown_path_to_uri_path(&Path::new("tutorial.md")),
-            String::from("/tutorial")
-        );
-        assert_eq!(
-            markdown_path_to_uri_path(&Path::new("tutorial/README.md")),
-            String::from("/tutorial")
-        );
-        assert_eq!(
-            markdown_path_to_uri_path(&Path::new("tutorial/installation.md")),
-            String::from("/tutorial/installation")
-        );
     }
 }

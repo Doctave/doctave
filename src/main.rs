@@ -44,6 +44,7 @@ fn build() -> doctave::Result<()> {
     });
 
     let config = doctave::config::Config::load(&project_dir)?;
+    config.validate()?;
 
     doctave::BuildCommand::run(config)
 }
@@ -55,6 +56,7 @@ fn serve() -> doctave::Result<()> {
     });
 
     let config = doctave::config::Config::load(&project_dir)?;
+    config.validate()?;
 
     doctave::ServeCommand::run(config)
 }
