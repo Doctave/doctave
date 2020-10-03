@@ -10,7 +10,7 @@ use crate::{Error, Result};
 #[derive(Debug, Clone, Deserialize)]
 struct DoctaveYaml {
     title: String,
-    colors: Option<Colors>,
+    colors: Option<ColorsYaml>,
     logo: Option<PathBuf>,
     navigation: Option<Vec<Navigation>>,
 }
@@ -24,6 +24,75 @@ impl DoctaveYaml {
         } else {
             None
         }
+    }
+
+    /// Runs checks that validate the values of provided in the Yaml file
+    fn validate(&self, project_root: &Path) -> Result<()> {
+        // Validate color
+        if let Some(color) = &self.colors.as_ref().and_then(|c| c.main.as_ref()) {
+            Rgb::from_hex_str(color).map_err(|_e| {
+                Error::new(format!(
+                    "Invalid HEX color provided for \
+                    colors.main in doctave.yaml.\nFound '{}'",
+                    &self.colors.as_ref().and_then(|c| c.main.as_ref()).unwrap()
+                ))
+            })?;
+        }
+
+        // Validate logo exists
+        if let Some(p) = &self.logo {
+            let location = project_root.join("docs").join("_assets").join(p);
+            if !location.exists() {
+                return Err(Error::new(format!(
+                    "Could not find logo specified in doctave.yaml at {}",
+                    p.display()
+                )));
+            }
+        }
+
+        // Validate navigation paths exist
+        // Validate navigation wildcards recursively
+        fn validate_level(
+            nav: &Navigation,
+            config: &DoctaveYaml,
+            project_root: &Path,
+        ) -> Result<()> {
+            if !project_root.join(&nav.path).exists() {
+                return Err(Error::new(format!(
+                    "Could not find file specified in navigation at {}",
+                    nav.path.display()
+                )));
+            }
+
+            if let Some(children) = &nav.children {
+                match children {
+                    NavChildren::WildCard(pattern) => {
+                        if pattern != "*" {
+                            return Err(Error::new(format!(
+                                "Invalid pattern for navigation children. \
+                                 Found '{}', expected \"*\" or a list of child pages",
+                                pattern
+                            )));
+                        }
+                    }
+                    NavChildren::List(navs) => {
+                        for nav in navs {
+                            validate_level(&nav, config, project_root)?;
+                        }
+                    }
+                }
+            }
+
+            Ok(())
+        }
+
+        if let Some(navs) = &self.navigation {
+            for nav in navs {
+                validate_level(nav, &self, &project_root)?;
+            }
+        }
+
+        Ok(())
     }
 }
 #[derive(Debug, Clone, Deserialize)]
@@ -41,27 +110,95 @@ pub enum NavChildren {
 
 static DEFAULT_THEME_COLOR: &'static str = "#445282";
 
-#[derive(Debug, Clone, Deserialize, Default)]
+#[derive(Debug, Clone)]
 struct Colors {
+    main: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Default)]
+struct ColorsYaml {
     main: Option<String>,
+}
+
+impl From<ColorsYaml> for Colors {
+    fn from(other: ColorsYaml) -> Self {
+        Colors {
+            main: other.main.unwrap_or(DEFAULT_THEME_COLOR.to_owned()),
+        }
+    }
+}
+
+impl Default for Colors {
+    fn default() -> Self {
+        Colors {
+            main: DEFAULT_THEME_COLOR.to_owned(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum NavRule {
+    File(PathBuf),
+    Dir(PathBuf, Option<DirIncludeRule>),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum DirIncludeRule {
+    WildCard,
+    Explicit(Vec<NavRule>),
+}
+
+impl NavRule {
+    fn from_yaml_input(input: Vec<Navigation>) -> Vec<NavRule> {
+        let mut rules = vec![];
+
+        for item in input {
+            if item.path.is_file() {
+                rules.push(NavRule::File(item.path.clone()));
+            } else if item.path.is_dir() {
+                let dir_rules = Self::build_directory_rules(&item);
+                rules.push(dir_rules);
+            }
+        }
+
+        rules
+    }
+
+    fn build_directory_rules(dir: &Navigation) -> NavRule {
+        match &dir.children {
+            None => NavRule::Dir(dir.path.clone(), None),
+            Some(NavChildren::WildCard(_)) => NavRule::Dir(
+                dir.path.clone(),
+                Some(DirIncludeRule::WildCard),
+            ),
+            Some(NavChildren::List(paths)) => NavRule::Dir(
+                dir.path.clone(),
+                Some(DirIncludeRule::Explicit(
+                    paths
+                        .iter()
+                        .map(|p| {
+                            if p.path.is_file() {
+                                NavRule::File(p.path.clone())
+                            } else {
+                                Self::build_directory_rules(p)
+                            }
+                        })
+                        .collect::<Vec<_>>(),
+                )),
+            ),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    doctave_yaml: DoctaveYaml,
     project_root: PathBuf,
     out_dir: PathBuf,
     docs_dir: PathBuf,
-}
-
-pub enum NavRule {
-    File(PathBuf),
-    Dir(PathBuf, DirIncludeRule),
-}
-
-pub enum DirIncludeRule {
-    WildCard,
-    Explicit(Vec<NavRule>)
+    title: String,
+    colors: Colors,
+    logo: Option<PathBuf>,
+    navigation: Option<Vec<NavRule>>,
 }
 
 impl Config {
@@ -76,93 +213,30 @@ impl Config {
     }
 
     pub fn from_yaml_str(project_root: &Path, yaml: &str) -> Result<Self> {
-        let mut doctave_yaml: DoctaveYaml = serde_yaml::from_str(yaml)
+        let doctave_yaml: DoctaveYaml = serde_yaml::from_str(yaml)
             .map_err(|e| Error::yaml(e, "Could not parse doctave.yaml"))?;
 
-        if doctave_yaml.colors.is_none() {
-            doctave_yaml.colors = Some(Colors::default());
-        }
+        doctave_yaml.validate(project_root)?;
 
         let config = Config {
-            doctave_yaml,
             project_root: project_root.to_path_buf(),
             out_dir: project_root.join("site"),
             docs_dir: project_root.join("docs"),
+            title: doctave_yaml.title,
+            colors: doctave_yaml
+                .colors
+                .map(|c| c.into())
+                .unwrap_or(Colors::default()),
+            logo: doctave_yaml.logo,
+            navigation: doctave_yaml.navigation.map(|n| NavRule::from_yaml_input(n))
         };
 
         Ok(config)
     }
 
-    /// Runs checks that validate the values of provided in the config.
-    pub fn validate(&self) -> Result<()> {
-        // Validate color
-        if let Some(colors) = self.doctave_yaml.colors.as_ref() {
-            if let Some(main_color) = &colors.main {
-                Rgb::from_hex_str(&main_color).map_err(|_e| {
-                    Error::new(format!(
-                        "Invalid HEX color provided for \
-                        colors.main in doctave.yaml.\nFound '{}'",
-                        main_color
-                    ))
-                })?;
-            }
-        }
-
-        // Validate logo exists
-        if let Some(p) = &self.doctave_yaml.logo {
-            let location = self.docs_dir.join("_assets").join(p);
-            if !location.exists() {
-                return Err(Error::new(format!(
-                    "Could not find logo specified in doctave.yaml at {}",
-                    p.display()
-                )));
-            }
-        }
-
-        // Validate navigation paths exist
-        // Validate navigation wildcards recursively
-        fn validate_level(nav: &Navigation, config: &Config) -> Result<()> {
-            if !config.project_root().join(&nav.path).exists() {
-                return Err(Error::new(format!(
-                    "Could not find file specified in navigation at {}",
-                    nav.path.display()
-                )));
-            }
-
-            if let Some(children) = &nav.children {
-                match children {
-                    NavChildren::WildCard(pattern) => {
-                        if pattern != "*" {
-                            return Err(Error::new(format!(
-                                "Invalid pattern for navigation children. \
-                                    Found '{}', expected \"*\" or a list of child pages",
-                                pattern
-                            )));
-                        }
-                    }
-                    NavChildren::List(navs) => {
-                        for nav in navs {
-                            validate_level(&nav, config)?;
-                        }
-                    }
-                }
-            }
-
-            Ok(())
-        }
-
-        if let Some(navs) = &self.doctave_yaml.navigation {
-            for nav in navs {
-                validate_level(nav, &self)?;
-            }
-        }
-
-        Ok(())
-    }
-
     /// The title of the project
     pub fn title(&self) -> &str {
-        &self.doctave_yaml.title
+        &self.title
     }
 
     /// The root directory of the project - the folder containing the doctave.yaml file.
@@ -180,8 +254,8 @@ impl Config {
         &self.docs_dir
     }
 
-    pub fn navigation(&self) -> Option<&[Navigation]> {
-        self.doctave_yaml.navigation.as_deref()
+    pub fn navigation(&self) -> Option<&[NavRule]> {
+        self.navigation.as_deref()
     }
 
     /// The main theme color. Other shades are computed based off of this
@@ -189,14 +263,7 @@ impl Config {
     ///
     /// Must be a valid HEX color.
     pub fn main_color(&self) -> Rgb {
-        let color = self
-            .doctave_yaml
-            .colors
-            .as_ref()
-            .unwrap()
-            .main
-            .as_deref()
-            .unwrap_or(DEFAULT_THEME_COLOR);
+        let color = &self.colors.main;
 
         // This was already validated
         Rgb::from_hex_str(color).unwrap()
@@ -211,7 +278,7 @@ impl Config {
 
     /// Path to a logo that will show up at the top left next to the title
     pub fn logo(&self) -> Option<PathBuf> {
-        if let Some(p) = &self.doctave_yaml.logo {
+        if let Some(p) = &self.logo {
             let location = self.docs_dir.join("_assets").join(p);
             if !location.exists() {
                 println!(
@@ -261,8 +328,7 @@ mod test {
                main: not-a-color
         "};
 
-        let config = Config::from_yaml_str(Path::new(""), yaml).unwrap();
-        let error = config.validate().unwrap_err();
+        let error = Config::from_yaml_str(Path::new(""), yaml).unwrap_err();
 
         assert!(
             format!("{}", error)
@@ -283,8 +349,7 @@ mod test {
             logo: i-do-not-exist.png
         "};
 
-        let config = Config::from_yaml_str(Path::new(""), yaml).unwrap();
-        let error = config.validate().unwrap_err();
+        let error = Config::from_yaml_str(Path::new(""), yaml).unwrap_err();
 
         assert!(
             format!("{}", error)
@@ -303,8 +368,7 @@ mod test {
                 children: not-wildcard
         "};
 
-        let config = Config::from_yaml_str(Path::new(""), yaml).unwrap();
-        let error = config.validate().unwrap_err();
+        let error = Config::from_yaml_str(Path::new(""), yaml).unwrap_err();
 
         assert!(
             format!("{}", error).contains(
@@ -312,6 +376,76 @@ mod test {
                 Found 'not-wildcard', expected \"*\" or a list of child pages"
             ),
             format!("Error message was: {}", error)
+        );
+    }
+
+    #[test]
+    fn convert_navigation_input_to_rules_file() {
+        let input = vec![Navigation {
+            path: PathBuf::from("docs").join("README.md"),
+            children: None,
+        }];
+
+        assert_eq!(
+            NavRule::from_yaml_input(input),
+            vec![NavRule::File(PathBuf::from("docs").join("README.md"))]
+        );
+    }
+
+    #[test]
+    fn convert_navigation_input_to_rules_directory_no_children() {
+        let input = vec![Navigation {
+            path: PathBuf::from("docs").join("contributors"), // TODO: Make not rely on our docs
+            children: None,
+        }];
+
+        assert_eq!(
+            NavRule::from_yaml_input(input),
+            vec![NavRule::Dir(
+                PathBuf::from("docs").join("contributors"),
+                None
+            )]
+        );
+    }
+
+    #[test]
+    fn convert_navigation_input_to_rules_directory_wildcard_children() {
+        let input = vec![Navigation {
+            path: PathBuf::from("docs").join("contributors"), // TODO: Make not rely on our docs
+            children: Some(NavChildren::WildCard(String::from("*"))),
+        }];
+
+        assert_eq!(
+            NavRule::from_yaml_input(input),
+            vec![NavRule::Dir(
+                PathBuf::from("docs").join("contributors"),
+                Some(DirIncludeRule::WildCard)
+            )]
+        );
+    }
+
+    #[test]
+    fn convert_navigation_input_to_rules_directory_explicit_children() {
+        let input = vec![Navigation {
+            path: PathBuf::from("docs").join("contributors"), // TODO: Make not rely on our docs
+            children: Some(NavChildren::List(vec![Navigation {
+                path: PathBuf::from("docs")
+                    .join("contributors")
+                    .join("getting_started.md"),
+                children: None,
+            }])),
+        }];
+
+        assert_eq!(
+            NavRule::from_yaml_input(input),
+            vec![NavRule::Dir(
+                PathBuf::from("docs").join("contributors"),
+                Some(DirIncludeRule::Explicit(vec![NavRule::File(
+                    PathBuf::from("docs")
+                        .join("contributors")
+                        .join("getting_started.md")
+                )]))
+            )]
         );
     }
 }
