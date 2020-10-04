@@ -60,8 +60,9 @@ jobs:
             echo "::set-env name=ASSET::$staging.tar.gz"
           fi
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
         with:
-          name: {{ env.ASSET }}
-          path: {{ env.ASSET }}
+          name: ${{ env.ASSET }}
+          path: ${{ env.ASSET }}
 
