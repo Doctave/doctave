@@ -41,27 +41,27 @@ jobs:
           command: build
           args: --verbose --release --target ${{ matrix.target }}
 
-    - name: Strip release binary (linux and macos)
-      if: matrix.build == 'linux' || matrix.build == 'macos'
-      run: strip "target/${{ matrix.target }}/release/rg"
+      - name: Strip release binary (linux and macos)
+        if: matrix.build == 'linux' || matrix.build == 'macos'
+        run: strip "target/${{ matrix.target }}/release/rg"
 
-    - name: Build archive
-      shell: bash
-      run: |
-        staging="doctave-${{ matrix.target }}"
+      - name: Build archive
+        shell: bash
+        run: |
+          staging="doctave-${{ matrix.target }}"
 
-        if [ "${{ matrix.os }}" = "windows-2019" ]; then
-          cp "target/${{ matrix.target }}/release/doctave.exe" "$staging/"
-          7z a "$staging.zip" "$staging"
-          echo "::set-env name=ASSET::$staging.zip"
-        else
-          cp "target/${{ matrix.target }}/release/rg" "$staging/"
-          tar czf "$staging.tar.gz" "$staging"
-          echo "::set-env name=ASSET::$staging.tar.gz"
-        fi
+          if [ "${{ matrix.os }}" = "windows-2019" ]; then
+            cp "target/${{ matrix.target }}/release/doctave.exe" "$staging/"
+            7z a "$staging.zip" "$staging"
+            echo "::set-env name=ASSET::$staging.zip"
+          else
+            cp "target/${{ matrix.target }}/release/rg" "$staging/"
+            tar czf "$staging.tar.gz" "$staging"
+            echo "::set-env name=ASSET::$staging.tar.gz"
+          fi
 
-    - uses: actions/upload-artifact@v2
-      with:
-        name: {{ env.ASSET }}
-        path: {{ env.ASSET }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: {{ env.ASSET }}
+          path: {{ env.ASSET }}
 
