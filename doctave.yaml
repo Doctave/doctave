@@ -4,9 +4,9 @@ colors:
   main: "#5f658a"
 
 navigation:
+  - path: docs/installing.md
   - path: docs/tutorial.md
-  - path: docs/features/README.md
+  - path: docs/features
     children: "*"
-  - path: docs/contributors/README.md
-    children:
-      - path: docs/contributors/getting_started.md
+  - path: docs/contributors
+    children: "*"

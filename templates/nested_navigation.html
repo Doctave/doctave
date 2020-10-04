@@ -1,9 +1,8 @@
-<li><a {{#if (eq current_page.path level.index.path) }}class="active" {{/if}}href="{{level.index.path}}">{{level.index.title}}</a></li>
 <ul>
-    {{#each level.children}}
-        {{> nested_navigation level=this current_page=../current_page}}
-    {{/each}}
-    {{#each level.links}}
-        <li><a {{#if (eq ../current_page.path this.path) }}class="active" {{/if}}href="{{this.path}}">{{this.title}}</a></li>
+    {{#each links}}
+        <li><a {{#if (eq ../current_path this.path) }}class="active" {{/if}}href="{{this.path}}">{{this.title}}</a></li>
+        {{#if this.children}}
+            {{> nested_navigation links=this.children current_path=../current_path}}
+        {{/if}}
     {{/each}}
 </ul>

@@ -93,6 +93,14 @@ impl Directory {
             .unwrap()
             .to_path_buf()
     }
+
+    fn index(&self) -> &Document {
+        &self
+            .docs
+            .iter()
+            .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
+            .expect("No index file found for directory")
+    }
 }
 
 use std::sync::atomic::AtomicU32;

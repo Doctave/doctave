@@ -10,7 +10,7 @@ use walkdir::WalkDir;
 
 use crate::config::Config;
 use crate::markdown::Heading;
-use crate::navigation::{Level, Link, Navigation};
+use crate::navigation::{Link, Navigation};
 use crate::site::Site;
 use crate::{Directory, Document};
 use crate::{Error, Result};
@@ -146,7 +146,7 @@ impl<'a> SiteGenerator<'a> {
         Ok(())
     }
 
-    fn build_directory(&self, dir: &Directory, nav: &Level) -> Result<()> {
+    fn build_directory(&self, dir: &Directory, nav: &[Link]) -> Result<()> {
         fs::create_dir_all(dir.destination(self.config.out_dir()))
             .map_err(|e| Error::io(e, "Could not create site directory"))?;
 
@@ -165,7 +165,7 @@ impl<'a> SiteGenerator<'a> {
                         )
                     })?;
 
-                let page_title = if Link::from(doc).path == "/" {
+                let page_title = if Link::path_to_uri(&doc.html_path()) == "/" {
                     self.config.title().to_string()
                 } else {
                     doc.title().to_string()
@@ -175,7 +175,7 @@ impl<'a> SiteGenerator<'a> {
                     content: doc.html().to_string(),
                     headings: doc.headings().to_vec(),
                     navigation: &nav,
-                    current_page: Link::from(doc),
+                    current_path: Link::path_to_uri(&doc.html_path()),
                     project_title: self.config.title().to_string(),
                     logo: self.config.logo(),
                     page_title,
@@ -214,7 +214,7 @@ impl<'a> SiteGenerator<'a> {
                 &doc.id.to_string(),
                 &[
                     &doc.title(),
-                    &Link::from(doc).path.as_str(),
+                    &Link::path_to_uri(&doc.html_path()).as_str(),
                     doc.markdown_section(),
                 ],
             );
@@ -297,7 +297,7 @@ impl<'a> SiteGenerator<'a> {
         let content = dir
             .docs
             .iter()
-            .map(|d| format!("* [{}]({})", Link::from(d).title, Link::from(d).path,))
+            .map(|d| format!("* [{}]({})", d.title(), Link::path_to_uri(&d.html_path())))
             .collect::<Vec<_>>()
             .join("\n");
 
@@ -338,8 +338,8 @@ impl<'a> SiteGenerator<'a> {
 pub struct TemplateData<'a> {
     pub content: String,
     pub headings: Vec<Heading>,
-    pub navigation: &'a Level,
-    pub current_page: Link,
+    pub navigation: &'a [Link],
+    pub current_path: String,
     pub page_title: String,
     pub logo: Option<PathBuf>,
     pub project_title: String,

@@ -1,5 +1,5 @@
 use crate::config::{Config, DirIncludeRule, NavRule};
-use crate::{Directory, Document};
+use crate::Directory;
 use serde::Serialize;
 
 use std::ffi::OsStr;
@@ -14,8 +14,8 @@ impl<'a> Navigation<'a> {
         Navigation { config }
     }
 
-    pub fn build_for(&self, dir: &Directory) -> Level {
-        let default = Level::from(dir);
+    pub fn build_for(&self, dir: &Directory) -> Vec<Link> {
+        let default: Vec<Link> = dir.into();
 
         match &self.config.navigation() {
             None => default,
@@ -23,130 +23,90 @@ impl<'a> Navigation<'a> {
         }
     }
 
-    fn customize(&self, rules: &[NavRule], default: &Level) -> Level {
-        let mut root = Level {
-            index: default.index.clone(),
-            links: vec![],
-            children: vec![],
-        };
+    fn customize(&self, rules: &[NavRule], default: &[Link]) -> Vec<Link> {
+        let mut links = vec![];
 
         for rule in rules {
             match rule {
-                NavRule::File(path) => root.links.push(self.find_matching_link(path, &default)),
+                NavRule::File(path) => links.push(self.find_matching_link(path, &default)),
                 NavRule::Dir(path, dir_rule) => {
-                    let level = self.find_matching_level(path, &default);
+                    let mut index_link = self.find_matching_link(path, &default);
 
                     match dir_rule {
                         // Don't include any children
-                        None => root.children.push(Level {
-                            index: level.index.clone(),
-                            links: vec![],
-                            children: vec![],
-                        }),
+                        None => {
+                            index_link.children.truncate(0);
+                            links.push(index_link);
+                        }
                         // Include all children
-                        Some(DirIncludeRule::WildCard) => root.children.push(Level {
-                            index: level.index.clone(),
-                            links: level.links.clone(),
-                            children: level.children.clone(),
-                        }),
+                        Some(DirIncludeRule::WildCard) => links.push(index_link),
                         // Include only children that match the description
                         Some(DirIncludeRule::Explicit(nested_rules)) => {
-                            root.children.push(self.customize(nested_rules, &level));
+                            let children = self.customize(nested_rules, &index_link.children);
+                            index_link.children = children;
+                            links.push(index_link);
                         }
                     }
                 }
             }
         }
 
-        root
+        links
     }
 
-    fn find_matching_link(&self, path: &Path, level: &Level) -> Link {
-        level
-            .links
+    fn find_matching_link(&self, path: &Path, links: &[Link]) -> Link {
+        links
             .iter()
             .find(|link| {
                 let mut without_docs_part = path.components();
                 let _ = without_docs_part.next();
-
-                println!("{} vs {}", without_docs_part.as_path().display(), link.path);
 
                 link.path == Link::path_to_uri(without_docs_part.as_path())
             })
             .expect("Could not find matching doc for rule")
             .clone()
     }
-
-    fn find_matching_level(&self, path: &Path, level: &Level) -> Level {
-        level
-            .children
-            .iter()
-            .find(|level| {
-                let mut without_docs_part = path.components();
-                let _ = without_docs_part.next();
-
-                level.index.path == Link::path_to_uri(&without_docs_part.as_path())
-            })
-            .expect(&format!(
-                "Could not find matching dir for rule {}",
-                path.display()
-            ))
-            .clone()
-    }
 }
 
-impl From<&Directory> for Level {
-    fn from(dir: &Directory) -> Level {
-        let index = dir
-            .docs
-            .iter()
-            .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
-            .expect("No index file found for directory");
-
+impl From<&Directory> for Vec<Link> {
+    fn from(dir: &Directory) -> Vec<Link> {
         let mut links = dir
             .docs
             .iter()
-            .filter(|d| *d != index)
-            .map(|d| d.into())
-            .collect::<Vec<Link>>();
+            .map(|d| Link {
+                title: d.title().to_owned(),
+                path: Link::path_to_uri(&d.html_path()),
+                children: vec![],
+            })
+            .filter(|l| l.path != Link::path_to_uri(&dir.index().html_path()))
+            .collect::<Vec<_>>();
 
-        let mut children = dir.dirs.iter().map(|d| d.into()).collect::<Vec<Level>>();
+        let mut children = dir
+            .dirs
+            .iter()
+            .map(|d| Link {
+                title: d.index().title().to_owned(),
+                path: Link::path_to_uri(&d.index().html_path()),
+                children: d.into(),
+            })
+            .collect::<Vec<_>>();
 
-        links.sort_by(|a, b| a.title.cmp(&b.title));
-        children.sort_by(|a, b| a.index.title.cmp(&b.index.title));
+        links.append(&mut children);
+        links.sort_by(|a, b| alphanumeric_sort::compare_str(&a.title, &b.title));
 
-        Level {
-            index: index.into(),
-            links,
-            children,
-        }
+        links
     }
-}
-
-impl From<&Document> for Link {
-    fn from(doc: &Document) -> Link {
-        Link {
-            path: Link::path_to_uri(&doc.html_path()),
-            title: doc.title().to_string(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct Level {
-    index: Link,
-    links: Vec<Link>,
-    children: Vec<Level>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Link {
     pub path: String,
     pub title: String,
+    pub children: Vec<Link>,
 }
 
 impl Link {
-    fn path_to_uri(path: &Path) -> String {
+    pub fn path_to_uri(path: &Path) -> String {
         let mut tmp = path.to_owned();
 
         // Default to stipping .html extensions
@@ -177,6 +137,8 @@ mod test {
     use super::*;
     use std::collections::BTreeMap;
     use std::path::Path;
+
+    use crate::Document;
 
     fn page(path: &str, name: &str) -> Document {
         let mut frontmatter = BTreeMap::new();
@@ -215,33 +177,27 @@ mod test {
 
         assert_eq!(
             navigation.build_for(&root),
-            Level {
-                index: Link {
-                    path: String::from("/"),
-                    title: String::from("Getting Started"),
-                },
-                links: vec![
-                    Link {
-                        path: String::from("/one"),
-                        title: String::from("One")
-                    },
-                    Link {
-                        path: String::from("/two"),
-                        title: String::from("Two"),
-                    }
-                ],
-                children: vec![Level {
-                    index: Link {
-                        path: String::from("/child"),
-                        title: String::from("Nested Root")
-                    },
-                    links: vec![Link {
+            vec![
+                Link {
+                    path: String::from("/child"),
+                    title: String::from("Nested Root"),
+                    children: vec![Link {
                         path: String::from("/child/three"),
-                        title: String::from("Three")
-                    },],
+                        title: String::from("Three"),
+                        children: vec![]
+                    }]
+                },
+                Link {
+                    path: String::from("/one"),
+                    title: String::from("One"),
                     children: vec![]
-                }]
-            }
+                },
+                Link {
+                    path: String::from("/two"),
+                    title: String::from("Two"),
+                    children: vec![]
+                },
+            ]
         )
     }
 
@@ -285,74 +241,70 @@ mod test {
 
         assert_eq!(
             navigation.build_for(&root),
-            Level {
-                index: Link {
-                    path: String::from("/"),
-                    title: String::from("Getting Started"),
+            vec![
+                Link {
+                    path: String::from("/002"),
+                    title: String::from("11"),
+                    children: vec![],
                 },
-                links: vec![
-                    Link {
-                        path: String::from("/002"),
-                        title: String::from("11")
-                    },
-                    Link {
-                        path: String::from("/001"),
-                        title: String::from("bb"),
-                    }
-                ],
-                children: vec![
-                    Level {
-                        index: Link {
-                            path: String::from("/child"),
-                            title: String::from("Index")
+                Link {
+                    path: String::from("/child"),
+                    title: String::from("Index"),
+                    children: vec![
+                        Link {
+                            path: String::from("/child/004"),
+                            title: String::from("11"),
+                            children: vec![],
                         },
-                        links: vec![
-                            Link {
-                                path: String::from("/child/004"),
-                                title: String::from("11")
-                            },
-                            Link {
-                                path: String::from("/child/002"),
-                                title: String::from("22")
-                            },
-                            Link {
-                                path: String::from("/child/003"),
-                                title: String::from("AA")
-                            },
-                            Link {
-                                path: String::from("/child/001"),
-                                title: String::from("BB")
-                            },
-                        ],
-                        children: vec![]
-                    },
-                    Level {
-                        index: Link {
-                            path: String::from("/child2"),
-                            title: String::from("Index")
+                        Link {
+                            path: String::from("/child/002"),
+                            title: String::from("22"),
+                            children: vec![],
                         },
-                        links: vec![
-                            Link {
-                                path: String::from("/child2/001"),
-                                title: String::from("123")
-                            },
-                            Link {
-                                path: String::from("/child2/002"),
-                                title: String::from("aa")
-                            },
-                            Link {
-                                path: String::from("/child2/004"),
-                                title: String::from("bb")
-                            },
-                            Link {
-                                path: String::from("/child2/003"),
-                                title: String::from("cc")
-                            },
-                        ],
-                        children: vec![]
-                    }
-                ]
-            }
+                        Link {
+                            path: String::from("/child/003"),
+                            title: String::from("AA"),
+                            children: vec![],
+                        },
+                        Link {
+                            path: String::from("/child/001"),
+                            title: String::from("BB"),
+                            children: vec![],
+                        },
+                    ]
+                },
+                Link {
+                    path: String::from("/child2"),
+                    title: String::from("Index"),
+                    children: vec![
+                        Link {
+                            path: String::from("/child2/001"),
+                            title: String::from("123"),
+                            children: vec![]
+                        },
+                        Link {
+                            path: String::from("/child2/002"),
+                            title: String::from("aa"),
+                            children: vec![]
+                        },
+                        Link {
+                            path: String::from("/child2/004"),
+                            title: String::from("bb"),
+                            children: vec![]
+                        },
+                        Link {
+                            path: String::from("/child2/003"),
+                            title: String::from("cc"),
+                            children: vec![]
+                        },
+                    ]
+                },
+                Link {
+                    path: String::from("/001"),
+                    title: String::from("bb"),
+                    children: vec![],
+                },
+            ],
         )
     }
 
@@ -382,30 +334,26 @@ mod test {
 
         let config = config(None);
         let navigation = Navigation::new(&config);
+        let links: Vec<Link> = (&root).into();
 
         assert_eq!(
-            navigation.customize(&rules, &Level::from(&root)),
-            Level {
-                index: Link {
-                    path: String::from("/"),
-                    title: String::from("Getting Started"),
-                },
-                links: vec![Link {
+            navigation.customize(&rules, &links),
+            vec![
+                Link {
                     path: String::from("/one"),
-                    title: String::from("One")
-                },],
-                children: vec![Level {
-                    index: Link {
-                        path: String::from("/child"),
-                        title: String::from("Nested Root")
-                    },
-                    links: vec![Link {
+                    title: String::from("One"),
+                    children: vec![],
+                },
+                Link {
+                    path: String::from("/child"),
+                    title: String::from("Nested Root"),
+                    children: vec![Link {
                         path: String::from("/child/three"),
-                        title: String::from("Three")
+                        title: String::from("Three"),
+                        children: vec![],
                     },],
-                    children: vec![]
-                }]
-            }
+                },
+            ]
         )
     }
 
@@ -453,37 +401,30 @@ mod test {
 
         let config = config(None);
         let navigation = Navigation::new(&config);
+        let links: Vec<Link> = (&root).into();
 
         assert_eq!(
-            navigation.customize(&rules, &Level::from(&root)),
-            Level {
-                index: Link {
-                    path: String::from("/"),
-                    title: String::from("Getting Started"),
-                },
-                links: vec![Link {
+            navigation.customize(&rules, &links),
+            vec![
+                Link {
                     path: String::from("/one"),
-                    title: String::from("One")
-                },],
-                children: vec![Level {
-                    index: Link {
-                        path: String::from("/child"),
-                        title: String::from("Nested Root")
-                    },
-                    links: vec![],
-                    children: vec![Level {
-                        index: Link {
-                            path: String::from("/child/nested"),
-                            title: String::from("Nested Root")
-                        },
-                        links: vec![Link {
+                    title: String::from("One"),
+                    children: vec![]
+                },
+                Link {
+                    path: String::from("/child"),
+                    title: String::from("Nested Root"),
+                    children: vec![Link {
+                        path: String::from("/child/nested"),
+                        title: String::from("Nested Root"),
+                        children: vec![Link {
                             path: String::from("/child/nested/four"),
-                            title: String::from("Four")
-                        }],
-                        children: vec![]
+                            title: String::from("Four"),
+                            children: vec![]
+                        },]
                     }]
-                }]
-            }
-        )
+                }
+            ]
+        );
     }
 }
