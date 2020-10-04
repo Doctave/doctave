@@ -49,6 +49,7 @@ jobs:
         shell: bash
         run: |
           staging="doctave-${{ matrix.target }}"
+          mkdir -p "$staging"
 
           if [ "${{ matrix.os }}" = "windows-2019" ]; then
             cp "target/${{ matrix.target }}/release/doctave.exe" "$staging/"
