@@ -1,8 +1,8 @@
 ---
-title: Customization
+title: Look and feel
 ---
 
-Customization
+Look and feel
 =============
 
 Doctave provides a few ways to make your docs look like your own, namely setting a main color for
