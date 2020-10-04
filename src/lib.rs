@@ -1,3 +1,5 @@
+#[deny(clippy::all)]
+
 #[cfg(test)]
 #[macro_use]
 extern crate indoc;
@@ -33,15 +35,15 @@ pub use serve::ServeCommand;
 
 use handlebars::Handlebars;
 
-static APP_JS: &'static str = include_str!("assets/app.js");
-static MERMAID_JS: &'static str = include_str!("assets/mermaid.min.js");
-static ELASTIC_LUNR: &'static str = include_str!("assets/elasticlunr.min.js");
-static LIVERELOAD_JS: &'static str = include_str!("assets/livereload.min.js");
-static PRISM_JS: &'static str = include_str!("assets/prism.min.js");
+static APP_JS: &str = include_str!("assets/app.js");
+static MERMAID_JS: &str = include_str!("assets/mermaid.min.js");
+static ELASTIC_LUNR: &str = include_str!("assets/elasticlunr.min.js");
+static LIVERELOAD_JS: &str = include_str!("assets/livereload.min.js");
+static PRISM_JS: &str = include_str!("assets/prism.min.js");
 
-static NORMALIZE_CSS: &'static str = include_str!("assets/normalize.css");
-static ATOM_DARK_CSS: &'static str = include_str!("assets/prism-atom-dark.css");
-static GH_COLORS_CSS: &'static str = include_str!("assets/prism-ghcolors.css");
+static NORMALIZE_CSS: &str = include_str!("assets/normalize.css");
+static ATOM_DARK_CSS: &str = include_str!("assets/prism-atom-dark.css");
+static GH_COLORS_CSS: &str = include_str!("assets/prism-ghcolors.css");
 
 lazy_static! {
     pub static ref HANDLEBARS: Handlebars<'static> = {
@@ -186,6 +188,6 @@ impl Document {
         self.frontmatter
             .get("title")
             .map(|t| t.as_ref())
-            .unwrap_or(self.path.file_stem().unwrap().to_str().unwrap())
+            .unwrap_or_else(|| self.path.file_stem().unwrap().to_str().unwrap())
     }
 }

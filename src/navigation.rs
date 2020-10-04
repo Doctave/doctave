@@ -116,7 +116,7 @@ impl Link {
             tmp = tmp
                 .parent()
                 .map(|p| p.to_owned())
-                .unwrap_or(PathBuf::from(""));
+                .unwrap_or_else(|| PathBuf::from(""));
         }
 
         // Need to force forward slashes here, since URIs will always

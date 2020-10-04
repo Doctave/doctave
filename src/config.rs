@@ -108,7 +108,7 @@ pub enum NavChildren {
     List(Vec<Navigation>),
 }
 
-static DEFAULT_THEME_COLOR: &'static str = "#445282";
+static DEFAULT_THEME_COLOR: &str = "#445282";
 
 #[derive(Debug, Clone)]
 struct Colors {

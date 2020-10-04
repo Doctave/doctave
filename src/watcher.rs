@@ -57,9 +57,6 @@ impl Watcher {
     /// Returns false if the notification could not be send, meaning
     /// the main thread has gone away.
     fn notify<S: Into<String>>(&self, path: PathBuf, msg: S) -> bool {
-        match self.channel.send((path, msg.into())) {
-            Ok(_) => true,
-            Err(_) => false,
-        }
+        self.channel.send((path, msg.into())).is_ok()
     }
 }

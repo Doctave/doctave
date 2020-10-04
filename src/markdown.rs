@@ -76,7 +76,7 @@ pub fn parse(input: &str) -> Markdown {
                     });
 
                     heading_level = 0;
-                    return tmp;
+                    tmp
                 } else {
                     Some(Event::Text(text))
                 }

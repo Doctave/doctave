@@ -325,7 +325,7 @@ impl<'a> SiteGenerator<'a> {
                 dir.path().file_name().unwrap().to_string_lossy(),
                 dir.path()
                     .strip_prefix(self.config.project_root())
-                    .unwrap_or(dir.path())
+                    .unwrap_or_else(|_| dir.path())
                     .display(),
                 content
             ),

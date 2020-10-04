@@ -111,7 +111,7 @@ fn handle_websocket(stream: std::net::TcpStream, mut listener: BusReader<()>) {
 fn livereload_handshake(websocket: &mut WebSocket<std::net::TcpStream>) -> io::Result<()> {
     let msg = websocket
         .read_message()
-        .map_err(|e| map_tungstenite_error(e))?;
+        .map_err(map_tungstenite_error)?;
 
     if msg.is_text() {
         let parsed: serde_json::Value = serde_json::from_str(msg.to_text().unwrap())?;
@@ -130,7 +130,7 @@ fn livereload_handshake(websocket: &mut WebSocket<std::net::TcpStream>) -> io::R
 
         websocket
             .write_message(response.into())
-            .map_err(|e| map_tungstenite_error(e))
+            .map_err(map_tungstenite_error)
     } else {
         Err(io::Error::new(io::ErrorKind::Other, "Invalid handshake"))
     }
