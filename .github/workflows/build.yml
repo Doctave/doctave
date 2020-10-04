@@ -7,15 +7,18 @@ jobs:
     name: Build Release
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        build: [linux, macos, windows]
         include:
-          - os: ubuntu-latest
+          - build: linux
+            os: ubuntu-latest
             target: x86_64-unknown-linux-musl
             artifact: doctave
-          - os: macos-latest
+          - build: macos
+            os: macos-latest
             target: x86_64-apple-darwin
             artifact: doctave
-          - os: windows-latest
+          - build: windows
+            os: windows-2019
             target: x86_64-pc-windows-msvc
             artifact: doctave.exe
 
@@ -23,17 +26,42 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set stable toolchain
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           target: ${{ matrix.target }}
-      - uses: actions-rs/cargo@v1
+
+      - name: Build release
+        uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --target ${{ matrix.target }}
-      - uses: actions/upload-artifact@v2
-        with:
-          name: doctave-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/${{ matrix.artifact }}
+          args: --verbose --release --target ${{ matrix.target }}
+
+    - name: Strip release binary (linux and macos)
+      if: matrix.build == 'linux' || matrix.build == 'macos'
+      run: strip "target/${{ matrix.target }}/release/rg"
+
+    - name: Build archive
+      shell: bash
+      run: |
+        staging="doctave-${{ matrix.target }}"
+
+        if [ "${{ matrix.os }}" = "windows-2019" ]; then
+          cp "target/${{ matrix.target }}/release/doctave.exe" "$staging/"
+          7z a "$staging.zip" "$staging"
+          echo "::set-env name=ASSET::$staging.zip"
+        else
+          cp "target/${{ matrix.target }}/release/rg" "$staging/"
+          tar czf "$staging.tar.gz" "$staging"
+          echo "::set-env name=ASSET::$staging.tar.gz"
+        fi
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: {{ env.ASSET }}
+        path: {{ env.ASSET }}
 
