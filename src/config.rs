@@ -10,6 +10,7 @@ use crate::{Error, Result};
 #[derive(Debug, Clone, Deserialize)]
 struct DoctaveYaml {
     title: String,
+    port: Option<u32>,
     colors: Option<ColorsYaml>,
     logo: Option<PathBuf>,
     navigation: Option<Vec<Navigation>>,
@@ -198,6 +199,7 @@ pub struct Config {
     colors: Colors,
     logo: Option<PathBuf>,
     navigation: Option<Vec<NavRule>>,
+    port: u32,
 }
 
 impl Config {
@@ -228,6 +230,7 @@ impl Config {
                 .unwrap_or(Colors::default()),
             logo: doctave_yaml.logo,
             navigation: doctave_yaml.navigation.map(|n| NavRule::from_yaml_input(n)),
+            port: doctave_yaml.port.unwrap_or_else(|| 4001),
         };
 
         Ok(config)
@@ -253,8 +256,14 @@ impl Config {
         &self.docs_dir
     }
 
+    /// Rules that set the site navigation structure
     pub fn navigation(&self) -> Option<&[NavRule]> {
         self.navigation.as_deref()
+    }
+
+    /// Port to serve the development server on
+    pub fn port(&self) -> u32 {
+        self.port
     }
 
     /// The main theme color. Other shades are computed based off of this

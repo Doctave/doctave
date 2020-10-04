@@ -1,4 +1,4 @@
-use clap::{App, SubCommand};
+use clap::{App, Arg, ArgMatches, SubCommand};
 
 fn main() {
     let matches = App::new("Doctave CLI")
@@ -13,16 +13,32 @@ fn main() {
                 .about("Builds your site from the project's Markdown files"),
         )
         .subcommand(
-            SubCommand::with_name("serve").about(
-                "Starts a live reloading development server to serve your documentation site",
-            ),
+            SubCommand::with_name("serve")
+                .about(
+                    "Starts a live reloading development server to serve your documentation site",
+                )
+                .arg(
+                    Arg::with_name("port")
+                        .long("port")
+                        .short("p")
+                        .takes_value(true)
+                        .value_name("PORT")
+                        .help(
+                            "Port used to serve the documentation site. \
+                             Must be a positive integer.",
+                        )
+                        .validator(|p| match p.parse::<u32>() {
+                            Ok(_) => Ok(()),
+                            Err(e) => Err(e.to_string()),
+                        }),
+                ),
         )
         .get_matches();
 
     let result = match matches.subcommand() {
         ("init", Some(_cmd)) => init(),
         ("build", Some(_cmd)) => build(),
-        ("serve", Some(_cmd)) => serve(),
+        ("serve", Some(cmd)) => serve(cmd),
         _ => Ok(()),
     };
 
@@ -48,13 +64,18 @@ fn build() -> doctave::Result<()> {
     doctave::BuildCommand::run(config)
 }
 
-fn serve() -> doctave::Result<()> {
+fn serve(cmd: &ArgMatches) -> doctave::Result<()> {
     let project_dir = doctave::config::project_root().unwrap_or_else(|| {
         println!("Could not find a doctave project in this directory, or its parents.");
         std::process::exit(1);
     });
 
+    let mut options = doctave::ServeOptions::default();
+    if let Some(p) = cmd.value_of("port") {
+        options.port = Some(p.parse::<u32>().unwrap());
+    }
+
     let config = doctave::config::Config::load(&project_dir)?;
 
-    doctave::ServeCommand::run(config)
+    doctave::ServeCommand::run(options, config)
 }

@@ -16,8 +16,13 @@ pub struct ServeCommand {
     site: Site,
 }
 
+#[derive(Default)]
+pub struct ServeOptions {
+    pub port: Option<u32>,
+}
+
 impl ServeCommand {
-    pub fn run(config: Config) -> Result<()> {
+    pub fn run(options: ServeOptions, config: Config) -> Result<()> {
         let site = Site::new(config.clone());
 
         let cmd = ServeCommand { config, site };
@@ -51,7 +56,9 @@ impl ServeCommand {
 
         // Preview Server -----------------------------
 
-        let http_server = PreviewServer::new("0.0.0.0:4001", &cmd.config.out_dir());
+        let port = options.port.unwrap_or_else(|| cmd.config.port());
+
+        let http_server = PreviewServer::new(&format!("0.0.0.0:{}", port), &cmd.config.out_dir());
         thread::Builder::new()
             .name("http-server".into())
             .spawn(move || http_server.run())

@@ -31,7 +31,7 @@ pub use build::BuildCommand;
 pub use error::Error;
 pub use init::InitCommand;
 pub use markdown::{Heading, Markdown};
-pub use serve::ServeCommand;
+pub use serve::{ServeCommand, ServeOptions};
 
 use handlebars::Handlebars;
 
