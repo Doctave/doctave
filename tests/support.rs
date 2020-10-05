@@ -104,6 +104,16 @@ impl TestArea {
         );
     }
 
+    pub fn refute_exists<P: AsRef<Path>>(&self, name: P) {
+        assert!(
+            !self.path.join(name.as_ref()).exists(),
+            format!(
+                "Found '{}' even though expected not to",
+                name.as_ref().display(),
+            )
+        );
+    }
+
     pub fn assert_contains<P: AsRef<Path>>(&self, name: P, needle: &str) {
         self.assert_exists(&name);
 
@@ -165,7 +175,7 @@ pub fn assert_output(result: &std::process::Output, needle: &str) {
     assert!(
         stdout.contains(needle) || stderr.contains(needle),
         format!(
-            "Could not find {} in STDOUT or STDERR:\n\n------ STDOUT ------\n{}\n \
+            "Could not find \"{}\" in STDOUT or STDERR:\n\n------ STDOUT ------\n{}\n \
             ------ STDERR ------\n{}\n",
             needle, stdout, stderr
         )

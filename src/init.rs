@@ -1,6 +1,6 @@
 use std::fs::{self, File};
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use colored::*;
 
@@ -26,8 +26,18 @@ impl InitCommand {
         cmd.check_for_existing_project()?;
 
         cmd.create_doctave_yaml()?;
-        cmd.create_readme()?;
-        cmd.create_docs_dir()?;
+
+        if cmd.no_existing_docs_dir() {
+            cmd.create_docs_dir()?;
+            cmd.create_docs_index()?;
+            cmd.create_doc_examples()?;
+        } else {
+            println!(
+                "{} {} directory - found existing docs...",
+                "Skipping".yellow(),
+                "docs".bold(),
+            );
+        }
 
         println!(
             "\n{} Run {} to view your docs site locally.",
@@ -41,11 +51,15 @@ impl InitCommand {
     fn check_for_existing_project(&self) -> Result<()> {
         if self.project_root.join("doctave.yaml").exists() {
             return Err(Error::new(
-                "Aborting. Found an existing doctave.yaml.\nHave you already run `doctave init`?",
+                "Aborting. Found an existing doctave.yaml.\nHave you already run doctave init?",
             ));
         }
 
         Ok(())
+    }
+
+    fn no_existing_docs_dir(&self) -> bool {
+        !self.project_root.join("docs").exists()
     }
 
     fn create_doctave_yaml(&self) -> Result<()> {
@@ -55,28 +69,7 @@ impl InitCommand {
         file.write(b"---\ntitle: \"My Project\"\n")
             .map_err(|e| Error::io(e, "Could not write to doctave.yaml"))?;
 
-        println!("Created doctave.yaml...");
-
-        Ok(())
-    }
-
-    fn create_readme(&self) -> Result<()> {
-        if !self.project_root.join("README.md").exists() {
-            let mut file = File::create(self.project_root.join("README.md")).map_err(|e| {
-                Error::io(
-                    e,
-                    format!(
-                        "Could not create README.md in {}",
-                        self.project_root.display()
-                    ),
-                )
-            })?;
-
-            file.write(b"Hello, world\n============\n")
-                .map_err(|e| Error::io(e, "Could not write to README.md"))?;
-
-            println!("Created README.md...");
-        }
+        println!("Created {}...", "doctave.yaml".bold());
 
         Ok(())
     }
@@ -93,7 +86,67 @@ impl InitCommand {
                 )
             })?;
 
-            println!("Created ./docs folder...");
+            println!("Created {} folder...", "docs".bold());
+        }
+
+        Ok(())
+    }
+
+    fn create_docs_index(&self) -> Result<()> {
+        let path = self.project_root.join("docs").join("README.md");
+
+        if !path.exists() {
+            let mut file = File::create(path).map_err(|e| {
+                Error::io(
+                    e,
+                    format!(
+                        "Could not create README.md in {}",
+                        self.project_root.join("docs").display()
+                    ),
+                )
+            })?;
+
+            file.write(include_str!("../templates/starter_readme.md").as_bytes())
+                .map_err(|e| Error::io(e, "Could not write to README.md"))?;
+
+            println!(
+                "Created {}...",
+                Path::new("docs")
+                    .join("README.md")
+                    .display()
+                    .to_string()
+                    .bold()
+            );
+        }
+
+        Ok(())
+    }
+
+    fn create_doc_examples(&self) -> Result<()> {
+        let path = self.project_root.join("docs").join("examples.md");
+
+        if !path.exists() {
+            let mut file = File::create(path).map_err(|e| {
+                Error::io(
+                    e,
+                    format!(
+                        "Could not create examles.md in {}",
+                        self.project_root.join("docs").display()
+                    ),
+                )
+            })?;
+
+            file.write(include_str!("../templates/starter_examples.md").as_bytes())
+                .map_err(|e| Error::io(e, "Could not write to README.md"))?;
+
+            println!(
+                "Created {}...",
+                Path::new("docs")
+                    .join("examples.md")
+                    .display()
+                    .to_string()
+                    .bold()
+            );
         }
 
         Ok(())

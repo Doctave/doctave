@@ -13,26 +13,17 @@ integration_test!(init_smoke_test, |area| {
     assert_success(&result);
 
     assert_output(&result, "Created doctave.yaml...");
-    assert_output(&result, "Created README.md...");
-    assert_output(&result, "Created ./docs folder...");
+    assert_output(&result, "Created docs folder...");
+    assert_output(&result, "Created docs/README.md...");
 
     assert_output(
         &result,
         "Done! Run doctave serve to view your docs site locally.",
     );
 
-    area.assert_exists("README.md");
-    area.assert_exists("docs");
-});
-
-integration_test!(does_not_overwite_readme, |area| {
-    area.write_file("README.md", b"Some content");
-
-    let result = area.cmd(&["init"]);
-    assert_success(&result);
-
-    area.assert_contains("README.md", "Some content");
-    area.refute_contains("README.md", "Hello, world:");
+    area.assert_exists(Path::new("docs").join("README.md"));
+    area.assert_exists(Path::new("docs").join("examples.md"));
+    area.assert_exists(Path::new("doctave.yaml"));
 });
 
 integration_test!(does_not_overwite_existing_docs, |area| {
@@ -65,5 +56,18 @@ integration_test!(bails_if_doctave_yaml_already_exists, |area| {
     assert_failed(&result);
 
     assert_output(&result, "Aborting. Found an existing doctave.yaml.");
-    assert_output(&result, "Have you already run `doctave init`?");
+    assert_output(&result, "Have you already run doctave init?");
+});
+
+integration_test!(skips_generating_docs_if_docs_folder_exists, |area| {
+    area.mkdir(Path::new("docs"));
+
+    let result = area.cmd(&["init"]);
+    assert_success(&result);
+
+    assert_output(&result, "Skipping docs directory - found existing docs");
+
+    area.refute_exists(Path::new("docs").join("README.md"));
+    area.refute_exists(Path::new("docs").join("examples.md"));
+    area.assert_exists(Path::new("doctave.yaml"));
 });
