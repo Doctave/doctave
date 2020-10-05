@@ -11,7 +11,7 @@ use walkdir::WalkDir;
 use crate::config::Config;
 use crate::markdown::Heading;
 use crate::navigation::{Link, Navigation};
-use crate::site::Site;
+use crate::site::{BuildMode, Site};
 use crate::{Directory, Document};
 use crate::{Error, Result};
 
@@ -54,11 +54,14 @@ impl<'a> SiteGenerator<'a> {
             crate::ELASTIC_LUNR,
         )
         .map_err(|e| Error::io(e, "Could not write elasticlunr.js to assets directory"))?;
-        fs::write(
-            self.config.out_dir().join("assets").join("livereload.js"),
-            crate::LIVERELOAD_JS,
-        )
-        .map_err(|e| Error::io(e, "Could not write livereload.js to assets directory"))?;
+        if let BuildMode::Dev = self.config.build_mode() {
+            // Livereload only in release mode
+            fs::write(
+                self.config.out_dir().join("assets").join("livereload.js"),
+                crate::LIVERELOAD_JS,
+            )
+            .map_err(|e| Error::io(e, "Could not write livereload.js to assets directory"))?;
+        }
         fs::write(
             self.config.out_dir().join("assets").join("prism.js"),
             crate::PRISM_JS,
@@ -179,6 +182,7 @@ impl<'a> SiteGenerator<'a> {
                     project_title: self.config.title().to_string(),
                     logo: self.config.logo(),
                     page_title,
+                    build_mode: self.config.build_mode().to_string(),
                 };
 
                 crate::HANDLEBARS
@@ -343,4 +347,5 @@ pub struct TemplateData<'a> {
     pub page_title: String,
     pub logo: Option<PathBuf>,
     pub project_title: String,
+    pub build_mode: String,
 }

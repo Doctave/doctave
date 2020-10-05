@@ -16,7 +16,9 @@
 
     <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css" media="screen" />
 
+    {{#if (eq build_mode "dev") }}
     <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
+    {{/if}}
     <script>
     var color = localStorage.getItem('doctave-color')
 

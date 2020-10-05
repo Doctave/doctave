@@ -103,3 +103,20 @@ Example:
 ```
 $ doctave serve --port 5432
 ```
+
+## Build command
+
+Currently the `build` command takes only one optional argument.
+
+### --release
+
+This flag will build the site without development dependencies. Currently this means stripping out
+livereload.js from the bundle, but can be extended in the future to include other actions.
+
+This is an optional argument.
+
+Example:
+
+```
+$ doctave build --release
+```

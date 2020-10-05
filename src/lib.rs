@@ -32,6 +32,7 @@ pub use error::Error;
 pub use init::InitCommand;
 pub use markdown::{Heading, Markdown};
 pub use serve::{ServeCommand, ServeOptions};
+pub use site::BuildMode;
 
 use handlebars::Handlebars;
 use navigation::Link;

@@ -6,6 +6,7 @@ use colorsys::Rgb;
 use serde::Deserialize;
 
 use crate::{Error, Result};
+use crate::site::BuildMode;
 
 #[derive(Debug, Clone, Deserialize)]
 struct DoctaveYaml {
@@ -200,6 +201,7 @@ pub struct Config {
     logo: Option<PathBuf>,
     navigation: Option<Vec<NavRule>>,
     port: u32,
+    build_mode: BuildMode,
 }
 
 impl Config {
@@ -231,6 +233,7 @@ impl Config {
             logo: doctave_yaml.logo,
             navigation: doctave_yaml.navigation.map(|n| NavRule::from_yaml_input(n)),
             port: doctave_yaml.port.unwrap_or_else(|| 4001),
+            build_mode: BuildMode::Dev,
         };
 
         Ok(config)
@@ -264,6 +267,14 @@ impl Config {
     /// Port to serve the development server on
     pub fn port(&self) -> u32 {
         self.port
+    }
+
+    pub fn build_mode(&self) -> BuildMode {
+        self.build_mode
+    }
+
+    pub fn set_build_mode(&mut self, mode: BuildMode) {
+        self.build_mode = mode;
     }
 
     /// The main theme color. Other shades are computed based off of this

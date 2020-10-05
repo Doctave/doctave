@@ -4,6 +4,23 @@ use crate::config::Config;
 use crate::site_generator::SiteGenerator;
 use crate::{Error, Result};
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+/// Describes the mode we should build the site in, meaning
+/// which assets we want to include/exclude for development.
+pub enum BuildMode {
+    Dev,
+    Release,
+}
+
+impl std::fmt::Display for BuildMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BuildMode::Dev => write!(f, "dev"),
+            BuildMode::Release => write!(f, "release"),
+        }
+    }
+}
+
 /// A handle to the output directory where the site will be generated.
 ///
 /// Completely agnostic about where the original Markdown files are

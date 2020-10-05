@@ -306,10 +306,10 @@ integration_test!(assets_folder, |area| {
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    let css = Path::new("site").join("assets").join("custom_style.css");
+    let css = area.path.join("site").join("assets").join("custom_style.css");
     area.assert_contains(&css, "body { background-color: pink !important }");
 
-    let index = Path::new("site").join("index.html");
+    let index = area.path.join("site").join("index.html");
     area.refute_contains(&index, "<a href=\"/_assets\">_assets</a>");
 });
 
@@ -358,4 +358,19 @@ integration_test!(custom_colors_invalid, |area| {
         "Error: Invalid HEX color provided for colors.main in doctave.yaml.",
     );
     assert_output(&result, "Found 'not-a-color'");
+});
+
+integration_test!(release_mode, |area| {
+    area.create_config();
+    area.mkdir(Path::new("docs"));
+    area.write_file(Path::new("docs").join("README.md"), b"# Hi");
+
+    let result = area.cmd(&["build", "--release"]);
+    assert_success(&result);
+
+    let index = area.path.join("site").join("index.html");
+    area.refute_contains(&index, "livereload");
+
+    let livereload_js = area.path.join("site").join("assets").join("livereload.js");
+    assert!(!livereload_js.exists());
 });

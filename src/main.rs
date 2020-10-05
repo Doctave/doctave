@@ -10,7 +10,12 @@ fn main() {
         .subcommand(SubCommand::with_name("init").about("Initialize a new project (start here!)"))
         .subcommand(
             SubCommand::with_name("build")
-                .about("Builds your site from the project's Markdown files"),
+                .about("Builds your site from the project's Markdown files")
+                .arg(
+                    Arg::with_name("release")
+                        .long("release")
+                        .help("Build the site in release mode"),
+                ),
         )
         .subcommand(
             SubCommand::with_name("serve")
@@ -37,7 +42,7 @@ fn main() {
 
     let result = match matches.subcommand() {
         ("init", Some(_cmd)) => init(),
-        ("build", Some(_cmd)) => build(),
+        ("build", Some(cmd)) => build(cmd),
         ("serve", Some(cmd)) => serve(cmd),
         _ => Ok(()),
     };
@@ -53,13 +58,16 @@ fn init() -> doctave::Result<()> {
     doctave::InitCommand::run(root_dir)
 }
 
-fn build() -> doctave::Result<()> {
+fn build(cmd: &ArgMatches) -> doctave::Result<()> {
     let project_dir = doctave::config::project_root().unwrap_or_else(|| {
         println!("Could not find a doctave project in this directory, or its parents.");
         std::process::exit(1);
     });
 
-    let config = doctave::config::Config::load(&project_dir)?;
+    let mut config = doctave::config::Config::load(&project_dir)?;
+    if cmd.is_present("release") {
+        config.set_build_mode(doctave::BuildMode::Release);
+    }
 
     doctave::BuildCommand::run(config)
 }
