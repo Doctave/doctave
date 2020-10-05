@@ -34,6 +34,7 @@ pub use markdown::{Heading, Markdown};
 pub use serve::{ServeCommand, ServeOptions};
 
 use handlebars::Handlebars;
+use navigation::Link;
 
 static APP_JS: &str = include_str!("assets/app.js");
 static MERMAID_JS: &str = include_str!("assets/mermaid.min.js");
@@ -170,6 +171,10 @@ impl Document {
             )),
             Some(ref rename) => self.path.with_file_name(&format!("{}.html", rename)),
         }
+    }
+
+    fn uri_path(&self) -> String {
+        Link::path_to_uri(&self.html_path())
     }
 
     fn markdown_section(&self) -> &str {

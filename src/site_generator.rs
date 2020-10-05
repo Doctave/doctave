@@ -165,7 +165,7 @@ impl<'a> SiteGenerator<'a> {
                         )
                     })?;
 
-                let page_title = if Link::path_to_uri(&doc.html_path()) == "/" {
+                let page_title = if doc.uri_path() == "/" {
                     self.config.title().to_string()
                 } else {
                     doc.title().to_string()
@@ -175,7 +175,7 @@ impl<'a> SiteGenerator<'a> {
                     content: doc.html().to_string(),
                     headings: doc.headings().to_vec(),
                     navigation: &nav,
-                    current_path: Link::path_to_uri(&doc.html_path()),
+                    current_path: doc.uri_path(),
                     project_title: self.config.title().to_string(),
                     logo: self.config.logo(),
                     page_title,
@@ -214,7 +214,7 @@ impl<'a> SiteGenerator<'a> {
                 &doc.id.to_string(),
                 &[
                     &doc.title(),
-                    &Link::path_to_uri(&doc.html_path()).as_str(),
+                    &doc.uri_path().as_str(),
                     doc.markdown_section(),
                 ],
             );
@@ -297,7 +297,7 @@ impl<'a> SiteGenerator<'a> {
         let content = dir
             .docs
             .iter()
-            .map(|d| format!("* [{}]({})", d.title(), Link::path_to_uri(&d.html_path())))
+            .map(|d| format!("* [{}]({})", d.title(), d.uri_path()))
             .collect::<Vec<_>>()
             .join("\n");
 

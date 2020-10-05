@@ -14,6 +14,7 @@ impl<'a> Navigation<'a> {
         Navigation { config }
     }
 
+    /// Builds a navigation tree given a root directory
     pub fn build_for(&self, dir: &Directory) -> Vec<Link> {
         let default: Vec<Link> = dir.into();
 
@@ -23,14 +24,32 @@ impl<'a> Navigation<'a> {
         }
     }
 
+    /// Customizes the navigation tree given some rules provided through the
+    /// doctave.yaml config.
+    ///
+    /// Note that the config validates that any files/directories referenced
+    /// in the rules already exist, which is why we can reasonably confidently
+    /// unwrap some Nones here. The only case they would trip is if the files
+    /// got removed between the validation and building these rules, which is
+    /// a _very_ small window.
+    ///
+    /// Note that in the case where an explicit path is provided, the link is
+    /// not necessarily a direct child of its parent. It could be that links
+    /// under a directory actually point to a parent's sibling, or to somewhere
+    /// else in the tree.
     fn customize(&self, rules: &[NavRule], default: &[Link]) -> Vec<Link> {
         let mut links = vec![];
 
         for rule in rules {
             match rule {
-                NavRule::File(path) => links.push(self.find_matching_link(path, &default)),
+                NavRule::File(path) => links.push(
+                    self.find_matching_link(path, &default)
+                        .expect("No matching link found"),
+                ),
                 NavRule::Dir(path, dir_rule) => {
-                    let mut index_link = self.find_matching_link(path, &default);
+                    let mut index_link = self
+                        .find_matching_link(path, &default)
+                        .expect("No matching link found");
 
                     match dir_rule {
                         // Don't include any children
@@ -40,9 +59,9 @@ impl<'a> Navigation<'a> {
                         }
                         // Include all children
                         Some(DirIncludeRule::WildCard) => links.push(index_link),
-                        // Include only children that match the description
+                        // Include only links that match the description
                         Some(DirIncludeRule::Explicit(nested_rules)) => {
-                            let children = self.customize(nested_rules, &index_link.children);
+                            let children = self.customize(nested_rules, &default);
                             index_link.children = children;
                             links.push(index_link);
                         }
@@ -54,17 +73,28 @@ impl<'a> Navigation<'a> {
         links
     }
 
-    fn find_matching_link(&self, path: &Path, links: &[Link]) -> Link {
-        links
-            .iter()
-            .find(|link| {
-                let mut without_docs_part = path.components();
-                let _ = without_docs_part.next();
+    /// Matches a path provided in a NavRule to a Link. Recursively searches through
+    /// the link children to find a match.
+    fn find_matching_link(&self, path: &Path, links: &[Link]) -> Option<Link> {
+        let search_result = links.iter().find(|link| {
+            let mut without_docs_part = path.components();
+            let _ = without_docs_part.next();
 
-                link.path == Link::path_to_uri(without_docs_part.as_path())
-            })
-            .expect("Could not find matching doc for rule")
-            .clone()
+            link.path == Link::path_to_uri(without_docs_part.as_path())
+        });
+
+        match search_result {
+            Some(link) => Some(link.clone()),
+            None => {
+                let recursive_results = links
+                    .iter()
+                    .flat_map(|l| self.find_matching_link(path, &l.children))
+                    .collect::<Vec<_>>();
+
+                // _Should_ only be one match, if any
+                return recursive_results.get(0).map(|l| l.clone());
+            }
+        }
     }
 }
 
@@ -75,10 +105,10 @@ impl From<&Directory> for Vec<Link> {
             .iter()
             .map(|d| Link {
                 title: d.title().to_owned(),
-                path: Link::path_to_uri(&d.html_path()),
+                path: d.uri_path(),
                 children: vec![],
             })
-            .filter(|l| l.path != Link::path_to_uri(&dir.index().html_path()))
+            .filter(|l| l.path != dir.index().uri_path())
             .collect::<Vec<_>>();
 
         let mut children = dir
@@ -86,7 +116,7 @@ impl From<&Directory> for Vec<Link> {
             .iter()
             .map(|d| Link {
                 title: d.index().title().to_owned(),
-                path: Link::path_to_uri(&d.index().html_path()),
+                path: d.index().uri_path(),
                 children: d.into(),
             })
             .collect::<Vec<_>>();
@@ -425,6 +455,76 @@ mod test {
                     }]
                 }
             ]
+        );
+    }
+
+    #[test]
+    fn manual_menu_file_from_nested_directory() {
+        let root = Directory {
+            path: PathBuf::from("docs"),
+            docs: vec![page("README.md", "Getting Started")],
+            dirs: vec![Directory {
+                path: PathBuf::from("docs").join("child"),
+                docs: vec![
+                    page("child/README.md", "Nested Root"),
+                    page("child/three.md", "Three"),
+                ],
+                dirs: vec![],
+            }],
+        };
+
+        let rules = vec![NavRule::File(
+            PathBuf::from("docs").join("child").join("three.md"),
+        )];
+
+        let config = config(None);
+        let navigation = Navigation::new(&config);
+        let links: Vec<Link> = (&root).into();
+
+        assert_eq!(
+            navigation.customize(&rules, &links),
+            vec![Link {
+                path: String::from("/child/three"),
+                title: String::from("Three"),
+                children: vec![]
+            },]
+        );
+    }
+
+    #[test]
+    fn manual_menu_file_from_parent_directory() {
+        let root = Directory {
+            path: PathBuf::from("docs"),
+            docs: vec![page("README.md", "Getting Started"), page("one.md", "One")],
+            dirs: vec![Directory {
+                path: PathBuf::from("docs").join("child"),
+                docs: vec![page("child/README.md", "Nested Root")],
+                dirs: vec![],
+            }],
+        };
+
+        let rules = vec![NavRule::Dir(
+            PathBuf::from("docs").join("child"),
+            Some(DirIncludeRule::Explicit(vec![NavRule::File(
+                PathBuf::from("docs").join("one.md"),
+            )])),
+        )];
+
+        let config = config(None);
+        let navigation = Navigation::new(&config);
+        let links: Vec<Link> = (&root).into();
+
+        assert_eq!(
+            navigation.customize(&rules, &links),
+            vec![Link {
+                path: String::from("/child"),
+                title: String::from("Nested Root"),
+                children: vec![Link {
+                    path: String::from("/one"),
+                    title: String::from("One"),
+                    children: vec![],
+                }]
+            },]
         );
     }
 }
