@@ -109,7 +109,7 @@ th {
 .search,
 .content {
     max-width: 830px;
-    min-width: 530px;
+    min-width: 380px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -229,6 +229,11 @@ th {
 
     .header {
         flex-direction: column;
+    }
+
+    .logo {
+        width: 100%;
+        min-width: 100%;
     }
 
     .sidebar-left {
@@ -503,6 +508,7 @@ th {
 
 .project-name {
     margin-top: 0px;
+    padding-right: 20px;
 }
 
 .project-name:after {
