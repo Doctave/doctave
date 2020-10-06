@@ -34,11 +34,47 @@ impl<'a> SiteGenerator<'a> {
 
         self.build_directory(&root, &navigation)?;
         self.build_search_index(&root)?;
+        self.build_includes()?;
         self.build_assets()?;
 
         Ok(())
     }
 
+    /// Copies over all custom includes from the _includes directory
+    fn build_includes(&self) -> Result<()> {
+        let custom_assets_dir = self.config.docs_dir().join("_include");
+
+        for asset in WalkDir::new(&custom_assets_dir)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| e.path().is_file())
+        {
+
+            let stripped_path = asset
+                .path()
+                .strip_prefix(&custom_assets_dir)
+                .expect("asset directory was not parent of found asset");
+
+            let destination = self.config.out_dir().join(stripped_path);
+
+            fs::create_dir_all(
+                destination
+                    .parent()
+                    .expect("asset did not have parent directory"),
+            )
+            .map_err(|e| Error::io(e, "Could not create custom asset parent directory"))?;
+
+            File::create(&destination)
+                .map_err(|e| Error::io(e, "Could not create custom asset in assets directory"))?;
+
+            fs::copy(asset.path(), destination)
+                .map_err(|e| Error::io(e, "Could not copy custom asset"))?;
+        }
+
+        Ok(())
+    }
+
+    /// Builds fixed assets required by Doctave
     fn build_assets(&self) -> Result<()> {
         fs::create_dir_all(self.config.out_dir().join("assets"))
             .map_err(|e| Error::io(e, "Could not create assets directory"))?;
@@ -116,37 +152,7 @@ impl<'a> SiteGenerator<'a> {
 
         crate::HANDLEBARS
             .render_to_write("style.css", &data, &mut style)
-            .unwrap();
-
-        // Copy over all custom assets from the _assets directory
-        let custom_assets_dir = self.config.docs_dir().join("_assets");
-
-        for asset in WalkDir::new(&custom_assets_dir)
-            .into_iter()
-            .filter_map(|e| e.ok())
-            .filter(|e| e.path().is_file())
-        {
-            let stripped_path = asset
-                .path()
-                .strip_prefix(&custom_assets_dir)
-                .expect("asset directory was not parent of found asset");
-
-            let destination = self.config.out_dir().join("assets").join(stripped_path);
-
-            File::create(&destination)
-                .map_err(|e| Error::io(e, "Could not create custom asset in assets directory"))?;
-            fs::create_dir_all(
-                asset
-                    .path()
-                    .parent()
-                    .expect("asset did not have parent directory"),
-            )
-            .map_err(|e| Error::io(e, "Could not create custom asset parent directory"))?;
-            fs::copy(asset.path(), destination)
-                .map_err(|e| Error::io(e, "Could not copy custom asset"))?;
-        }
-
-        Ok(())
+            .map_err(|e| Error::handlebars(e, "Could not write custom style sheet"))
     }
 
     fn build_directory(&self, dir: &Directory, nav: &[Link]) -> Result<()> {

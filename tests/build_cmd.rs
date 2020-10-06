@@ -293,21 +293,32 @@ integration_test!(code_syntax_highlight, |area| {
     area.assert_contains(&index, "<code class=\"language-ruby\">");
 });
 
-integration_test!(assets_folder, |area| {
+integration_test!(include_folder, |area| {
     area.create_config();
-    area.mkdir(Path::new("docs").join("_assets"));
 
+    area.mkdir(Path::new("docs"));
     area.write_file(Path::new("docs").join("README.md"), b"# Hi");
+
+    area.mkdir(Path::new("docs").join("_include"));
     area.write_file(
-        Path::new("docs").join("_assets").join("custom_style.css"),
-        b"body { background-color: pink !important }",
+        Path::new("docs").join("_include").join("an_file"),
+        b"an content",
+    );
+
+    area.mkdir(Path::new("docs").join("_include").join("assets"));
+    area.write_file(
+        Path::new("docs").join("_include").join("assets").join("an_nested_file"),
+        b"an nested content",
     );
 
     let result = area.cmd(&["build"]);
     assert_success(&result);
 
-    let css = area.path.join("site").join("assets").join("custom_style.css");
-    area.assert_contains(&css, "body { background-color: pink !important }");
+    let css = area.path.join("site").join("an_file");
+    area.assert_contains(&css, "an content");
+
+    let css = area.path.join("site").join("assets").join("an_nested_file");
+    area.assert_contains(&css, "an nested content");
 
     let index = area.path.join("site").join("index.html");
     area.refute_contains(&index, "<a href=\"/_assets\">_assets</a>");

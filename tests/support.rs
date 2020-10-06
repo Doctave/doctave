@@ -95,7 +95,7 @@ impl TestArea {
             format!(
                 "Could not find '{}'. Only found {:?}",
                 name.as_ref().display(),
-                std::fs::read_dir(&self.path)
+                std::fs::read_dir(&self.path.join(name.as_ref()).parent().unwrap())
                     .unwrap()
                     .map(|e| e.unwrap().path().to_path_buf())
                     .map(|p| p.strip_prefix(&self.path).unwrap().to_path_buf())
