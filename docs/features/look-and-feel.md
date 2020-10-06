@@ -28,13 +28,14 @@ contrast against a black background.
 
 There are two steps to showing your logo on your site:
 
-1. Place your logo under `docs/_assets` (read about custom assets [here](/features/assets))
-2. Specify the filename of your logo in `doctave.yaml`
+1. Place your logo somewhere under `docs/_include` (read about custom assets
+   [here](/features/assets))
+2. Specify the path to your logo in `doctave.yaml`
 
 For exampe, with the following assets:
 
 ```
-$ ls docs/_assets/
+$ ls docs/_include/assets
 logo.png
 ```
 
@@ -43,8 +44,10 @@ And the following doctave.yaml:
 ```
 ---
 title: Gonzo
-logo: logo.png
+logo: assets/logo.png
 ```
+
+_Note how the path is specified in relation to the `_include` directory._
 
 Once you restart the Doctave server, you should see your logo at the top left of the page:
 
@@ -52,8 +55,8 @@ Once you restart the Doctave server, you should see your logo at the top left of
 
 ### Dimensions
 
-Your logo will be cropped to a **45px by 45px** size. You should crop your logo to be close to that size
-when deploying your site.
+Your logo will be cropped to a **45px by 45px** size. You should crop your logo to be close to that
+size when deploying your site.
 
 ## Why don't you support themes?
 

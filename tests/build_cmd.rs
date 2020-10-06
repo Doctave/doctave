@@ -307,7 +307,10 @@ integration_test!(include_folder, |area| {
 
     area.mkdir(Path::new("docs").join("_include").join("assets"));
     area.write_file(
-        Path::new("docs").join("_include").join("assets").join("an_nested_file"),
+        Path::new("docs")
+            .join("_include")
+            .join("assets")
+            .join("an_nested_file"),
         b"an nested content",
     );
 
@@ -384,4 +387,36 @@ integration_test!(release_mode, |area| {
 
     let livereload_js = area.path.join("site").join("assets").join("livereload.js");
     assert!(!livereload_js.exists());
+});
+
+integration_test!(custom_logo, |area| {
+    area.mkdir(Path::new("docs").join("_include").join("assets"));
+    area.write_file(Path::new("docs").join("README.md"), b"# Hi");
+
+    // Create a fake logo
+    area.write_file(
+        Path::new("docs")
+            .join("_include")
+            .join("assets")
+            .join("fake-logo.png"),
+        b"",
+    );
+
+    // Include the logo in the config
+    area.write_file(
+        Path::new("doctave.yaml"),
+        indoc! {"
+    ---
+    title: Custom colors
+    logo: assets/fake-logo.png
+    "}
+        .as_bytes(),
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    let index = Path::new("site").join("index.html");
+
+    area.assert_contains(&index, "/assets/fake-logo.png");
 });

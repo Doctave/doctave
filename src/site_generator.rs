@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs::{self, File};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use elasticlunr::Index;
 use rayon::prelude::*;
@@ -49,7 +49,6 @@ impl<'a> SiteGenerator<'a> {
             .filter_map(|e| e.ok())
             .filter(|e| e.path().is_file())
         {
-
             let stripped_path = asset
                 .path()
                 .strip_prefix(&custom_assets_dir)
@@ -186,7 +185,7 @@ impl<'a> SiteGenerator<'a> {
                     navigation: &nav,
                     current_path: doc.uri_path(),
                     project_title: self.config.title().to_string(),
-                    logo: self.config.logo(),
+                    logo: self.config.logo().map(|l| l.to_string()),
                     page_title,
                     build_mode: self.config.build_mode().to_string(),
                 };
@@ -351,7 +350,7 @@ pub struct TemplateData<'a> {
     pub navigation: &'a [Link],
     pub current_path: String,
     pub page_title: String,
-    pub logo: Option<PathBuf>,
+    pub logo: Option<String>,
     pub project_title: String,
     pub build_mode: String,
 }
