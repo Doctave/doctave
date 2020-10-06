@@ -1,5 +1,5 @@
-[Doctave CLI](https://cli.doctave.com)
-======================================
+![Doctave logo](./docs/_include/assets/doctave-logo.svg) [Doctave CLI](https://cli.doctave.com)
+===============================================================================================
 
 * [Docs](https://cli.doctave.com)
 * [Tutorial](https://cli.doctave.com/tutorial)

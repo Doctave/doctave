@@ -52,7 +52,8 @@ title: "My project"
 Currently, you only have the project's name mentioned. This title is shown on the page navigation,
 and used as the HTML page title. You should change that to be the actual name of your project.
 
-Now, you can run `doctave serve` to start the local webserver.
+Now, you can run `doctave serve` to start the local webserver. _**Note**: When you edit your
+`docatave.yaml` file, you will have to restart the webserver for the changes to come into effect._
 
 ```
 $ doctave serve
@@ -113,3 +114,14 @@ title: How to build
 
 Open up your browser, and you should now see a _"How to build"_ link in the sidebar. And if you
 click it, you will be taken to the page.
+
+
+## What next?
+
+That's really all there is to know about getting started with Doctave. Here are some resources that
+can help going forward:
+
+* [Deployment guide](/deployment)
+* [Adding Mermaid.js diagrams](/features/mermaid-js)
+* [Customize your look and feel](/features/look-and-feel)
+* [Customize your navigation](/features/custom-navigation)

@@ -9,6 +9,7 @@ navigation:
   - path: docs/tutorial.md
   - path: docs/features
     children: "*"
+  - path: docs/deployment.md
   - path: docs/configuration.md
   - path: docs/contributors
     children: "*"

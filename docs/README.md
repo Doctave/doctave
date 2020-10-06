@@ -16,64 +16,15 @@ and open source._
 You can read more about hosting your docs on Doctave [here](https://www.doctave.com).
 
 ## Features
-- [x] Minimal configuration
-- [x] GitHub flavored markdown
-- [x] Full-text search built-in
-- [x] Mermaid.js diagrams out of the box
-- [x] Local live-reloading server
-- [x] Fast build, built in Rust
+- Minimal configuration
+- GitHub flavored markdown
+- Full-text search built-in
+- Mermaid.js diagrams out of the box
+- Local live-reloading server
+- Fast build, built in Rust
 
-## Usage
+## Getting started
 
-The CLI comes with a number of sub commands:
+First head over to the [installation instructions](/installing). Once you have Doctave installed,
+you can get familiar with the tool by going through the official [tutorial](/tutorial).
 
-### Starting a new project 
-
-To initialize a Doctave site in your repository, run the following command:
-
-```bash
-$ doctave init
-```
-
-This will generate the following default directory structure, along with some boilerplate content
-to get you started.
-
-```bash
-$ tree
-.
-├── README.md
-└── docs
-    ├── environment_setup.rs
-    ├── architecture_overview.rs
-    └── decision_records.rs
-```
-
-### Live preview
-
-To view your documentation locally, you can start the development server (port 4001 by default):
-
-```bash
-$ doctave serve
-```
-
-You can now see your site at [localhost:4001](), and any updates to your docs will automatically
-reload the page.
-
-### Building your site
-
-Finally, to build a production version of your documentation, run the following:
-
-```bash
-$ doctave build
-```
-
-## Now with Mermaid Diagrams!
-
-```mermaid
-graph TD
-  A[Christmas] -->|Get money| B(Go shopping)
-  B --> C{Let me think}
-  C -->|One| D[Laptop]
-  C -->|Two| E[iPhone]
-  C -->|Three| F[fa:fa-car Car]
-```
