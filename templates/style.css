@@ -33,6 +33,7 @@ a {
 img {
     border-radius: 5px;
     max-width: 100%;
+    box-shadow: 0px 0px 9px rgba(0, 0, 0, 0.07);
 }
 
 table {
@@ -65,6 +66,16 @@ p code {
     border-radius: 5px;
     padding-bottom: 2px;
     padding-top: 2px;
+}
+
+blockquote p {
+    font-size: 1.8rem;
+    font-style: italic;
+}
+
+blockquote {
+    padding-top: 30px;
+    padding-bottom: 30px;
 }
 
 thead tr:last-child {
@@ -127,6 +138,7 @@ th {
     height: 45px;
     width: 45px;
     padding-right: 20px;
+    box-shadow: none;
 }
 
 .logo,

@@ -135,27 +135,15 @@ function setColor() {
 
 document.getElementById("light-dark-mode-switch").addEventListener("click", toggleColor);
 
-// Don't reset scrolling on livereload
-window.addEventListener('scroll', function() {
-    localStorage.setItem('doctave-scrollPosition', window.scrollY);
 
-    dragRightMenu();
-}, false);
-
-window.addEventListener('load', function() {
-    if (localStorage.getItem('doctave-scrollPosition') !== null)
-        window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
-
-    document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
-        disableScrollifMenuOpen();
-    });
-}, false);
-
-
-// Initialize mermaid JS
-mermaid.initialize({
-    startOnLoad: true
-});
+// Initialize mermaid.js based on color theme
+var color = localStorage.getItem('doctave-color')
+if (color === 'dark') {
+    console.log("DARK MODE");
+    mermaid.initialize({'theme': 'dark'});
+} else {
+    mermaid.initialize({'theme': 'default'});
+}
 
 var INDEX;
 

@@ -58,9 +58,9 @@ when deploying your site.
 ## Why don't you support themes?
 
 While most generic static site generators support themes, Doctave has made the conscious decision
-not to support custom themes. Doctave is meant to be a out-of-the-box and simple alternative for
-building documentation sites, and adding theming support would make the tool more complicated than
-necessary for what it is meant for.
+not to support custom themes. Doctave is meant to be an out-of-the-box, simple alternative for
+building documentation sites, and adding theming support would make it more complicated than
+necessary.
 
 If you are looking for more control around the look of your documentation, we recommend looking at
 other great alternatives, such as [Mkdocs](https://www.mkdocs.org/),

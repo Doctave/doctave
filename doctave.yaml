@@ -1,7 +1,8 @@
 ---
 title: Doctave CLI
 colors:
-  main: "#5f658a"
+  main: "#227C9D"
+logo: doctave-logo.svg
 
 navigation:
   - path: docs/installing.md

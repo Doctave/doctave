@@ -19,7 +19,7 @@ Diagram types supported include
 
 ## Basic example
 
-Specify the mermaid as your code block language:
+Specify _mermaid_ as your code block language:
 
 ~~~
 ```mermaid
@@ -47,9 +47,11 @@ graph TD;
 
 If you are not familiar with Mermaid JS, we suggest taking a look at their
 [tutorials](https://mermaid-js.github.io/mermaid/diagrams-and-syntax-and-examples/n00b-syntaxReference.html)
-and playing around with their [live editor](https://mermaid-js.github.io/mermaid-live-editor)
+and playing around with their [live editor](https://mermaid-js.github.io/mermaid-live-editor).
 
 ## Further examples
+
+Below are a few examples to get you started if you want to play around with the Mermaid syntax.
 
 ### Pie chart
 ~~~

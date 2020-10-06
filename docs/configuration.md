@@ -11,6 +11,9 @@ This document goes through all the different configuration options available.
 
 First, let's look at the options available in the `doctave.yaml` file.
 
+**NOTE!** Any changes you make to this file will only come into effect when you restart the preview
+server, or rebuild your site.
+
 ### title
 
 This sets the name of your project. It serves two purposes:

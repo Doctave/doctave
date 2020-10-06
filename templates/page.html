@@ -18,7 +18,26 @@
 
     {{#if (eq build_mode "dev") }}
     <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
+
+    <script>
+    // Don't reset scrolling on livereload
+    window.addEventListener('scroll', function() {
+        localStorage.setItem('doctave-scrollPosition', window.scrollY);
+
+        dragRightMenu();
+    }, false);
+
+    window.addEventListener('load', function() {
+        if (localStorage.getItem('doctave-scrollPosition') !== null)
+            window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
+
+        document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
+            disableScrollifMenuOpen();
+        });
+    }, false);
+    </script>
     {{/if}}
+
     <script>
     var color = localStorage.getItem('doctave-color')
 
@@ -41,9 +60,15 @@
         <div class='header'>
             <div class='logo'>
                 {{#if logo }}
-                    <img src="{{ logo }}" alt='{{ project_title }} logo'></img>
+                    <a href='/'>
+                        <img src="{{ logo }}" alt='{{ project_title }} logo'></img>
+                    </a>
                 {{/if}}
-                <h2 class='project-name'><a href='/'>{{ project_title }}</a></h2>
+                <h2 class='project-name'>
+                    <a href='/'>
+                        {{ project_title }}
+                    </a>
+                </h2>
             </div>
             <div class='search'>
                 {{> search }}

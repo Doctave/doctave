@@ -1,81 +1,47 @@
-Doctave CLI
-===========
+[Doctave CLI](https://cli.doctave.com)
+======================================
 
-The [Doctave](https://www.doctave.com) CLI is an opinionated documentation site generator that
-converts your Markdown files into a beautiful developer hub.
+* [Docs](https://cli.doctave.com)
+* [Tutorial](https://cli.doctave.com/tutorial)
+
+The DoctaveCLI is an opinionated documentation site generator that converts your Markdown files into
+a beautiful developer hub with minimal effort.
 
 The Doctave CLI is not a generic static site generator - it is only meant for generating
 documentation sites from Markdown. This allows the tool to be much simpler than other solutions,
 with fewer configuration steps.
 
-This open source CLI is built and maintained by [Doctave](https://www.doctave.com). While it is
-meant originally to be used for projects that are hosted on Doctave.com, it does not depend on it,
-and you are free to deploy the generated sites as you please. _This CLI is and always will be free
-and open source._
-
-You can read more about hosting your docs on Doctave [here](https://www.doctave.com).
+This open source CLI is built and maintained by [Doctave](https://www.doctave.com).
 
 ## Features
-- [x] Minimal configuration
-- [x] GitHub flavored markdown
-- [x] Full-text search built-in
-- [x] Mermaid.js diagrams out of the box
-- [x] Local live-reloading server
-- [x] Fast build, built in Rust
 
-## Usage
+Doctave comes with a number of documentation-specific features out of the box. No plugins needed.
 
-The CLI comes with a number of sub commands:
+- [Mermaid.js](https://mermaid-js.github.io/) diagrams
+- Full-text search
+- Local live-reloading server
+- Minimal configuration
+- GitHub flavored markdown
+- Fast build times, built in Rust
 
-### Starting a new project 
+## Installation
 
-To initialize a Doctave site in your repository, run the following command:
+> TODO
 
-```bash
+## Getting started
+
+Once you have Doctave installed, you can run the `init` command to create an initial docs site:
+
+```
 $ doctave init
 ```
 
-This will generate the following default directory structure, along with some boilerplate content
-to get you started.
+Then, run the `serve` command to preview your site locally.
 
-```bash
-$ tree
-.
-├── README.md
-└── docs
-    ├── environment_setup.rs
-    ├── architecture_overview.rs
-    └── decision_records.rs
 ```
+Doctave CLI | Serve
+🚀 Starting development server...
 
-### Live preview
+Server running on http://0.0.0.0:4001/
 
-To view your documentation locally, you can start the development server (port 4001 by default):
-
-```bash
-$ doctave serve
 ```
-
-You can now see your site at [localhost:4001](), and any updates to your docs will automatically
-reload the page.
-
-### Building your site
-
-Finally, to build a production version of your documentation, run the following:
-
-```bash
-$ doctave build
-```
-
-## Now with Mermaid Diagrams!
-
-```mermaid
-graph TD
-  A[Christmas] -->|Get money| B(Go shopping)
-  B --> C{Let me think}
-  C -->|One| D[Laptop]
-  C -->|Two| E[iPhone]
-  C -->|Three| F[fa:fa-car Car]
-```
-
-This is some content to match
