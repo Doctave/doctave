@@ -160,6 +160,28 @@ impl Link {
 
         format!("/{}", uri_path)
     }
+
+    pub fn path_to_uri_with_extension(path: &Path) -> String {
+        let mut tmp = path.to_owned();
+
+        if tmp.file_name() == Some(OsStr::new("index")) {
+            tmp = tmp
+                .parent()
+                .map(|p| p.to_owned())
+                .unwrap_or_else(|| PathBuf::from(""));
+        }
+
+        // Need to force forward slashes here, since URIs will always
+        // work the same across all platforms.
+        let uri_path = tmp
+            .components()
+            .into_iter()
+            .map(|c| format!("{}", c.as_os_str().to_string_lossy()))
+            .collect::<Vec<_>>()
+            .join("/");
+
+        format!("/{}", uri_path)
+    }
 }
 
 #[cfg(test)]

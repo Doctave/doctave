@@ -7,6 +7,7 @@ use serde::Deserialize;
 
 use crate::{Error, Result};
 use crate::site::BuildMode;
+use crate::navigation::Link;
 
 #[derive(Debug, Clone, Deserialize)]
 struct DoctaveYaml {
@@ -43,11 +44,12 @@ impl DoctaveYaml {
 
         // Validate logo exists
         if let Some(p) = &self.logo {
-            let location = project_root.join("docs").join("_assets").join(p);
+            let location = project_root.join("docs").join("_include").join(p);
             if !location.exists() {
                 return Err(Error::new(format!(
-                    "Could not find logo specified in doctave.yaml at {}",
-                    p.display()
+                    "Could not find logo specified in doctave.yaml at {}.\n\
+                     The logo path should be relative to the _include directory.",
+                    location.display()
                 )));
             }
         }
@@ -198,7 +200,7 @@ pub struct Config {
     docs_dir: PathBuf,
     title: String,
     colors: Colors,
-    logo: Option<PathBuf>,
+    logo: Option<String>,
     navigation: Option<Vec<NavRule>>,
     port: u32,
     build_mode: BuildMode,
@@ -230,7 +232,7 @@ impl Config {
                 .colors
                 .map(|c| c.into())
                 .unwrap_or(Colors::default()),
-            logo: doctave_yaml.logo,
+            logo: doctave_yaml.logo.map(|p| Link::path_to_uri_with_extension(&p)),
             navigation: doctave_yaml.navigation.map(|n| NavRule::from_yaml_input(n)),
             port: doctave_yaml.port.unwrap_or_else(|| 4001),
             build_mode: BuildMode::Dev,
@@ -295,23 +297,9 @@ impl Config {
         color
     }
 
-    /// Path to a logo that will show up at the top left next to the title
-    pub fn logo(&self) -> Option<PathBuf> {
-        if let Some(p) = &self.logo {
-            let location = self.docs_dir.join("_assets").join(p);
-            if !location.exists() {
-                println!(
-                    "Could not find logo specified in doctave.yaml at {}",
-                    p.display()
-                );
-
-                std::process::exit(1);
-            } else {
-                Some(PathBuf::from("/assets").join(p))
-            }
-        } else {
-            None
-        }
+    /// URI path to a logo that will show up at the top left next to the title
+    pub fn logo(&self) -> Option<&str> {
+        self.logo.as_deref()
     }
 }
 
@@ -372,7 +360,7 @@ mod test {
 
         assert!(
             format!("{}", error)
-                .contains("Could not find logo specified in doctave.yaml at i-do-not-exist.png"),
+                .contains("Could not find logo specified in doctave.yaml"),
             format!("Error message was: {}", error)
         );
     }
