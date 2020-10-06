@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title>Custom assets</title>
+    <title>Deployment</title>
     <meta name="description" content="Documentation for Doctave CLI">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -76,7 +76,7 @@
             
                 <ul>
     
-        <li><a class="active" href="/features/assets">Custom assets</a></li>
+        <li><a href="/features/assets">Custom assets</a></li>
         
     
         <li><a href="/features/custom-navigation">Custom navigation</a></li>
@@ -95,7 +95,7 @@
 
             
         
-            <li><a href="/deployment">Deployment</a></li>
+            <li><a class="active" href="/deployment">Deployment</a></li>
             
         
             <li><a href="/configuration">Configuration</a></li>
@@ -118,18 +118,54 @@
 
             </div>
             <div class='content'>
-                <h1 id="custom-assets-1">Custom assets</h1>
-<p>If you have images or other files besides Markdown files that you wish to include in your project,
-you can place them in a <code>docs/_include</code> directory. Doctave will copy all files from that directory
-into the final site bundle, and place in the root of the directory.</p>
-<p>Here's a couple examples:</p>
-<h2 id="images-2">Images</h2>
-<p>A <code>docs/_include/assets/cat.jpg</code> file would get a final path of <code>/assets/cat.jpg</code>, which you can
-reference in your documentation as:</p>
-<pre><code class="language-markdown">![my lovely cat](/assets/cat.jpg)
+                <h1 id="deployment-1">Deployment</h1>
+<p>Doctave builds a static site bundle into the <code>site</code> directory which is fully self contained. You can
+take the output of <code>doctave build --release</code> and deploy it in any way you see fit.</p>
+<p>Below is a walkthrough on how to publish your docs on Github Pages. We will be adding more tutorials
+for other hosting options over time.</p>
+<h2 id="github-pages-2">Github Pages</h2>
+<p>This guide assumes you have:</p>
+<ul>
+<li>Hosted your repository on Github</li>
+<li>Enabled Github Pages in your repository's settings</li>
+</ul>
+<h3 id="disable-jekyll-builds-3">Disable Jekyll builds</h3>
+<p>First, you need to tell Github not to use Jekyll to build your site. You do this by including a
+<code>.nojekyll</code> file in the root of site. </p>
+<p>In Doctave, you do this by adding the file under <code>docs/_include</code>.</p>
+<p>On Mac/Linux:</p>
+<pre><code>$ touch docs/_include/.nojekyll
+
 </code></pre>
-<h2 id="favicon-3">Favicon</h2>
-<p>You can include a custom favicon by placing a <code>favicon.ico</code> into the <code>docs/_include</code> directory.</p>
+<p>On Windows:</p>
+<pre><code>$ echo.&gt; docs\_include\.nojekyll
+</code></pre>
+<h3 id="custom-domain-name-(optional)-4">Custom domain name (optional)</h3>
+<p>If you have a custom domain, Github requires you to create a <code>CNAME</code> file that describes your domain
+in the root of your site. Just like with the <code>.nojekyll</code> file, you need to place this under
+<code>docs/_include</code>.</p>
+<h3 id="install-gh-pages-5">Install gh-pages</h3>
+<p>There are a few ways to push your site to Github. One way, which we will follow here, is to use a
+<code>gh-pages</code> branch to publish the site. This means you build the site into a separate branch, commit
+only the <code>site</code> folder in that branch, not your other source code, and push it to Github.</p>
+<p>Luckily, there is a handy command line tool, <a href="https://www.npmjs.com/package/gh-pages">gh-pages</a>
+that takes care of all of that for you. All you need to do, is run a single command, and your site
+will be published.</p>
+<p><em>Note: At the time of writing, <code>gh-pages@3.1.0</code> does not work for projects without a package.json
+file. This is why this guide recommends using <code>3.0.0</code>. Read more in <a href="https://github.com/tschaub/gh-pages/issues/354">this
+issue</a>.</em></p>
+<pre><code>npm install -g gh-pages@3.0.0
+</code></pre>
+<h3 id="build-your-site-6">Build your site</h3>
+<p>Next, build your site in release mode. This strips away some development-only dependencies:</p>
+<pre><code>$ doctave build --release
+</code></pre>
+<p>Your site should now be ready in the <code>site</code> directory.</p>
+<h3 id="deploy-7">Deploy</h3>
+<p>All that is left to do, is run the <code>gh-pages</code> command:</p>
+<pre><code>$ gh-pages -d site
+Published
+</code></pre>
 
             </div>
             <div class='sidebar-right'>
@@ -139,15 +175,31 @@ reference in your documentation as:</p>
                     <ul>
                         
                             <li class='page-nav-level-1'>
-                                <a href='#custom-assets-1'>Custom assets</a>
+                                <a href='#deployment-1'>Deployment</a>
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#images-2'>Images</a>
+                                <a href='#github-pages-2'>Github Pages</a>
                             </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#favicon-3'>Favicon</a>
+                            <li class='page-nav-level-3'>
+                                <a href='#disable-jekyll-builds-3'>Disable Jekyll builds</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#custom-domain-name-(optional)-4'>Custom domain name (optional)</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#install-gh-pages-5'>Install gh-pages</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#build-your-site-6'>Build your site</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#deploy-7'>Deploy</a>
                             </li>
                         
                     </ul>
