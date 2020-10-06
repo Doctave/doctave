@@ -1,0 +1,252 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Doctave CLI</title>
+    <meta name="description" content="Documentation for Doctave CLI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css" media="screen" />
+
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css" media="screen" />
+
+    
+    <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
+
+    <script>
+    // Don't reset scrolling on livereload
+    window.addEventListener('scroll', function() {
+        localStorage.setItem('doctave-scrollPosition', window.scrollY);
+
+        dragRightMenu();
+    }, false);
+
+    window.addEventListener('load', function() {
+        if (localStorage.getItem('doctave-scrollPosition') !== null)
+            window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
+
+        document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
+            disableScrollifMenuOpen();
+        });
+    }, false);
+    </script>
+    
+
+    <script>
+    var color = localStorage.getItem('doctave-color')
+
+    if (color === 'dark') {
+        document.getElementsByTagName('html')[0].classList.remove('light');
+        document.getElementsByTagName('html')[0].classList.add('dark');
+    } else {
+        document.getElementsByTagName('html')[0].classList.remove('dark');
+        document.getElementsByTagName('html')[0].classList.add('light');
+    }
+    </script>
+</head>
+
+<body>
+    <label for='menu-toggle-switch' class='menu-toggle-button'>
+        ☰
+    </label>
+    <input type="checkbox" id="menu-toggle-switch" value='0' />
+    <div class='page'>
+        <div class='header'>
+            <div class='logo'>
+                
+                    <a href='/'>
+                        <img src="/assets/doctave-logo.svg" alt='Doctave CLI logo'></img>
+                    </a>
+                
+                <h2 class='project-name'>
+                    <a href='/'>
+                        Doctave CLI
+                    </a>
+                </h2>
+            </div>
+            <div class='search'>
+                <form id='search-form'>
+    <input type='text' id='search-box' autocomplete="off" placeholder="Search..."></input>
+    <span class='search-icon'>S</span>
+    <ul id='search-results'></ul>
+</form>
+
+            </div>
+            <div class='header-dummy-right'>
+            </div>
+        </div>
+        <div class='container'>
+            <div class='sidebar-left'>
+                <nav class='site-nav'>
+    <ul>
+        
+            <li><a href="/installing">Installing</a></li>
+            
+        
+            <li><a href="/tutorial">Tutorial</a></li>
+            
+        
+            <li><a href="/features">Features</a></li>
+            
+                <ul>
+    
+        <li><a href="/features/assets">Custom assets</a></li>
+        
+    
+        <li><a href="/features/custom-navigation">Custom navigation</a></li>
+        
+    
+        <li><a href="/features/look-and-feel">Look and feel</a></li>
+        
+    
+        <li><a href="/features/markdown">Markdown syntax</a></li>
+        
+    
+        <li><a href="/features/mermaid-js">Mermaid.js diagrams</a></li>
+        
+    
+</ul>
+
+            
+        
+            <li><a href="/configuration">Configuration</a></li>
+            
+        
+            <li><a href="/contributors">Contributor guide</a></li>
+            
+                <ul>
+    
+        <li><a href="/contributors/getting_started">Getting started</a></li>
+        
+    
+</ul>
+
+            
+        
+    </ul>
+    <span id='light-dark-mode-switch'></span>
+</nav>
+
+            </div>
+            <div class='content'>
+                <h1 id="doctave-cli-1">Doctave CLI</h1>
+<p>The <a href="https://www.doctave.com">Doctave</a> CLI is an opinionated documentation site generator that
+converts your Markdown files into a beautiful developer hub.</p>
+<p>The Doctave CLI is not a generic static site generator - it is only meant for generating
+documentation sites from Markdown. This allows the tool to be much simpler than other solutions,
+with fewer configuration steps.</p>
+<p>This open source CLI is built and maintained by <a href="https://www.doctave.com">Doctave</a>. While it is
+meant originally to be used for projects that are hosted on Doctave.com, it does not depend on it,
+and you are free to deploy the generated sites as you please. <em>This CLI is and always will be free
+and open source.</em></p>
+<p>You can read more about hosting your docs on Doctave <a href="https://www.doctave.com">here</a>.</p>
+<h2 id="features-2">Features</h2>
+<ul>
+<li><input disabled="" type="checkbox" checked=""/>
+Minimal configuration</li>
+<li><input disabled="" type="checkbox" checked=""/>
+GitHub flavored markdown</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Full-text search built-in</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Mermaid.js diagrams out of the box</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Local live-reloading server</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Fast build, built in Rust</li>
+</ul>
+<h2 id="usage-3">Usage</h2>
+<p>The CLI comes with a number of sub commands:</p>
+<h3 id="starting-a-new-project-4">Starting a new project</h3>
+<p>To initialize a Doctave site in your repository, run the following command:</p>
+<pre><code class="language-bash">$ doctave init
+</code></pre>
+<p>This will generate the following default directory structure, along with some boilerplate content
+to get you started.</p>
+<pre><code class="language-bash">$ tree
+.
+├── README.md
+└── docs
+    ├── environment_setup.rs
+    ├── architecture_overview.rs
+    └── decision_records.rs
+</code></pre>
+<h3 id="live-preview-5">Live preview</h3>
+<p>To view your documentation locally, you can start the development server (port 4001 by default):</p>
+<pre><code class="language-bash">$ doctave serve
+</code></pre>
+<p>You can now see your site at <a href="">localhost:4001</a>, and any updates to your docs will automatically
+reload the page.</p>
+<h3 id="building-your-site-6">Building your site</h3>
+<p>Finally, to build a production version of your documentation, run the following:</p>
+<pre><code class="language-bash">$ doctave build
+</code></pre>
+<h2 id="now-with-mermaid-diagrams!-7">Now with Mermaid Diagrams!</h2>
+<div class="mermaid">graph TD
+  A[Christmas] --&gt;|Get money| B(Go shopping)
+  B --&gt; C{Let me think}
+  C --&gt;|One| D[Laptop]
+  C --&gt;|Two| E[iPhone]
+  C --&gt;|Three| F[fa:fa-car Car]
+</div>
+            </div>
+            <div class='sidebar-right'>
+                <div class='page-nav' id='page-nav'>
+                    <p class='page-nav-header'>On this page</p>
+                    <hr />
+                    <ul>
+                        
+                            <li class='page-nav-level-1'>
+                                <a href='#doctave-cli-1'>Doctave CLI</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#features-2'>Features</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#usage-3'>Usage</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#starting-a-new-project-4'>Starting a new project</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#live-preview-5'>Live preview</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#building-your-site-6'>Building your site</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#now-with-mermaid-diagrams!-7'>Now with Mermaid Diagrams!</a>
+                            </li>
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class='wave-container'>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+                    <path fill-opacity="0.35" d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                    <path fill-opacity="0.5" d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                    <path fill-opacity="0.2" d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                </svg>
+                <p>Powered by <a href='https://cli.doctave.com' target='_blank'>Doctave</a></p>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/assets/mermaid.js"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js"></script>
+    <script type="text/javascript" src="/assets/prism.js"></script>
+</body>
+
+</html>

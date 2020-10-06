@@ -1,0 +1,263 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Tutorial</title>
+    <meta name="description" content="Documentation for Doctave CLI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css" media="screen" />
+
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css" media="screen" />
+
+    
+    <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
+
+    <script>
+    // Don't reset scrolling on livereload
+    window.addEventListener('scroll', function() {
+        localStorage.setItem('doctave-scrollPosition', window.scrollY);
+
+        dragRightMenu();
+    }, false);
+
+    window.addEventListener('load', function() {
+        if (localStorage.getItem('doctave-scrollPosition') !== null)
+            window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
+
+        document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
+            disableScrollifMenuOpen();
+        });
+    }, false);
+    </script>
+    
+
+    <script>
+    var color = localStorage.getItem('doctave-color')
+
+    if (color === 'dark') {
+        document.getElementsByTagName('html')[0].classList.remove('light');
+        document.getElementsByTagName('html')[0].classList.add('dark');
+    } else {
+        document.getElementsByTagName('html')[0].classList.remove('dark');
+        document.getElementsByTagName('html')[0].classList.add('light');
+    }
+    </script>
+</head>
+
+<body>
+    <label for='menu-toggle-switch' class='menu-toggle-button'>
+        ☰
+    </label>
+    <input type="checkbox" id="menu-toggle-switch" value='0' />
+    <div class='page'>
+        <div class='header'>
+            <div class='logo'>
+                
+                    <a href='/'>
+                        <img src="/assets/doctave-logo.svg" alt='Doctave CLI logo'></img>
+                    </a>
+                
+                <h2 class='project-name'>
+                    <a href='/'>
+                        Doctave CLI
+                    </a>
+                </h2>
+            </div>
+            <div class='search'>
+                <form id='search-form'>
+    <input type='text' id='search-box' autocomplete="off" placeholder="Search..."></input>
+    <span class='search-icon'>S</span>
+    <ul id='search-results'></ul>
+</form>
+
+            </div>
+            <div class='header-dummy-right'>
+            </div>
+        </div>
+        <div class='container'>
+            <div class='sidebar-left'>
+                <nav class='site-nav'>
+    <ul>
+        
+            <li><a href="/installing">Installing</a></li>
+            
+        
+            <li><a class="active" href="/tutorial">Tutorial</a></li>
+            
+        
+            <li><a href="/features">Features</a></li>
+            
+                <ul>
+    
+        <li><a href="/features/assets">Custom assets</a></li>
+        
+    
+        <li><a href="/features/custom-navigation">Custom navigation</a></li>
+        
+    
+        <li><a href="/features/look-and-feel">Look and feel</a></li>
+        
+    
+        <li><a href="/features/markdown">Markdown syntax</a></li>
+        
+    
+        <li><a href="/features/mermaid-js">Mermaid.js diagrams</a></li>
+        
+    
+</ul>
+
+            
+        
+            <li><a href="/configuration">Configuration</a></li>
+            
+        
+            <li><a href="/contributors">Contributor guide</a></li>
+            
+                <ul>
+    
+        <li><a href="/contributors/getting_started">Getting started</a></li>
+        
+    
+</ul>
+
+            
+        
+    </ul>
+    <span id='light-dark-mode-switch'></span>
+</nav>
+
+            </div>
+            <div class='content'>
+                <h1 id="tutorial-1">Tutorial</h1>
+<p>If you are new to Doctave, this tutorial will walk you through getting your site built and
+deployed.</p>
+<h2 id="installation-2">Installation</h2>
+<p>First, make sure that you have installed Doctave locally. Follow the instructions in the
+<a href="/installing">installation guide</a>.</p>
+<p>To verify you have installed everything correctly, run the following:</p>
+<pre><code>$ doctave --version
+Doctave CLI x.y.z
+</code></pre>
+<h2 id="creating-a-new-site-3">Creating a new site</h2>
+<p>Creating a new documentation site can be done easily with the <code>doctave init</code> command:</p>
+<pre><code>$ doctave init
+...
+</code></pre>
+<p>This will create a <code>docs/</code> directory in the root of your repository, and some pages for you to get
+started with.</p>
+<p>You'll also find a <code>doctave.yaml</code> in your project root now. Lets take a look at it.</p>
+<pre><code># On Mac / Linux
+$ cat doctave.yaml
+---
+title: &quot;My project&quot;
+
+
+
+# On Windows
+$ type doctave.yaml
+---
+title: &quot;My project&quot;
+
+</code></pre>
+<p>Currently, you only have the project's name mentioned. This title is shown on the page navigation,
+and used as the HTML page title. You should change that to be the actual name of your project.</p>
+<p>Now, you can run <code>doctave serve</code> to start the local webserver.</p>
+<pre><code>$ doctave serve
+
+Doctave CLI | Serve
+🚀 Starting development server...
+
+Server running on http://0.0.0.0:4001/
+</code></pre>
+<p>And finally, go to <a href="http://localhost:4001">http://localhost:4001</a> to view your site.</p>
+<h2 id="editing-content-4">Editing content</h2>
+<p>While <code>doctave serve</code> is running, you can edit the your documentation Markdown files, and you will
+immediately see your page update. Try it! Open up <code>docs/README.md</code> in your favorite text editor,
+and make a change. You should see the browser refresh and show your changes automatically. This way
+you can quickly see what your changes look like.</p>
+<p>If you are not familiar with Markdown syntax, or need a refresher, you can read our <a href="/features/markdown">Markdown
+reference</a> or check out <a href="https://guides.github.com/features/mastering-markdown/">this
+guide</a> by GitHub. Note that there are a few
+different flavors of Markdown. Doctave supports all the &quot;basics&quot; Markdown features, as well as a few
+&quot;GitHub flavored Markdown&quot; features - namely task lists and tables.</p>
+<h2 id="adding-pages-5">Adding pages</h2>
+<p>To add a new page, all you need to do is add another Markdown file.</p>
+<p>Let's say you want to add another page; a &quot;How To Build&quot; page. All you need to do is create a that
+page inside your docs folder.</p>
+<pre><code># On Mac / Linux
+$ touch docs/building.md
+
+
+# On Windows
+$ echo.&gt; docs\building.md
+</code></pre>
+<p>By default, Doctave assumes the title of the page is its title, but we may want to change that.
+Let's add a <em>front matter block</em> to the page. This is just a quick
+<a href="https://blog.stackpath.com/yaml/">YAML</a> snippet that gives Doctave some additional information
+about the page.</p>
+<p>Paste the following into the file you just created:</p>
+<pre><code>---
+title: How to build
+---
+
+# How to build
+
+...
+</code></pre>
+<p>Open up your browser, and you should now see a <em>&quot;How to build&quot;</em> link in the sidebar. And if you
+click it, you will be taken to the page.</p>
+
+            </div>
+            <div class='sidebar-right'>
+                <div class='page-nav' id='page-nav'>
+                    <p class='page-nav-header'>On this page</p>
+                    <hr />
+                    <ul>
+                        
+                            <li class='page-nav-level-1'>
+                                <a href='#tutorial-1'>Tutorial</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#installation-2'>Installation</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#creating-a-new-site-3'>Creating a new site</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#editing-content-4'>Editing content</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#adding-pages-5'>Adding pages</a>
+                            </li>
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class='wave-container'>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+                    <path fill-opacity="0.35" d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                    <path fill-opacity="0.5" d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                    <path fill-opacity="0.2" d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                </svg>
+                <p>Powered by <a href='https://cli.doctave.com' target='_blank'>Doctave</a></p>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/assets/mermaid.js"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js"></script>
+    <script type="text/javascript" src="/assets/prism.js"></script>
+</body>
+
+</html>

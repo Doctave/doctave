@@ -1,0 +1,344 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Markdown syntax</title>
+    <meta name="description" content="Documentation for Doctave CLI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css" media="screen" />
+
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css" media="screen" />
+
+    
+    <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
+
+    <script>
+    // Don't reset scrolling on livereload
+    window.addEventListener('scroll', function() {
+        localStorage.setItem('doctave-scrollPosition', window.scrollY);
+
+        dragRightMenu();
+    }, false);
+
+    window.addEventListener('load', function() {
+        if (localStorage.getItem('doctave-scrollPosition') !== null)
+            window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
+
+        document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
+            disableScrollifMenuOpen();
+        });
+    }, false);
+    </script>
+    
+
+    <script>
+    var color = localStorage.getItem('doctave-color')
+
+    if (color === 'dark') {
+        document.getElementsByTagName('html')[0].classList.remove('light');
+        document.getElementsByTagName('html')[0].classList.add('dark');
+    } else {
+        document.getElementsByTagName('html')[0].classList.remove('dark');
+        document.getElementsByTagName('html')[0].classList.add('light');
+    }
+    </script>
+</head>
+
+<body>
+    <label for='menu-toggle-switch' class='menu-toggle-button'>
+        ☰
+    </label>
+    <input type="checkbox" id="menu-toggle-switch" value='0' />
+    <div class='page'>
+        <div class='header'>
+            <div class='logo'>
+                
+                    <a href='/'>
+                        <img src="/assets/doctave-logo.svg" alt='Doctave CLI logo'></img>
+                    </a>
+                
+                <h2 class='project-name'>
+                    <a href='/'>
+                        Doctave CLI
+                    </a>
+                </h2>
+            </div>
+            <div class='search'>
+                <form id='search-form'>
+    <input type='text' id='search-box' autocomplete="off" placeholder="Search..."></input>
+    <span class='search-icon'>S</span>
+    <ul id='search-results'></ul>
+</form>
+
+            </div>
+            <div class='header-dummy-right'>
+            </div>
+        </div>
+        <div class='container'>
+            <div class='sidebar-left'>
+                <nav class='site-nav'>
+    <ul>
+        
+            <li><a href="/installing">Installing</a></li>
+            
+        
+            <li><a href="/tutorial">Tutorial</a></li>
+            
+        
+            <li><a href="/features">Features</a></li>
+            
+                <ul>
+    
+        <li><a href="/features/assets">Custom assets</a></li>
+        
+    
+        <li><a href="/features/custom-navigation">Custom navigation</a></li>
+        
+    
+        <li><a href="/features/look-and-feel">Look and feel</a></li>
+        
+    
+        <li><a class="active" href="/features/markdown">Markdown syntax</a></li>
+        
+    
+        <li><a href="/features/mermaid-js">Mermaid.js diagrams</a></li>
+        
+    
+</ul>
+
+            
+        
+            <li><a href="/configuration">Configuration</a></li>
+            
+        
+            <li><a href="/contributors">Contributor guide</a></li>
+            
+                <ul>
+    
+        <li><a href="/contributors/getting_started">Getting started</a></li>
+        
+    
+</ul>
+
+            
+        
+    </ul>
+    <span id='light-dark-mode-switch'></span>
+</nav>
+
+            </div>
+            <div class='content'>
+                <h1 id="markdown-syntax-1">Markdown syntax</h1>
+<p>This document walks you through all the various Markdown features and associated syntaxes.</p>
+<h2 id="headings-2">Headings</h2>
+<p>All heading types are supported.</p>
+<pre><code>// Underline style
+H1
+==
+
+// Hash style
+# H1
+## H2
+### H3
+#### H4
+##### H5
+###### H6
+</code></pre>
+<p>Note that headings smaller than H3 will not show up on the right-side navigation. Also, the first
+heading on the page will be emphasized, like the &quot;Markdown syntax&quot; title on this page.</p>
+<h2 id="emphasis-3">Emphasis</h2>
+<pre><code>Both **bold**, _italics_, and ~~strikethrough~~ are supported.
+</code></pre>
+<p>Both <strong>bold</strong>, <em>italics</em>, and <del>strikethrough</del> are supported.</p>
+<h2 id="lists-4">Lists</h2>
+<h3 id="unordered-lists-5">Unordered lists</h3>
+<pre><code>* Mary
+* Had
+* A little
+    * Lamb
+</code></pre>
+<ul>
+<li>Mary</li>
+<li>Had</li>
+<li>A little
+<ul>
+<li>Lamb</li>
+</ul>
+</li>
+</ul>
+<h3 id="ordered-lists-6">Ordered lists</h3>
+<pre><code>1. Mary
+2. Had
+3. A little
+    1. Lamb
+</code></pre>
+<ol>
+<li>Mary</li>
+<li>Had</li>
+<li>A little
+<ol>
+<li>Lamb</li>
+</ol>
+</li>
+</ol>
+<h2 id="links-7">Links</h2>
+<pre><code>[Doctave](https://doctave.com)
+</code></pre>
+<p><a href="https://doctave.com">Doctave</a></p>
+<h2 id="images-8">Images</h2>
+<pre><code>![A random image](https://picsum.photos/600/400)
+</code></pre>
+<p><img src="https://picsum.photos/600/400" alt="A random image" /></p>
+<h2 id="quotes-9">Quotes</h2>
+<pre><code>&gt; It's true, because it's a quote
+</code></pre>
+<blockquote>
+<p>It's true, because it's a quote</p>
+</blockquote>
+<h2 id="code-10">Code</h2>
+<h3 id="inline-11">Inline</h3>
+<pre><code>Use `backticks for inline code snippets`.
+</code></pre>
+<p>Use <code>backticks for inline code snippets</code>.</p>
+<h3 id="block-12">Block</h3>
+<p>Either use three backticks</p>
+<pre><code>```
+For().your().code()
+```
+</code></pre>
+<p>To achieve:</p>
+<pre><code>For().your().code()
+</code></pre>
+<p>Or indent your code with 4 spaces:</p>
+<pre><code>
+    For().your().code()
+
+</code></pre>
+<p>For the same effect:</p>
+<pre><code>For().your().code()
+</code></pre>
+<p>You can specify the language for syntax highlighting using the backticks syntax.</p>
+<pre><code>```ruby
+def initialize(table_name_singularised)
+    @table = table_name_singularised.to_s.pluralize
+end
+```
+</code></pre>
+<pre><code class="language-ruby">def initialize(table_name_singularised)
+    @table = table_name_singularised.to_s.pluralize
+end
+</code></pre>
+<h2 id="task-lists-13">Task Lists</h2>
+<pre><code>- [ ] This is a list of todos
+- [x] This is a completed item
+- [ ] This is an uncompleted item
+</code></pre>
+<ul>
+<li><input disabled="" type="checkbox"/>
+This is a list of todos</li>
+<li><input disabled="" type="checkbox" checked=""/>
+This is a completed item</li>
+<li><input disabled="" type="checkbox"/>
+This is an uncompleted item</li>
+</ul>
+<h2 id="tables-14">Tables</h2>
+<pre><code>This is a heading              | This is another heading  |
+-------------------------------|--------------------------|
+This is content for a columns  | This is **bold**         |
+You can have more rows         | And more columns         |
+</code></pre>
+<table><thead><tr><th>This is a heading</th><th>This is another heading</th></tr></thead><tbody>
+<tr><td>This is content for a columns</td><td>This is <strong>bold</strong></td></tr>
+<tr><td>You can have more rows</td><td>And more columns</td></tr>
+</tbody></table>
+
+            </div>
+            <div class='sidebar-right'>
+                <div class='page-nav' id='page-nav'>
+                    <p class='page-nav-header'>On this page</p>
+                    <hr />
+                    <ul>
+                        
+                            <li class='page-nav-level-1'>
+                                <a href='#markdown-syntax-1'>Markdown syntax</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#headings-2'>Headings</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#emphasis-3'>Emphasis</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#lists-4'>Lists</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#unordered-lists-5'>Unordered lists</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#ordered-lists-6'>Ordered lists</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#links-7'>Links</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#images-8'>Images</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#quotes-9'>Quotes</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#code-10'>Code</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#inline-11'>Inline</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#block-12'>Block</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#task-lists-13'>Task Lists</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#tables-14'>Tables</a>
+                            </li>
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class='wave-container'>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+                    <path fill-opacity="0.35" d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                    <path fill-opacity="0.5" d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                    <path fill-opacity="0.2" d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                </svg>
+                <p>Powered by <a href='https://cli.doctave.com' target='_blank'>Doctave</a></p>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/assets/mermaid.js"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js"></script>
+    <script type="text/javascript" src="/assets/prism.js"></script>
+</body>
+
+</html>
