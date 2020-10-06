@@ -14,7 +14,7 @@ integration_test!(init_smoke_test, |area| {
 
     assert_output(&result, "Created doctave.yaml...");
     assert_output(&result, "Created docs folder...");
-    assert_output(&result, "Created docs/README.md...");
+    assert_output(&result, &format!("Created docs{}README.md...", std::path::MAIN_SEPARATOR));
 
     assert_output(
         &result,
