@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title>Custom assets</title>
+    <title>Contributor guide</title>
     <meta name="description" content="Documentation for Doctave CLI">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -101,7 +101,7 @@
             
                 <ul>
     
-        <li><a class="active" href="/features/assets">Custom assets</a></li>
+        <li><a href="/features/assets">Custom assets</a></li>
         
     
         <li><a href="/features/custom-head-tag">Custom head tag</a></li>
@@ -129,7 +129,7 @@
             <li><a href="/configuration">Configuration</a></li>
             
         
-            <li><a href="/contributor-guide">Contributor guide</a></li>
+            <li><a class="active" href="/contributor-guide">Contributor guide</a></li>
             
         
     </ul>
@@ -138,18 +138,90 @@
 
             </div>
             <div class='content'>
-                <h1 id="custom-assets-1">Custom assets</h1>
-<p>If you have images or other files besides Markdown files that you wish to include in your project,
-you can place them in a <code>docs/_include</code> directory. Doctave will copy all files from that directory
-into the final site bundle, and place in the root of the directory.</p>
-<p>Here's a couple examples:</p>
-<h2 id="images-2">Images</h2>
-<p>A <code>docs/_include/assets/cat.jpg</code> file would get a final path of <code>/assets/cat.jpg</code>, which you can
-reference in your documentation as:</p>
-<pre><code class="language-markdown">![my lovely cat](/assets/cat.jpg)
+                <h1 id="contributor-guide-1">Contributor guide</h1>
+<p>Firstly, <strong>thank you for considering contributing to Doctave</strong>. Open source software would not
+survive without people like yourself, who take time out of their busy schedules to help out. <strong>We
+appreciate you.</strong></p>
+<p>This document will help you get started working with Doctave. It will walk you through how to build,
+run tests, and things to keep in mind when contributing.</p>
+<p>First, make sure you've cloned the repo,</p>
+<pre><code>git clone git@github.com:Doctave/doctave-cli.git
 </code></pre>
-<h2 id="favicon-3">Favicon</h2>
-<p>You can include a custom favicon by placing a <code>favicon.ico</code> into the <code>docs/_include</code> directory.</p>
+<p>and installed the <a href="https://www.rust-lang.org/learn/get-started">Rust toolchain</a>.</p>
+<h2 id="building-2">Building</h2>
+<p>Doctave is a fairly standard Rust project. It uses Cargo, doesn't have any non-rust dependencies, so
+assuming you have Rust installed, you should be able to run <code>cargo build</code> and get a working build.
+If not, please open an issue on Github with the error you see.</p>
+<pre><code>$ cargo build
+
+...building ensues...
+</code></pre>
+<p>You can now verify your installation works with:</p>
+<pre><code>$ cargo run -- --version
+</code></pre>
+<h2 id="running-tests-3">Running tests</h2>
+<p>Again, Doctave uses Cargo. You can run all tests with</p>
+<pre><code>$ cargo test
+</code></pre>
+<p>This will run unit tests and integration tests.</p>
+<h3 id="test-structure-4">Test structure</h3>
+<p>Doctave has two types of tests: unit tests and integration tests.</p>
+<p>You will find unit tests at the bottom of source files under <code>src</code>. As a general rule, they should
+not have any external dependencies - especially on the file system.</p>
+<p>Integrations tests live under the <code>tests</code> directory. These tests shell out and execute the doctave
+binary directly inside an isolated environment. Each test will get its own directory under the
+<code>_test_area</code> directory when executed.</p>
+<h3 id="adding-integration-tests-5">Adding integration tests</h3>
+<p>If you want to add integration tests, you should use the <code>integration_test</code> macro to define your
+tests. It takes two arguments: the name of the test, and a lambda to run the test code. The argument
+passed into the lambda is a <code>TestArea</code> struct describing the isolated test area. When creating
+files, or running commands or assertions, you should always run them via this struct. The definition
+of the struct is under <code>docs/support.rs</code>.</p>
+<p>Below is a simple example of a smoke test that checks when a site is built, it will contain the
+expected content in the index file.</p>
+<pre><code class="language-rust">integration_test!(build_smoke_test, |area| {
+    area.create_config();
+    area.mkdir(&quot;docs&quot;);
+    area.write_file(
+        Path::new(&quot;docs&quot;).join(&quot;README.md&quot;),
+        indoc! {&quot;
+        # Some content
+
+        This is some text
+
+        * Look
+        * At
+        * My
+        * List
+    &quot;}
+        .as_bytes(),
+    );
+
+    let result = area.cmd(&amp;[&quot;build&quot;]);
+    assert_success(&amp;result);
+
+    let index = Path::new(&quot;site&quot;).join(&quot;index.html&quot;);
+
+    area.assert_contains(&amp;index, &quot;&gt;Some content&lt;/h1&gt;&quot;);
+    area.assert_contains(&amp;index, &quot;&lt;p&gt;This is some text&lt;/p&gt;&quot;);
+    area.assert_contains(&amp;index, &quot;&lt;title&gt;Test Project&lt;/title&gt;&quot;);
+    area.assert_contains(&amp;index, &quot;&lt;li&gt;Look&lt;/li&gt;&quot;);
+    area.assert_contains(&amp;index, &quot;&lt;li&gt;At&lt;/li&gt;&quot;);
+    area.assert_contains(&amp;index, &quot;&lt;li&gt;My&lt;/li&gt;&quot;);
+    area.assert_contains(&amp;index, &quot;&lt;li&gt;List&lt;/li&gt;&quot;);
+});
+</code></pre>
+<h2 id="cross-platform-compatibility-6">Cross-platform compatibility</h2>
+<p>Doctave runs on Mac, Linux, and Windows, which means you need to be careful about not relying on
+platform-specific features. Most commonly for Doctave, this means you have to be careful when
+building filesystem paths.</p>
+<p>Luckily, Rust has a good solution for this: the <code>Path</code> and <code>PathBuf</code> structs. If you are familiar
+with Rust, think of these as <code>str</code> and <code>String</code> equivalents for handling paths. <code>Path</code> is always
+accessed through a reference, while <code>PathBuf</code> is an owned type.</p>
+<h2 id="ci-7">CI</h2>
+<p>Doctave uses <a href="https://github.com/Doctave/doctave-cli/actions">GitHub actions</a> to run tests
+automatically for each commit and PR. The test suite is executed on Mac, Linux, and Windows. When
+opening a PR, make sure you pass all checks.</p>
 
             </div>
             <div class='sidebar-right'>
@@ -159,15 +231,31 @@ reference in your documentation as:</p>
                     <ul>
                         
                             <li class='page-nav-level-1'>
-                                <a href='#custom-assets-1'>Custom assets</a>
+                                <a href='#contributor-guide-1'>Contributor guide</a>
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#images-2'>Images</a>
+                                <a href='#building-2'>Building</a>
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#favicon-3'>Favicon</a>
+                                <a href='#running-tests-3'>Running tests</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#test-structure-4'>Test structure</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#adding-integration-tests-5'>Adding integration tests</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#cross-platform-compatibility-6'>Cross-platform compatibility</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#ci-7'>CI</a>
                             </li>
                         
                     </ul>

@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title>Getting started</title>
+    <title>Custom head tag</title>
     <meta name="description" content="Documentation for Doctave CLI">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -16,6 +16,26 @@
 
     <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css" media="screen" />
 
+    
+    <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
+
+    <script>
+    // Don't reset scrolling on livereload
+    window.addEventListener('scroll', function() {
+        localStorage.setItem('doctave-scrollPosition', window.scrollY);
+
+        dragRightMenu();
+    }, false);
+
+    window.addEventListener('load', function() {
+        if (localStorage.getItem('doctave-scrollPosition') !== null)
+            window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
+
+        document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
+            disableScrollifMenuOpen();
+        });
+    }, false);
+    </script>
     
 
     <script>
@@ -29,6 +49,11 @@
         document.getElementsByTagName('html')[0].classList.add('light');
     }
     </script>
+
+    
+        <script async defer data-domain="cli.doctave.com" src="https://plausible.io/js/plausible.js"></script>
+
+    
 </head>
 
 <body>
@@ -79,6 +104,9 @@
         <li><a href="/features/assets">Custom assets</a></li>
         
     
+        <li><a class="active" href="/features/custom-head-tag">Custom head tag</a></li>
+        
+    
         <li><a href="/features/custom-navigation">Custom navigation</a></li>
         
     
@@ -101,15 +129,7 @@
             <li><a href="/configuration">Configuration</a></li>
             
         
-            <li><a href="/contributors">Contributor guide</a></li>
-            
-                <ul>
-    
-        <li><a class="active" href="/contributors/getting_started">Getting started</a></li>
-        
-    
-</ul>
-
+            <li><a href="/contributor-guide">Contributor guide</a></li>
             
         
     </ul>
@@ -118,13 +138,43 @@
 
             </div>
             <div class='content'>
-                
+                <h1 id="custom-head-tag-1">Custom head tag</h1>
+<p>You may want to sometimes include things like analytics trackers, or other Javascript  snippets on
+your site. Doctave allows you to inject some HTML into the <code>&lt;head&gt;</code> tag of every page to help with
+this.</p>
+<h2 id="how-does-it-work?-2">How does it work?</h2>
+<p>The mechanism is very simple. All you have to do, is create a file called
+<code>docs/_include/_head.html</code>.</p>
+<p>Doctave will pick this up, and inject the contents of it inside every page's <code>&lt;head&gt;</code> tag.</p>
+<p>The contents of the file are not verified in any way, so syntax issues can impact the rest of the
+site dramatically.</p>
+<h2 id="a-note-on-using-this-feature-3">A note on using this feature</h2>
+<p>This feature technically opens the door for users to do heavy customization of their sites. However,
+Doctave is an opinionated tool and does not officially support customization features like themes.
+If you plan to use this feature to customize Doctave, be aware that this is not officially something
+Doctave endorses, and <em>your code may break in future releases</em>.</p>
+<p>This feature is meant for adding e.g. Google Analytics or Intercom integrations, not customize the
+look and feel of the site.</p>
+<p>If you need more customization options, we recommend looking at other static site generators.</p>
+
             </div>
             <div class='sidebar-right'>
                 <div class='page-nav' id='page-nav'>
                     <p class='page-nav-header'>On this page</p>
                     <hr />
                     <ul>
+                        
+                            <li class='page-nav-level-1'>
+                                <a href='#custom-head-tag-1'>Custom head tag</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#how-does-it-work?-2'>How does it work?</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#a-note-on-using-this-feature-3'>A note on using this feature</a>
+                            </li>
                         
                     </ul>
                 </div>

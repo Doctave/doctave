@@ -17,6 +17,26 @@
     <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css" media="screen" />
 
     
+    <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
+
+    <script>
+    // Don't reset scrolling on livereload
+    window.addEventListener('scroll', function() {
+        localStorage.setItem('doctave-scrollPosition', window.scrollY);
+
+        dragRightMenu();
+    }, false);
+
+    window.addEventListener('load', function() {
+        if (localStorage.getItem('doctave-scrollPosition') !== null)
+            window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
+
+        document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
+            disableScrollifMenuOpen();
+        });
+    }, false);
+    </script>
+    
 
     <script>
     var color = localStorage.getItem('doctave-color')
@@ -29,6 +49,11 @@
         document.getElementsByTagName('html')[0].classList.add('light');
     }
     </script>
+
+    
+        <script async defer data-domain="cli.doctave.com" src="https://plausible.io/js/plausible.js"></script>
+
+    
 </head>
 
 <body>
@@ -79,6 +104,9 @@
         <li><a href="/features/assets">Custom assets</a></li>
         
     
+        <li><a href="/features/custom-head-tag">Custom head tag</a></li>
+        
+    
         <li><a class="active" href="/features/custom-navigation">Custom navigation</a></li>
         
     
@@ -101,15 +129,7 @@
             <li><a href="/configuration">Configuration</a></li>
             
         
-            <li><a href="/contributors">Contributor guide</a></li>
-            
-                <ul>
-    
-        <li><a href="/contributors/getting_started">Getting started</a></li>
-        
-    
-</ul>
-
+            <li><a href="/contributor-guide">Contributor guide</a></li>
             
         
     </ul>
