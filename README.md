@@ -1,4 +1,4 @@
-![Doctave logo](./docs/assets/doctave-logo.svg)
+![Doctave logo](./docs/_include/assets/doctave-logo.svg)
 
 
 [Doctave CLI](https://cli.doctave.com)
@@ -35,16 +35,16 @@ You can customize the color scheme and logo to match your own style.
 
 **Doctave's color theme:**
 
-Light                                    | Dark                                           |
------------------------------------------|------------------------------------------------|
-![Exmple 1](./docs/assets/example-1.png) | ![Example 2](./docs/assets/example-1-dark.png) |
+Light                                             | Dark                                                    |
+--------------------------------------------------|---------------------------------------------------------|
+![Exmple 1](./docs/_include/assets/example-1.png) | ![Example 2](./docs/_include/assets/example-1-dark.png) |
 
 
 **Example red color theme:**
 
-Light                                    | Dark                                           |
------------------------------------------|------------------------------------------------|
-![Exmple 2](./docs/assets/example-2.png) | ![Example 2](./docs/assets/example-2-dark.png) |
+Light                                             | Dark                                                    |
+--------------------------------------------------|---------------------------------------------------------|
+![Exmple 2](./docs/_include/assets/example-2.png) | ![Example 2](./docs/_include/assets/example-2-dark.png) |
 
 ## Installation
 
