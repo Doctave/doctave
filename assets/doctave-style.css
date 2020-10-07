@@ -12,7 +12,7 @@ h3,
 h4,
 h5,
 h6 {
-    color: rgb(34,124,157);
+    color: rgb(95,111,204);
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     margin-top: 34pt;
@@ -27,7 +27,7 @@ li {
 }
 
 a {
-    color: rgb(34,124,157);
+    color: rgb(95,111,204);
 }
 
 img {
@@ -205,7 +205,7 @@ th {
 }
 
 .wave-container svg path {
-    fill: rgb(34,124,157);
+    fill: rgb(95,111,204);
 }
 
 .menu-toggle-button,
@@ -276,7 +276,7 @@ th {
         z-index: 50;
         height: 25px;
         width: 25px;
-        background: rgb(34,124,157);
+        background: rgb(95,111,204);
         color: white;
         padding: 10px;
         border-radius: 25px;
@@ -403,7 +403,7 @@ th {
 .dark h4,
 .dark h5,
 .dark h6 {
-    color: rgb(98,188,221);
+    color: rgb(192,198,235);
 }
 
 .dark * {
@@ -411,7 +411,7 @@ th {
 }
 
 .dark a {
-    color: rgb(98,188,221);
+    color: rgb(192,198,235);
 }
 
 .dark h2.project-name a {
@@ -419,23 +419,23 @@ th {
 }
 
 .dark h2.project-name:after {
-    color: rgb(98,188,221);
+    color: rgb(192,198,235);
 }
 
 .dark h2.project-name:after {
-    color: rgb(98,188,221);
+    color: rgb(192,198,235);
 }
 
 .dark nav a {
-    color: rgb(98,188,221);
+    color: rgb(192,198,235);
 }
 
 .dark nav a.active:before {
-    border-color: rgb(98,188,221);
+    border-color: rgb(192,198,235);
 }
 
 .dark nav a.active {
-    color: rgb(98,188,221);
+    color: rgb(192,198,235);
 }
 
 .dark nav ul ul a {
@@ -471,7 +471,7 @@ th {
 }
 
 .dark .sidebar-right li a:hover {
-    border-bottom: 1px solid rgb(98,188,221);
+    border-bottom: 1px solid rgb(192,198,235);
 }
 
 .dark .mermaid * {
@@ -527,7 +527,7 @@ th {
     content: "DOCS";
     font-size: 12pt;
     display: block;
-    color: rgb(34,124,157);
+    color: rgb(95,111,204);
     opacity: 56%;
 }
 
@@ -543,17 +543,17 @@ nav a {
 }
 
 nav a.active {
-    color: rgb(34,124,157);
+    color: rgb(95,111,204);
 }
 
 nav a.active:before {
     content: "";
-    border-left: 3px solid rgb(34,124,157);
+    border-left: 3px solid rgb(95,111,204);
     padding-left: 10px;
 }
 
 nav a:hover {
-    border-bottom: 1px solid rgb(34,124,157);
+    border-bottom: 1px solid rgb(95,111,204);
 }
 
 nav ul {
@@ -619,7 +619,7 @@ nav ul ul a {
 }
 
 .sidebar-right li a:hover {
-    border-bottom: 1px solid rgb(34,124,157);
+    border-bottom: 1px solid rgb(95,111,204);
 }
 
 .sidebar-right a:hover {}
