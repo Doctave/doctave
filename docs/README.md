@@ -2,7 +2,8 @@ Doctave CLI
 ===========
 
 The Doctave CLI is an opinionated documentation site generator that converts your Markdown files
-into a beautiful developer documentation site.
+into a beautiful developer documentation site. This site you are looking at now is built with
+Doctave!
 
 It is not a generic static site generator - it is only meant for generating documentation sites from
 Markdown. This allows the tool to be much simpler than other solutions, and requires little to no
@@ -15,7 +16,7 @@ This open source CLI is built and maintained by [Doctave](https://www.doctave.co
 
 ## Features
 
-Doctave comes out of the box with a documentation-focused set of features.
+Doctave comes with a number of documentation-specific features out of the box. No plugins needed.
 
 - Mermaid.js diagrams
 - Full-text search
@@ -25,8 +26,22 @@ Doctave comes out of the box with a documentation-focused set of features.
 - Minimal configuration
 - Fast build, built in Rust
 
+
+## Screenshots
+
+**Doctave's theme:**
+
+Light                               | Dark                                      |
+------------------------------------|-------------------------------------------|
+![Exmple 1](/assets/example-1.png)  | ![Example 2](/assets/example-1-dark.png)  |
+
+**Example orange color theme:**
+
+Light                               | Dark                                      |
+------------------------------------|-------------------------------------------|
+![Exmple 2](/assets/example-2.png)  | ![Example 2](/assets/example-2-dark.png)  |
+
 ## Getting started
 
 First head over to the [installation instructions](/installing). Once you have Doctave installed,
 you can get familiar with the tool by going through the official [tutorial](/tutorial).
-

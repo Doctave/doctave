@@ -1,3 +1,6 @@
+![Doctave logo](./docs/assets/doctave-logo.svg)
+
+
 [Doctave CLI](https://cli.doctave.com)
 ======================================
 
@@ -5,7 +8,7 @@
 * [Tutorial](https://cli.doctave.com/tutorial)
 
 The DoctaveCLI is an opinionated documentation site generator that converts your Markdown files into
-a beautiful developer hub with minimal effort.
+a beautiful documentation site with minimal effort.
 
 The Doctave CLI is not a generic static site generator - it is only meant for generating
 documentation sites from Markdown. This allows the tool to be much simpler than other solutions,
@@ -20,9 +23,28 @@ Doctave comes with a number of documentation-specific features out of the box. N
 - [Mermaid.js](https://mermaid-js.github.io/) diagrams
 - Full-text search
 - Local live-reloading server
-- Minimal configuration
+- Responsive design
+- Dark mode
 - GitHub flavored markdown
-- Fast build times, built in Rust
+- Minimal configuration
+- Fast build, built in Rust
+
+## Screenshots
+
+You can customize the color scheme and logo to match your own style.
+
+**Doctave's color theme:**
+
+Light                                    | Dark                                           |
+-----------------------------------------|------------------------------------------------|
+![Exmple 1](./docs/assets/example-1.png) | ![Example 2](./docs/assets/example-1-dark.png) |
+
+
+**Example red color theme:**
+
+Light                                    | Dark                                           |
+-----------------------------------------|------------------------------------------------|
+![Exmple 2](./docs/assets/example-2.png) | ![Example 2](./docs/assets/example-2-dark.png) |
 
 ## Installation
 
