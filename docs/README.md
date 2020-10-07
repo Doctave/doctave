@@ -29,16 +29,12 @@ Doctave comes with a number of documentation-specific features out of the box. N
 
 ## Screenshots
 
-**Doctave's theme:**
+You can customize the color scheme and logo to match your own style. Below are two examples: one
+with Doctave's own color scheme, and another customized color scheme.
 
 Light                               | Dark                                      |
 ------------------------------------|-------------------------------------------|
 ![Exmple 1](/assets/example-1.png)  | ![Example 2](/assets/example-1-dark.png)  |
-
-**Example orange color theme:**
-
-Light                               | Dark                                      |
-------------------------------------|-------------------------------------------|
 ![Exmple 2](/assets/example-2.png)  | ![Example 2](/assets/example-2-dark.png)  |
 
 ## Getting started

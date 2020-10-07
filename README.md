@@ -1,10 +1,11 @@
-![Doctave logo](./docs/_include/assets/doctave-logo.svg)
+![CI](https://github.com/Doctave/doctave-cli/workflows/CI/badge.svg)
 
+![Doctave logo](./src/assets/gh-readme-logo.png)
 
-[Doctave CLI](https://cli.doctave.com)
-======================================
+Doctave CLI
+===========
 
-* [Docs](https://cli.doctave.com)
+* [Docs](https://cli.doctave.com) (build with Doctave)
 * [Tutorial](https://cli.doctave.com/tutorial)
 
 The DoctaveCLI is an opinionated documentation site generator that converts your Markdown files into
@@ -31,19 +32,12 @@ Doctave comes with a number of documentation-specific features out of the box. N
 
 ## Screenshots
 
-You can customize the color scheme and logo to match your own style.
-
-**Doctave's color theme:**
+You can customize the color scheme and logo to match your own style. Below are two examples: one
+with Doctave's own color scheme, and another customized color scheme.
 
 Light                                             | Dark                                                    |
 --------------------------------------------------|---------------------------------------------------------|
 ![Exmple 1](./docs/_include/assets/example-1.png) | ![Example 2](./docs/_include/assets/example-1-dark.png) |
-
-
-**Example red color theme:**
-
-Light                                             | Dark                                                    |
---------------------------------------------------|---------------------------------------------------------|
 ![Exmple 2](./docs/_include/assets/example-2.png) | ![Example 2](./docs/_include/assets/example-2-dark.png) |
 
 ## Installation
