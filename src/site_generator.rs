@@ -15,6 +15,9 @@ use crate::site::{BuildMode, Site};
 use crate::{Directory, Document};
 use crate::{Error, Result};
 
+static INCLUDE_DIR: &str = "_include";
+static HEAD_FILE: &str = "_head.html";
+
 pub struct SiteGenerator<'a> {
     config: &'a Config,
     site: &'a Site,
@@ -32,22 +35,38 @@ impl<'a> SiteGenerator<'a> {
 
         self.site.reset()?;
 
-        self.build_directory(&root, &navigation)?;
-        self.build_search_index(&root)?;
+        let head_include = self.read_head_include()?;
+
         self.build_includes()?;
         self.build_assets()?;
+        self.build_directory(&root, &navigation, head_include.as_deref())?;
+        self.build_search_index(&root)?;
 
         Ok(())
     }
 
+    fn read_head_include(&self) -> Result<Option<String>> {
+        let custom_head = self.config.docs_dir().join(INCLUDE_DIR).join(HEAD_FILE);
+
+        if custom_head.exists() {
+            let content = fs::read_to_string(custom_head)
+                .map_err(|e| Error::io(e, "Could not read custom head include file"))?;
+
+            Ok(Some(content))
+        } else {
+            Ok(None)
+        }
+    }
+
     /// Copies over all custom includes from the _includes directory
     fn build_includes(&self) -> Result<()> {
-        let custom_assets_dir = self.config.docs_dir().join("_include");
+        let custom_assets_dir = self.config.docs_dir().join(INCLUDE_DIR);
 
         for asset in WalkDir::new(&custom_assets_dir)
             .into_iter()
             .filter_map(|e| e.ok())
             .filter(|e| e.path().is_file())
+            .filter(|e| e.path().file_name() != Some(OsStr::new(HEAD_FILE)))
         {
             let stripped_path = asset
                 .path()
@@ -154,7 +173,7 @@ impl<'a> SiteGenerator<'a> {
             .map_err(|e| Error::handlebars(e, "Could not write custom style sheet"))
     }
 
-    fn build_directory(&self, dir: &Directory, nav: &[Link]) -> Result<()> {
+    fn build_directory(&self, dir: &Directory, nav: &[Link], head_include: Option<&str>) -> Result<()> {
         fs::create_dir_all(dir.destination(self.config.out_dir()))
             .map_err(|e| Error::io(e, "Could not create site directory"))?;
 
@@ -186,8 +205,9 @@ impl<'a> SiteGenerator<'a> {
                     current_path: doc.uri_path(),
                     project_title: self.config.title().to_string(),
                     logo: self.config.logo().map(|l| l.to_string()),
-                    page_title,
                     build_mode: self.config.build_mode().to_string(),
+                    page_title,
+                    head_include,
                 };
 
                 crate::HANDLEBARS
@@ -201,7 +221,7 @@ impl<'a> SiteGenerator<'a> {
 
         dir.dirs
             .par_iter()
-            .map(|d| self.build_directory(&d, &nav))
+            .map(|d| self.build_directory(&d, &nav, head_include))
             .collect()
     }
 
@@ -348,6 +368,7 @@ pub struct TemplateData<'a> {
     pub content: String,
     pub headings: Vec<Heading>,
     pub navigation: &'a [Link],
+    pub head_include: Option<&'a str>,
     pub current_path: String,
     pub page_title: String,
     pub logo: Option<String>,

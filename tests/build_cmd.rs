@@ -420,3 +420,24 @@ integration_test!(custom_logo, |area| {
 
     area.assert_contains(&index, "/assets/fake-logo.png");
 });
+
+integration_test!(include_header, |area| {
+    area.create_config();
+    area.mkdir(Path::new("docs").join("_include"));
+    area.write_file(Path::new("docs").join("README.md"), b"# Hi");
+    area.write_file(
+        Path::new("docs").join("_include").join("_head.html"),
+        b"<script>console.log(1 + 1)</script>",
+    );
+
+    let result = area.cmd(&["build"]);
+    println!("{:?}", result);
+    assert_success(&result);
+
+    let index = Path::new("site").join("index.html");
+
+    area.assert_contains(&index, "<script>console.log(1 + 1)</script>");
+
+    let head = Path::new("site").join("_head.html");
+    area.refute_exists(&head);
+});

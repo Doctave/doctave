@@ -49,6 +49,10 @@
         document.getElementsByTagName('html')[0].classList.add('light');
     }
     </script>
+
+    {{#if head_include }}
+        {{{ head_include }}}
+    {{/if}}
 </head>
 
 <body>
