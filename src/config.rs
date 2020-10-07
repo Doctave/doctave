@@ -402,14 +402,14 @@ mod test {
     #[test]
     fn convert_navigation_input_to_rules_directory_no_children() {
         let input = vec![Navigation {
-            path: PathBuf::from("docs").join("contributors"), // TODO: Make not rely on our docs
+            path: PathBuf::from("docs").join("features"), // TODO: Make not rely on our docs
             children: None,
         }];
 
         assert_eq!(
             NavRule::from_yaml_input(input),
             vec![NavRule::Dir(
-                PathBuf::from("docs").join("contributors"),
+                PathBuf::from("docs").join("features"),
                 None
             )]
         );
@@ -418,14 +418,14 @@ mod test {
     #[test]
     fn convert_navigation_input_to_rules_directory_wildcard_children() {
         let input = vec![Navigation {
-            path: PathBuf::from("docs").join("contributors"), // TODO: Make not rely on our docs
+            path: PathBuf::from("docs").join("features"), // TODO: Make not rely on our docs
             children: Some(NavChildren::WildCard(String::from("*"))),
         }];
 
         assert_eq!(
             NavRule::from_yaml_input(input),
             vec![NavRule::Dir(
-                PathBuf::from("docs").join("contributors"),
+                PathBuf::from("docs").join("features"),
                 Some(DirIncludeRule::WildCard)
             )]
         );
@@ -434,11 +434,11 @@ mod test {
     #[test]
     fn convert_navigation_input_to_rules_directory_explicit_children() {
         let input = vec![Navigation {
-            path: PathBuf::from("docs").join("contributors"), // TODO: Make not rely on our docs
+            path: PathBuf::from("docs").join("features"), // TODO: Make not rely on our docs
             children: Some(NavChildren::List(vec![Navigation {
                 path: PathBuf::from("docs")
-                    .join("contributors")
-                    .join("getting_started.md"),
+                    .join("features")
+                    .join("markdown.md"),
                 children: None,
             }])),
         }];
@@ -446,11 +446,11 @@ mod test {
         assert_eq!(
             NavRule::from_yaml_input(input),
             vec![NavRule::Dir(
-                PathBuf::from("docs").join("contributors"),
+                PathBuf::from("docs").join("features"),
                 Some(DirIncludeRule::Explicit(vec![NavRule::File(
                     PathBuf::from("docs")
-                        .join("contributors")
-                        .join("getting_started.md")
+                        .join("features")
+                        .join("markdown.md")
                 )]))
             )]
         );

@@ -11,5 +11,4 @@ navigation:
     children: "*"
   - path: docs/deployment.md
   - path: docs/configuration.md
-  - path: docs/contributors
-    children: "*"
+  - path: docs/contributor-guide.md
