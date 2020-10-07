@@ -6,7 +6,7 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     env:
-      - DOCTAVE_VERSION: "0.0.1"
+      DOCTAVE_VERSION: "0.0.1"
     steps:
       - name: Create artifacts directory
         run: mkdir artifacts
