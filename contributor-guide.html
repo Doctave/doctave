@@ -17,26 +17,6 @@
     <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css" media="screen" />
 
     
-    <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
-
-    <script>
-    // Don't reset scrolling on livereload
-    window.addEventListener('scroll', function() {
-        localStorage.setItem('doctave-scrollPosition', window.scrollY);
-
-        dragRightMenu();
-    }, false);
-
-    window.addEventListener('load', function() {
-        if (localStorage.getItem('doctave-scrollPosition') !== null)
-            window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
-
-        document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
-            disableScrollifMenuOpen();
-        });
-    }, false);
-    </script>
-    
 
     <script>
     var color = localStorage.getItem('doctave-color')
