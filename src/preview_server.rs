@@ -107,6 +107,7 @@ fn content_type_for(extension: Option<&OsStr>) -> Option<&'static str> {
             Some("jpg") => Some("image/jpeg"),
             Some("jpeg") => Some("image/jpeg"),
             Some("png") => Some("image/png"),
+            Some("svg") => Some("image/svg+xml"),
             None => None,
             _ => None,
         },

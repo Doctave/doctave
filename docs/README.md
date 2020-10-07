@@ -1,26 +1,28 @@
 Doctave CLI
 ===========
 
-The [Doctave](https://www.doctave.com) CLI is an opinionated documentation site generator that
-converts your Markdown files into a beautiful developer hub.
+The Doctave CLI is an opinionated documentation site generator that converts your Markdown files
+into a beautiful developer documentation site.
 
-The Doctave CLI is not a generic static site generator - it is only meant for generating
-documentation sites from Markdown. This allows the tool to be much simpler than other solutions,
-with fewer configuration steps.
+It is not a generic static site generator - it is only meant for generating documentation sites from
+Markdown. This allows the tool to be much simpler than other solutions, and requires little to no
+configuration. You just start documenting.
 
-This open source CLI is built and maintained by [Doctave](https://www.doctave.com). While it is
-meant originally to be used for projects that are hosted on Doctave.com, it does not depend on it,
-and you are free to deploy the generated sites as you please. _This CLI is and always will be free
-and open source._
+Doctave is written in Rust and is distributed as a single self-contained binary. It has no
+dependencies, and works on Mac, Linux, and Windows.
 
-You can read more about hosting your docs on Doctave [here](https://www.doctave.com).
+This open source CLI is built and maintained by [Doctave](https://www.doctave.com).
 
 ## Features
-- Minimal configuration
-- GitHub flavored markdown
-- Full-text search built-in
-- Mermaid.js diagrams out of the box
+
+Doctave comes out of the box with a documentation-focused set of features.
+
+- Mermaid.js diagrams
+- Full-text search
 - Local live-reloading server
+- Responsive design
+- GitHub flavored markdown
+- Minimal configuration
 - Fast build, built in Rust
 
 ## Getting started
