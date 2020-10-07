@@ -123,11 +123,11 @@ function setColor() {
     var color = localStorage.getItem('doctave-color')
 
     if (color === 'dark') {
-        document.querySelector("link[rel='stylesheet'][href*='prism-']").href = "/assets/prism-atom-dark.css";
+        document.querySelector("link[rel='stylesheet'][href*='prism-']").href = "/assets/prism-atom-dark.css?v=" + DOCTAVE_TIMESTAMP;
         document.getElementsByTagName('html')[0].classList.remove('light');
         document.getElementsByTagName('html')[0].classList.add('dark');
     } else {
-        document.querySelector("link[rel='stylesheet'][href*='prism-']").href = "/assets/prism-ghcolors.css";
+        document.querySelector("link[rel='stylesheet'][href*='prism-']").href = "/assets/prism-ghcolors.css?" + DOCTAVE_TIMESTAMP;
         document.getElementsByTagName('html')[0].classList.remove('dark');
         document.getElementsByTagName('html')[0].classList.add('light');
     }

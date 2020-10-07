@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use elasticlunr::Index;
 use rayon::prelude::*;
@@ -21,11 +22,18 @@ static HEAD_FILE: &str = "_head.html";
 pub struct SiteGenerator<'a> {
     config: &'a Config,
     site: &'a Site,
+    timestamp: String,
 }
 
 impl<'a> SiteGenerator<'a> {
     pub fn new(config: &'a Config, site: &'a Site) -> Self {
-        SiteGenerator { config, site }
+        let start = SystemTime::now();
+
+        let since_the_epoch = start
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards");
+
+        SiteGenerator { config, site, timestamp: format!("{}", since_the_epoch.as_secs()) }
     }
 
     pub fn run(&self) -> Result<()> {
@@ -173,7 +181,12 @@ impl<'a> SiteGenerator<'a> {
             .map_err(|e| Error::handlebars(e, "Could not write custom style sheet"))
     }
 
-    fn build_directory(&self, dir: &Directory, nav: &[Link], head_include: Option<&str>) -> Result<()> {
+    fn build_directory(
+        &self,
+        dir: &Directory,
+        nav: &[Link],
+        head_include: Option<&str>,
+    ) -> Result<()> {
         fs::create_dir_all(dir.destination(self.config.out_dir()))
             .map_err(|e| Error::io(e, "Could not create site directory"))?;
 
@@ -206,6 +219,7 @@ impl<'a> SiteGenerator<'a> {
                     project_title: self.config.title().to_string(),
                     logo: self.config.logo().map(|l| l.to_string()),
                     build_mode: self.config.build_mode().to_string(),
+                    timestamp: &self.timestamp,
                     page_title,
                     head_include,
                 };
@@ -374,4 +388,5 @@ pub struct TemplateData<'a> {
     pub logo: Option<String>,
     pub project_title: String,
     pub build_mode: String,
+    pub timestamp: &'a str,
 }

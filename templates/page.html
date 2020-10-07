@@ -11,10 +11,10 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v={{ timestamp }}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v={{ timestamp }}" media="screen" />
 
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v={{ timestamp }}" media="screen" />
 
     {{#if (eq build_mode "dev") }}
     <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
@@ -39,6 +39,7 @@
     {{/if}}
 
     <script>
+    var DOCTAVE_TIMESTAMP = "{{ timestamp }}";
     var color = localStorage.getItem('doctave-color')
 
     if (color === 'dark') {
@@ -110,10 +111,10 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js"></script>
-    <script type="text/javascript" src="/assets/prism.js"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="/assets/prism.js?v={{ timestamp }}"></script>
 </body>
 
 </html>

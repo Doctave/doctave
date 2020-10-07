@@ -441,3 +441,20 @@ integration_test!(include_header, |area| {
     let head = Path::new("site").join("_head.html");
     area.refute_exists(&head);
 });
+
+integration_test!(cache_buster, |area| {
+    area.create_config();
+    area.mkdir("docs");
+    area.write_file(Path::new("docs").join("README.md"), b"# Hi");
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    let index = Path::new("site").join("index.html");
+
+    // No access to the actual timestamp, but we should be fine until unix timestamps
+    // roll over to start with the number 2.
+    //
+    // Famous last words ofc...
+    area.assert_contains(&index, "doctave-style.css?v=1");
+});
