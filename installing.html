@@ -11,15 +11,15 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1602079912" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1602079912" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1602165840" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1602165840" media="screen" />
 
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1602079912" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1602165840" media="screen" />
 
     
 
     <script>
-    var DOCTAVE_TIMESTAMP = "1602079912";
+    var DOCTAVE_TIMESTAMP = "1602165840";
     var color = localStorage.getItem('doctave-color')
 
     if (color === 'dark') {
@@ -120,7 +120,22 @@
             </div>
             <div class='content'>
                 <h1 id="installing-doctave-1">Installing Doctave</h1>
-<p>Doctave provides binaries for MacOS, Linux, and Windows.</p>
+<p>There are a few installation options for Doctave. If you would like another installation option,
+please open an issue for it.</p>
+<h3 id="precompiled-binaries-2">Precompiled binaries</h3>
+<p>Doctave build precompiled binaries for Mac, Linux, and Windows, which you can download from the
+<a href="https://github.com/Doctave/doctave-cli/releases/latest">latest release</a>.</p>
+<h3 id="homebrew-3">Homebrew</h3>
+<p>Doctave maintains its own <a href="https://github.com/Doctave/homebrew-doctave">homebrew tap</a>, and you can
+install Doctave via the following command:</p>
+<pre><code>$ brew install doctave/doctave/doctave-cli
+</code></pre>
+<p>This will take a few minutes as Doctave is compiled from scratch for your machine.</p>
+<h3 id="cargo-(rust-package-manager)-4">Cargo (Rust package manager)</h3>
+<p>You can also use the Rust package manager, Cargo, to install Doctave. Currently Doctave is not
+listed on crates.io, but you can install it directly from GitHub:</p>
+<pre><code>$ cargo install --git https://github.com/Doctave/doctave-cli
+</code></pre>
 
             </div>
             <div class='sidebar-right'>
@@ -131,6 +146,18 @@
                         
                             <li class='page-nav-level-1'>
                                 <a href='#installing-doctave-1'>Installing Doctave</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#precompiled-binaries-2'>Precompiled binaries</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#homebrew-3'>Homebrew</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#cargo-(rust-package-manager)-4'>Cargo (Rust package manager)</a>
                             </li>
                         
                     </ul>
@@ -146,10 +173,10 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js?v=1602079912"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js?v=1602079912"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js?v=1602079912"></script>
-    <script type="text/javascript" src="/assets/prism.js?v=1602079912"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v=1602165840"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v=1602165840"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v=1602165840"></script>
+    <script type="text/javascript" src="/assets/prism.js?v=1602165840"></script>
 </body>
 
 </html>
