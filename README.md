@@ -54,7 +54,7 @@ Doctave maintains its own [homebrew tap](https://github.com/Doctave/homebrew-doc
 install Doctave via the following command:
 
 ```
-$ brew install doctave/doctave/doctave-cli
+$ brew install doctave/doctave/doctave
 ```
 
 This will take a few minutes as Doctave is compiled from scratch for your machine.
