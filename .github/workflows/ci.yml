@@ -1,6 +1,12 @@
 name: CI
 
-on: push
+on:
+  push:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "templates/**"
+      - "Cargo.*"
 
 jobs:
   test:
