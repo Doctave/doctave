@@ -12,7 +12,7 @@ with fewer configuration steps.
 
 This open source CLI is built and maintained by [Doctave](https://www.doctave.com).
 
-* [Docs](https://cli.doctave.com) (build with Doctave)
+* [Docs](https://cli.doctave.com) (built with Doctave)
 * [Tutorial](https://cli.doctave.com/tutorial)
 
 ## Features
