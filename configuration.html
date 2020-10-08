@@ -11,15 +11,15 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1602165840" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1602165840" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1602166117" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1602166117" media="screen" />
 
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1602165840" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1602166117" media="screen" />
 
     
 
     <script>
-    var DOCTAVE_TIMESTAMP = "1602165840";
+    var DOCTAVE_TIMESTAMP = "1602166117";
     var color = localStorage.getItem('doctave-color')
 
     if (color === 'dark') {
@@ -173,17 +173,25 @@ logo: logo.png
   - path: docs/features
     children: &quot;*&quot;
 </code></pre>
-<h2 id="serve-command-8">Serve command</h2>
+<h2 id="all-commands-8">All commands</h2>
+<p>All commands support the following option.</p>
+<h3 id="--no-color-9">--no-color</h3>
+<p>Disable terminal colors.</p>
+<p>This is an optional argument.</p>
+<p>Example:</p>
+<pre><code>$ doctave serve --no-color
+</code></pre>
+<h2 id="serve-command-10">Serve command</h2>
 <p>Currently the <code>serve</code> command takes only one optional argument.</p>
-<h3 id="--port,--p-9">--port, -p</h3>
+<h3 id="--port,--p-11">--port, -p</h3>
 <p>Sets the port the development server will listen on when running the <code>serve</code> command.</p>
 <p>This is an optional argument.</p>
 <p>Example:</p>
 <pre><code>$ doctave serve --port 5432
 </code></pre>
-<h2 id="build-command-10">Build command</h2>
+<h2 id="build-command-12">Build command</h2>
 <p>Currently the <code>build</code> command takes only one optional argument.</p>
-<h3 id="--release-11">--release</h3>
+<h3 id="--release-13">--release</h3>
 <p>This flag will build the site without development dependencies. Currently this means stripping out
 livereload.js from the bundle, but can be extended in the future to include other actions.</p>
 <p>This is an optional argument.</p>
@@ -227,19 +235,27 @@ livereload.js from the bundle, but can be extended in the future to include othe
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#serve-command-8'>Serve command</a>
+                                <a href='#all-commands-8'>All commands</a>
                             </li>
                         
                             <li class='page-nav-level-3'>
-                                <a href='#--port,--p-9'>--port, -p</a>
+                                <a href='#--no-color-9'>--no-color</a>
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#build-command-10'>Build command</a>
+                                <a href='#serve-command-10'>Serve command</a>
                             </li>
                         
                             <li class='page-nav-level-3'>
-                                <a href='#--release-11'>--release</a>
+                                <a href='#--port,--p-11'>--port, -p</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#build-command-12'>Build command</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#--release-13'>--release</a>
                             </li>
                         
                     </ul>
@@ -255,10 +271,10 @@ livereload.js from the bundle, but can be extended in the future to include othe
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js?v=1602165840"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js?v=1602165840"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js?v=1602165840"></script>
-    <script type="text/javascript" src="/assets/prism.js?v=1602165840"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v=1602166117"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v=1602166117"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v=1602166117"></script>
+    <script type="text/javascript" src="/assets/prism.js?v=1602166117"></script>
 </body>
 
 </html>
