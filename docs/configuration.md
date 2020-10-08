@@ -91,6 +91,22 @@ navigation:
     children: "*"
 ```
 
+## All commands
+
+All commands support the following option.
+
+### --no-color
+
+Disable terminal colors.
+
+This is an optional argument.
+
+Example:
+
+```
+$ doctave serve --no-color
+```
+
 ## Serve command
 
 Currently the `serve` command takes only one optional argument.

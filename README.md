@@ -45,8 +45,8 @@ please open an issue for it.
 
 ### Precompiled binaries
 
-Doctave build precompiled binaries for Mac, Linux, and Windows, which you can download from the
-[latest release](https://github.com/Doctave/doctave-cli/releases/latest).
+Doctave provides precompiled binaries for Mac, Linux, and Windows, which you can download from the
+[latest release page](https://github.com/Doctave/doctave-cli/releases/latest).
 
 ### Homebrew
 
@@ -80,7 +80,7 @@ Then, run the `serve` command to preview your site locally.
 
 ```
 Doctave CLI | Serve
-🚀 Starting development server...
+Starting development server...
 
 Server running on http://0.0.0.0:4001/
 

@@ -59,7 +59,7 @@ Now, you can run `doctave serve` to start the local webserver. _**Note**: When y
 $ doctave serve
 
 Doctave CLI | Serve
-🚀 Starting development server...
+Starting development server...
 
 Server running on http://0.0.0.0:4001/
 ```

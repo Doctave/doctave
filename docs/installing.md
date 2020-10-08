@@ -10,8 +10,8 @@ please open an issue for it.
 
 ### Precompiled binaries
 
-Doctave build precompiled binaries for Mac, Linux, and Windows, which you can download from the
-[latest release](https://github.com/Doctave/doctave-cli/releases/latest).
+Doctave provides precompiled binaries for Mac, Linux, and Windows, which you can download from the
+[latest release page](https://github.com/Doctave/doctave-cli/releases/latest).
 
 ### Homebrew
 
