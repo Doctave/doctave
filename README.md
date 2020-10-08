@@ -1,12 +1,7 @@
-![CI](https://github.com/Doctave/doctave-cli/workflows/CI/badge.svg)
-
 ![Doctave logo](./src/assets/gh-readme-logo.png)
 
 Doctave CLI
 ===========
-
-* [Docs](https://cli.doctave.com) (build with Doctave)
-* [Tutorial](https://cli.doctave.com/tutorial)
 
 The DoctaveCLI is an opinionated documentation site generator that converts your Markdown files into
 a beautiful documentation site with minimal effort.
@@ -16,6 +11,9 @@ documentation sites from Markdown. This allows the tool to be much simpler than 
 with fewer configuration steps.
 
 This open source CLI is built and maintained by [Doctave](https://www.doctave.com).
+
+* [Docs](https://cli.doctave.com) (build with Doctave)
+* [Tutorial](https://cli.doctave.com/tutorial)
 
 ## Features
 
