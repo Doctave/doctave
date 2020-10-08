@@ -28,7 +28,7 @@ impl InitCommand {
             docs_root,
         };
 
-        bunt::writeln!(cmd.stdout, "{$bold}{$blue}Doctave CLI | Init{/$}{/$}")?;
+        bunt::writeln!(cmd.stdout, "{$bold}{$blue}Doctave | Init{/$}{/$}")?;
         bunt::writeln!(cmd.stdout, "Creating your docs...\n")?;
 
         cmd.check_for_existing_project()?;

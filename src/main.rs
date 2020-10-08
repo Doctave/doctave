@@ -1,7 +1,7 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 
 fn main() {
-    let matches = App::new("Doctave CLI")
+    let matches = App::new("Doctave")
         .version(env!("CARGO_PKG_VERSION"))
         .about(
             "An opinionated static site generator designed specifically \

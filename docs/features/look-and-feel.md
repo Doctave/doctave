@@ -15,7 +15,7 @@ color scheme via the doctave.yaml. Here's an example:
 
 ```yaml
 ---
-title: Doctave CLI
+title: Doctave
 colors:
   main: "#5f658a"
 ```

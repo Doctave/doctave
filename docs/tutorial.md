@@ -17,7 +17,7 @@ To verify you have installed everything correctly, run the following:
 
 ```
 $ doctave --version
-Doctave CLI x.y.z
+Doctave x.y.z
 ```
 
 ## Creating a new site
@@ -58,7 +58,7 @@ Now, you can run `doctave serve` to start the local webserver. _**Note**: When y
 ```
 $ doctave serve
 
-Doctave CLI | Serve
+Doctave | Serve
 Starting development server...
 
 Server running on http://0.0.0.0:4001/

@@ -1,7 +1,7 @@
-Doctave CLI
-===========
+Doctave
+=======
 
-The Doctave CLI is an opinionated documentation site generator that converts your Markdown files
+Doctave is an opinionated documentation site generator that converts your Markdown files
 into a beautiful developer documentation site. This site you are looking at now is built with
 Doctave!
 
@@ -12,7 +12,7 @@ configuration. You just start documenting.
 Doctave is written in Rust and is distributed as a single self-contained binary. It has no
 dependencies, and works on Mac, Linux, and Windows.
 
-This open source CLI is built and maintained by [Doctave](https://www.doctave.com).
+This open source tool is built and maintained by [Doctave.com](https://www.doctave.com).
 
 ## Features
 

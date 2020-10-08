@@ -24,7 +24,7 @@ impl BuildCommand {
 
         let target_dir = &cmd.config.out_dir();
 
-        bunt::writeln!(stdout, "{$bold}{$blue}Doctave CLI | Build{/$}{/$}")?;
+        bunt::writeln!(stdout, "{$bold}{$blue}Doctave | Build{/$}{/$}")?;
 
         if let BuildMode::Release = cmd.config.build_mode() {
             bunt::writeln!(

@@ -32,7 +32,7 @@ impl ServeCommand {
 
         let cmd = ServeCommand { config, site };
 
-        bunt::writeln!(stdout, "{$bold}{$blue}Doctave CLI | Serve{/$}{/$}")?;
+        bunt::writeln!(stdout, "{$bold}{$blue}Doctave | Serve{/$}{/$}")?;
         println!("Starting development server...\n");
 
         // Do initial build ---------------------------

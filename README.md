@@ -1,16 +1,16 @@
 ![Doctave logo](./src/assets/gh-readme-logo.png)
 
-Doctave CLI
-===========
+Doctave
+=======
 
-The DoctaveCLI is an opinionated documentation site generator that converts your Markdown files into
+Doctave is an opinionated documentation site generator that converts your Markdown files into
 a beautiful documentation site with minimal effort.
 
-The Doctave CLI is not a generic static site generator - it is only meant for generating
-documentation sites from Markdown. This allows the tool to be much simpler than other solutions,
-with fewer configuration steps.
+Doctave is not a generic static site generator - it is only meant for generating documentation sites
+from Markdown. This allows the tool to be much simpler than other solutions, with fewer
+configuration steps.
 
-This open source CLI is built and maintained by [Doctave](https://www.doctave.com).
+This open source tool is built and maintained by [Doctave.com](https://www.doctave.com).
 
 * [Docs](https://cli.doctave.com) (built with Doctave)
 * [Tutorial](https://cli.doctave.com/tutorial)
@@ -79,7 +79,7 @@ $ doctave init
 Then, run the `serve` command to preview your site locally.
 
 ```
-Doctave CLI | Serve
+Doctave | Serve
 Starting development server...
 
 Server running on http://0.0.0.0:4001/
