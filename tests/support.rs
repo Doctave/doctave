@@ -65,6 +65,7 @@ impl TestArea {
     {
         Command::new(self.binary())
             .args(args)
+            .args(&["--no-color"]) // Disable color in tests
             .current_dir(&self.path)
             .output()
             .expect("Unable to spawn command")

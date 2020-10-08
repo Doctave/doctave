@@ -2,26 +2,34 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use colored::*;
+use bunt::termcolor::{ColorChoice, StandardStream};
 
 use crate::{Error, Result};
 
 pub struct InitCommand {
+    stdout: StandardStream,
     project_root: PathBuf,
     docs_root: PathBuf,
 }
 
 impl InitCommand {
-    pub fn run(project_root: PathBuf) -> Result<()> {
+    pub fn run(project_root: PathBuf, colors: bool) -> Result<()> {
         let docs_root = project_root.join("docs");
 
-        let cmd = InitCommand {
+        let stdout = if colors {
+            StandardStream::stdout(ColorChoice::Auto)
+        } else {
+            StandardStream::stdout(ColorChoice::Never)
+        };
+
+        let mut cmd = InitCommand {
+            stdout,
             project_root,
             docs_root,
         };
 
-        println!("{}", "Doctave CLI | Init".blue().bold());
-        println!("⚙️  Creating your docs...\n");
+        bunt::writeln!(cmd.stdout, "{$bold}{$blue}Doctave CLI | Init{/$}{/$}")?;
+        bunt::writeln!(cmd.stdout, "Creating your docs...\n")?;
 
         cmd.check_for_existing_project()?;
 
@@ -32,18 +40,16 @@ impl InitCommand {
             cmd.create_docs_index()?;
             cmd.create_doc_examples()?;
         } else {
-            println!(
-                "{} {} directory - found existing docs...",
-                "Skipping".yellow(),
-                "docs".bold(),
-            );
+            bunt::writeln!(
+                cmd.stdout,
+                "{$yellow}Skipping{/$} {$bold}docs{/$} directory - found existing docs...",
+            )?;
         }
 
-        println!(
-            "\n{} Run {} to view your docs site locally.",
-            "Done!".green(),
-            "doctave serve".bold()
-        );
+        bunt::writeln!(
+            cmd.stdout,
+            "\n{$green}Done!{/$} Run {$bold}doctave serve{/$} to view your docs site locally.",
+        )?;
 
         Ok(())
     }
@@ -62,19 +68,19 @@ impl InitCommand {
         !self.project_root.join("docs").exists()
     }
 
-    fn create_doctave_yaml(&self) -> Result<()> {
+    fn create_doctave_yaml(&mut self) -> Result<()> {
         let mut file = File::create(self.project_root.join("doctave.yaml"))
             .map_err(|e| Error::io(e, "Could not create doctave.yaml"))?;
 
         file.write(b"---\ntitle: \"My Project\"\n")
             .map_err(|e| Error::io(e, "Could not write to doctave.yaml"))?;
 
-        println!("Created {}...", "doctave.yaml".bold());
+        bunt::writeln!(self.stdout, "Created {$bold}doctave.yaml{/$}...")?;
 
         Ok(())
     }
 
-    fn create_docs_dir(&self) -> Result<()> {
+    fn create_docs_dir(&mut self) -> Result<()> {
         if !self.project_root.join("docs").exists() {
             fs::create_dir(&self.docs_root).map_err(|e| {
                 Error::io(
@@ -86,13 +92,13 @@ impl InitCommand {
                 )
             })?;
 
-            println!("Created {} folder...", "docs".bold());
+            bunt::writeln!(self.stdout, "Created {$bold}docs{/$} folder...")?;
         }
 
         Ok(())
     }
 
-    fn create_docs_index(&self) -> Result<()> {
+    fn create_docs_index(&mut self) -> Result<()> {
         let path = self.project_root.join("docs").join("README.md");
 
         if !path.exists() {
@@ -109,20 +115,18 @@ impl InitCommand {
             file.write(include_str!("../templates/starter_readme.md").as_bytes())
                 .map_err(|e| Error::io(e, "Could not write to README.md"))?;
 
-            println!(
-                "Created {}...",
-                Path::new("docs")
-                    .join("README.md")
-                    .display()
-                    .to_string()
-                    .bold()
-            );
+            let relative_path = Path::new("docs").join("README.md");
+            bunt::writeln!(
+                self.stdout,
+                "Created {$bold}{}{/$}...",
+                relative_path.display()
+            )?;
         }
 
         Ok(())
     }
 
-    fn create_doc_examples(&self) -> Result<()> {
+    fn create_doc_examples(&mut self) -> Result<()> {
         let path = self.project_root.join("docs").join("examples.md");
 
         if !path.exists() {
@@ -139,14 +143,12 @@ impl InitCommand {
             file.write(include_str!("../templates/starter_examples.md").as_bytes())
                 .map_err(|e| Error::io(e, "Could not write to README.md"))?;
 
-            println!(
-                "Created {}...",
-                Path::new("docs")
-                    .join("examples.md")
-                    .display()
-                    .to_string()
-                    .bold()
-            );
+            let relative_path = Path::new("docs").join("examples.md");
+            bunt::writeln!(
+                self.stdout,
+                "Created {$bold}{}{/$}...",
+                relative_path.display()
+            )?;
         }
 
         Ok(())

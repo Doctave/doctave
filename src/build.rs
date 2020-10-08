@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use colored::*;
+use bunt::termcolor::{ColorChoice, StandardStream};
 
 use crate::config::Config;
 use crate::site::{BuildMode, Site};
@@ -13,24 +13,31 @@ pub struct BuildCommand {
 
 impl BuildCommand {
     pub fn run(config: Config) -> Result<()> {
+        let mut stdout = if config.color_enabled() {
+            StandardStream::stdout(ColorChoice::Auto)
+        } else {
+            StandardStream::stdout(ColorChoice::Never)
+        };
+
         let site = Site::new(config.clone());
         let cmd = BuildCommand { config, site };
 
         let target_dir = &cmd.config.out_dir();
 
-        println!("{}", "Doctave CLI | Build".blue().bold());
+        bunt::writeln!(stdout, "{$bold}{$blue}Doctave CLI | Build{/$}{/$}")?;
 
         if let BuildMode::Release = cmd.config.build_mode() {
-            println!(
-                "🏗️  Building site into {} in {}\n",
-                format!("{}", target_dir.display()).bold(),
-                "release mode".bold(),
-            );
+            bunt::writeln!(
+                stdout,
+                "Building site into {$bold}{}{/$} in {$bold}release mode{/$}\n",
+                target_dir.display(),
+            )?;
         } else {
-            println!(
-                "🏗️  Building site into {}\n",
-                format!("{}", target_dir.display()).bold()
-            );
+            bunt::writeln!(
+                stdout,
+                "Building site into {$bold}{}{/$}\n",
+                target_dir.display()
+            )?;
         }
 
         let start = Instant::now();
@@ -38,7 +45,7 @@ impl BuildCommand {
         let duration = start.elapsed();
 
         if result.is_ok() {
-            println!("Site built in {}\n", format!("{:?}", duration).bold());
+            bunt::writeln!(stdout, "Site built in {$bold}{:?}{/$}\n", duration)?;
         }
 
         result

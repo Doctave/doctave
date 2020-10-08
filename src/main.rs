@@ -7,6 +7,12 @@ fn main() {
             "An opinionated static site generator designed specifically \
                for technical documentation.",
         )
+        .arg(
+            Arg::with_name("no-color")
+                .long("no-color")
+                .help("Disable terminal color output")
+                .global(true),
+        )
         .subcommand(SubCommand::with_name("init").about("Initialize a new project (start here!)"))
         .subcommand(
             SubCommand::with_name("build")
@@ -41,7 +47,7 @@ fn main() {
         .get_matches();
 
     let result = match matches.subcommand() {
-        ("init", Some(_cmd)) => init(),
+        ("init", Some(cmd)) => init(cmd),
         ("build", Some(cmd)) => build(cmd),
         ("serve", Some(cmd)) => serve(cmd),
         _ => Ok(()),
@@ -53,9 +59,9 @@ fn main() {
     }
 }
 
-fn init() -> doctave::Result<()> {
+fn init(cmd: &ArgMatches) -> doctave::Result<()> {
     let root_dir = std::env::current_dir().expect("Unable to determine current directory");
-    doctave::InitCommand::run(root_dir)
+    doctave::InitCommand::run(root_dir, !cmd.is_present("no-color"))
 }
 
 fn build(cmd: &ArgMatches) -> doctave::Result<()> {
@@ -64,9 +70,13 @@ fn build(cmd: &ArgMatches) -> doctave::Result<()> {
         std::process::exit(1);
     });
 
-    let mut config = doctave::config::Config::load(&project_dir)?;
+    let mut config = doctave::Config::load(&project_dir)?;
     if cmd.is_present("release") {
         config.set_build_mode(doctave::BuildMode::Release);
+    }
+
+    if cmd.is_present("no-color") {
+        config.disable_colors();
     }
 
     doctave::BuildCommand::run(config)
@@ -79,11 +89,15 @@ fn serve(cmd: &ArgMatches) -> doctave::Result<()> {
     });
 
     let mut options = doctave::ServeOptions::default();
+    let mut config = doctave::Config::load(&project_dir)?;
+
     if let Some(p) = cmd.value_of("port") {
         options.port = Some(p.parse::<u32>().unwrap());
     }
 
-    let config = doctave::config::Config::load(&project_dir)?;
+    if cmd.is_present("no-color") {
+        config.disable_colors();
+    }
 
     doctave::ServeCommand::run(options, config)
 }

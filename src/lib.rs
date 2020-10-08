@@ -27,6 +27,7 @@ use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+pub use config::Config;
 pub use build::BuildCommand;
 pub use error::Error;
 pub use init::InitCommand;

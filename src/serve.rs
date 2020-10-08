@@ -1,7 +1,7 @@
 use std::thread;
 use std::time::Instant;
 
-use colored::*;
+use bunt::termcolor::{ColorChoice, StandardStream};
 use crossbeam_channel::bounded;
 
 use crate::config::Config;
@@ -23,12 +23,17 @@ pub struct ServeOptions {
 
 impl ServeCommand {
     pub fn run(options: ServeOptions, config: Config) -> Result<()> {
+        let mut stdout = if config.color_enabled() {
+            StandardStream::stdout(ColorChoice::Auto)
+        } else {
+            StandardStream::stdout(ColorChoice::Never)
+        };
         let site = Site::new(config.clone());
 
         let cmd = ServeCommand { config, site };
 
-        println!("{}", "Doctave CLI | Serve".blue().bold());
-        println!("🚀 Starting development server...\n");
+        bunt::writeln!(stdout, "{$bold}{$blue}Doctave CLI | Serve{/$}{/$}")?;
+        println!("Starting development server...\n");
 
         // Do initial build ---------------------------
 
@@ -58,7 +63,11 @@ impl ServeCommand {
 
         let port = options.port.unwrap_or_else(|| cmd.config.port());
 
-        let http_server = PreviewServer::new(&format!("0.0.0.0:{}", port), &cmd.config.out_dir());
+        let http_server = PreviewServer::new(
+            &format!("0.0.0.0:{}", port),
+            &cmd.config.out_dir(),
+            cmd.config.color_enabled(),
+        );
         thread::Builder::new()
             .name("http-server".into())
             .spawn(move || http_server.run())
@@ -68,13 +77,13 @@ impl ServeCommand {
         // and inform the websocket listeners.
 
         for (path, msg) in watch_rcv {
-            println!("    File {} {}.", path.display().to_string().bold(), msg);
+            bunt::writeln!(stdout, "    File {$bold}{}{/$} {}.", path.display(), msg)?;
 
             let start = Instant::now();
             cmd.site.build().unwrap();
             let duration = start.elapsed();
 
-            println!("    Site rebuilt in {}\n", format!("{:?}", duration).bold());
+            bunt::writeln!(stdout, "    Site rebuilt in {$bold}{:?}{/$}\n", duration)?;
 
             reload_send.send(()).unwrap();
         }

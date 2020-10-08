@@ -195,6 +195,7 @@ impl NavRule {
 
 #[derive(Debug, Clone)]
 pub struct Config {
+    color: bool,
     project_root: PathBuf,
     out_dir: PathBuf,
     docs_dir: PathBuf,
@@ -224,6 +225,7 @@ impl Config {
         doctave_yaml.validate(project_root)?;
 
         let config = Config {
+            color: true,
             project_root: project_root.to_path_buf(),
             out_dir: project_root.join("site"),
             docs_dir: project_root.join("docs"),
@@ -269,6 +271,14 @@ impl Config {
     /// Port to serve the development server on
     pub fn port(&self) -> u32 {
         self.port
+    }
+
+    pub fn color_enabled(&self) -> bool {
+        self.color
+    }
+
+    pub fn disable_colors(&mut self) {
+        self.color = false
     }
 
     pub fn build_mode(&self) -> BuildMode {

@@ -4,17 +4,19 @@ use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 
 use ascii::AsciiString;
-use colored::*;
+use bunt::termcolor::{ColorChoice, StandardStream};
 use tiny_http::{Request, Response, Server};
 
 pub struct PreviewServer {
+    color: bool,
     addr: SocketAddr,
     out_dir: PathBuf,
 }
 
 impl PreviewServer {
-    pub fn new<P: Into<PathBuf>>(addr: &str, out_dir: P) -> Self {
+    pub fn new<P: Into<PathBuf>>(addr: &str, out_dir: P, color: bool) -> Self {
         PreviewServer {
+            color,
             addr: addr.parse().expect("invalid address for preview server"),
             out_dir: out_dir.into(),
         }
@@ -24,10 +26,20 @@ impl PreviewServer {
         let server = Server::http(&self.addr).unwrap();
         let mut pool = scoped_threadpool::Pool::new(16);
 
-        println!(
-            "Server running on {}\n",
-            format!("http://{}/", self.addr).bold()
-        );
+        {
+            let mut stdout = if self.color {
+                StandardStream::stdout(ColorChoice::Auto)
+            } else {
+                StandardStream::stdout(ColorChoice::Never)
+            };
+
+            bunt::writeln!(
+                stdout,
+                "Server running on {$bold}http://{}/{/$}\n",
+                self.addr
+            )
+            .unwrap();
+        }
 
         for request in server.incoming_requests() {
             pool.scoped(|scope| {
