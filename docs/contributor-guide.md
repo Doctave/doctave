@@ -14,7 +14,7 @@ run tests, and things to keep in mind when contributing.
 First, make sure you've cloned the repo,
 
 ```
-git clone git@github.com:Doctave/doctave-cli.git
+git clone git@github.com:Doctave/doctave.git
 ```
 
 and installed the [Rust toolchain](https://www.rust-lang.org/learn/get-started).
@@ -117,6 +117,6 @@ accessed through a reference, while `PathBuf` is an owned type.
 
 ## CI
 
-Doctave uses [GitHub actions](https://github.com/Doctave/doctave-cli/actions) to run tests
+Doctave uses [GitHub actions](https://github.com/Doctave/doctave/actions) to run tests
 automatically for each commit and PR. The test suite is executed on Mac, Linux, and Windows. When
 opening a PR, make sure you pass all checks.

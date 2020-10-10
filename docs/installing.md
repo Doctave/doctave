@@ -11,7 +11,7 @@ please open an issue for it.
 ### Precompiled binaries
 
 Doctave provides precompiled binaries for Mac, Linux, and Windows, which you can download from the
-[latest release page](https://github.com/Doctave/doctave-cli/releases/latest).
+[latest release page](https://github.com/Doctave/doctave/releases/latest).
 
 ### Homebrew
 
@@ -30,5 +30,5 @@ You can also use the Rust package manager, Cargo, to install Doctave. Currently 
 listed on crates.io, but you can install it directly from GitHub:
 
 ```
-$ cargo install --git https://github.com/Doctave/doctave-cli
+$ cargo install --git https://github.com/Doctave/doctave --tag 0.1.0
 ```

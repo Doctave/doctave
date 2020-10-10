@@ -37,6 +37,6 @@ some articles to get you started:
 
 ## Where can I get help?
 
-Feel free to open issues on the [Github Repo](https://github.com/Doctave/doctave-cli), especially if
+Feel free to open issues on the [Github Repo](https://github.com/Doctave/doctave), especially if
 you did not find an answer to a question in our documentation. You can also reach out directly to
 the maintainer via [Twitter](https://twitter.com/NiklasBegley) or email at nik@doctave.com.
