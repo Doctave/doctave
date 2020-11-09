@@ -281,13 +281,13 @@ dependencies = [
  "clap",
  "colorsys",
  "crossbeam-channel",
+ "doctave-markdown",
  "elasticlunr-rs",
  "handlebars",
  "http",
  "indoc",
  "lazy_static",
  "notify",
- "pulldown-cmark",
  "rayon",
  "scoped_threadpool",
  "serde",
@@ -296,6 +296,14 @@ dependencies = [
  "tiny_http",
  "tungstenite",
  "walkdir",
+]
+
+[[package]]
+name = "doctave-markdown"
+version = "0.1.0"
+source = "git+https://github.com/Doctave/doctave-markdown?tag=0.1.0#2392c3e155e3d9c90ef1cdf425b65533854d2f0e"
+dependencies = [
+ "pulldown-cmark",
 ]
 
 [[package]]

@@ -13,7 +13,6 @@ mod error;
 mod frontmatter;
 mod init;
 mod livereload_server;
-mod markdown;
 mod navigation;
 mod preview_server;
 #[allow(dead_code, unused_variables)]
@@ -31,10 +30,10 @@ pub use config::Config;
 pub use build::BuildCommand;
 pub use error::Error;
 pub use init::InitCommand;
-pub use markdown::{Heading, Markdown};
 pub use serve::{ServeCommand, ServeOptions};
 pub use site::BuildMode;
 
+pub use doctave_markdown::{Heading, Markdown};
 use handlebars::Handlebars;
 use navigation::Link;
 
@@ -144,7 +143,7 @@ impl Document {
             None
         };
 
-        let markdown = markdown::parse(frontmatter::without(&raw));
+        let markdown = doctave_markdown::parse(frontmatter::without(&raw));
 
         Document {
             id: DOCUMENT_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),

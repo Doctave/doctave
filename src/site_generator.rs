@@ -10,7 +10,6 @@ use serde::Serialize;
 use walkdir::WalkDir;
 
 use crate::config::Config;
-use crate::markdown::Heading;
 use crate::navigation::{Link, Navigation};
 use crate::site::{BuildMode, Site};
 use crate::{Directory, Document};
@@ -213,7 +212,14 @@ impl<'a> SiteGenerator<'a> {
 
                 let data = TemplateData {
                     content: doc.html().to_string(),
-                    headings: doc.headings().to_vec(),
+                    headings: doc.headings().iter().map(|heading| {
+                        let mut map = BTreeMap::new();
+                        map.insert("title", heading.title.clone());
+                        map.insert("anchor", heading.anchor.clone());
+                        map.insert("level", heading.level.to_string());
+
+                        map
+                    }).collect::<Vec<_>>(),
                     navigation: &nav,
                     current_path: doc.uri_path(),
                     project_title: self.config.title().to_string(),
@@ -380,7 +386,7 @@ impl<'a> SiteGenerator<'a> {
 #[derive(Debug, Clone, Serialize)]
 pub struct TemplateData<'a> {
     pub content: String,
-    pub headings: Vec<Heading>,
+    pub headings: Vec<BTreeMap<&'static str, String>>,
     pub navigation: &'a [Link],
     pub head_include: Option<&'a str>,
     pub current_path: String,
