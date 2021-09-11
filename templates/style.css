@@ -347,36 +347,48 @@ th {
 
 /* Dark mode ----------------------------------------------------------- */
 
-#light-dark-mode-switch:hover:after {
-    background: #E6E6E6;
-}
-
-#light-dark-mode-switch:after {
+#light-dark-mode-switch {
     display: block;
     cursor: pointer;
-    content: "☾";
-    font-family: 'Inter', sans-serif;
-    font-size: 1.9em;
     color: #979797;
     background: #F3F3F3;
     width: 35px;
     height: 35px;
     line-height: 1.2em;
     text-align: center;
-    padding-left: 5px;
+    padding: 5px;
     box-sizing: border-box;
     border-radius: 5px;
 }
 
-.dark #light-dark-mode-switch:after {
-    content: "☼";
-    padding-left: 0px;
-    background: #676767;
-    color: #AFAFAF;
+#light-dark-mode-switch:hover {
+    background: #CECECE;
 }
 
-.dark #light-dark-mode-switch:hover:after {
-    background: #4d4d4d;
+#light-dark-mode-switch svg {
+    fill: #979797;
+    height: 26px;
+    width: 25px;
+    /* Icon slightly off center? */
+    margin-left: 2px;
+    margin-top: -1px;
+}
+
+.dark #light-dark-mode-switch svg {
+    margin-left: 0px;
+    margin-top: 0px;
+}
+
+.dark #dark-mode-icon {
+    display: none;
+}
+
+#light-mode-icon {
+    display: none;
+}
+
+.dark #light-mode-icon {
+    display: block;
 }
 
 .dark {
