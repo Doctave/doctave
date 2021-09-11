@@ -350,11 +350,11 @@ mod test {
         assert!(
             format!("{}", error)
                 .contains("Invalid HEX color provided for colors.main in doctave.yaml"),
-            format!("Error message was: {}", error)
+            "Error message was: {}", error
         );
         assert!(
             format!("{}", error).contains("Found 'not-a-color'"),
-            format!("Error message was: {}", error)
+            "Error message was: {}", error
         );
     }
 
@@ -371,7 +371,7 @@ mod test {
         assert!(
             format!("{}", error)
                 .contains("Could not find logo specified in doctave.yaml"),
-            format!("Error message was: {}", error)
+            "Error message was: {}", error
         );
     }
 
@@ -392,7 +392,7 @@ mod test {
                 "Invalid pattern for navigation children. \
                 Found 'not-wildcard', expected \"*\" or a list of child pages"
             ),
-            format!("Error message was: {}", error)
+            "Error message was: {}", error
         );
     }
 

@@ -93,25 +93,21 @@ impl TestArea {
     pub fn assert_exists<P: AsRef<Path>>(&self, name: P) {
         assert!(
             self.path.join(name.as_ref()).exists(),
-            format!(
-                "Could not find '{}'. Only found {:?}",
-                name.as_ref().display(),
-                std::fs::read_dir(&self.path.join(name.as_ref()).parent().unwrap())
-                    .unwrap()
-                    .map(|e| e.unwrap().path().to_path_buf())
-                    .map(|p| p.strip_prefix(&self.path).unwrap().to_path_buf())
-                    .collect::<Vec<_>>()
-            )
+            "Could not find '{}'. Only found {:?}",
+            name.as_ref().display(),
+            std::fs::read_dir(&self.path.join(name.as_ref()).parent().unwrap())
+                .unwrap()
+                .map(|e| e.unwrap().path().to_path_buf())
+                .map(|p| p.strip_prefix(&self.path).unwrap().to_path_buf())
+                .collect::<Vec<_>>()
         );
     }
 
     pub fn refute_exists<P: AsRef<Path>>(&self, name: P) {
         assert!(
             !self.path.join(name.as_ref()).exists(),
-            format!(
-                "Found '{}' even though expected not to",
-                name.as_ref().display(),
-            )
+            "Found '{}' even though expected not to",
+            name.as_ref().display(),
         );
     }
 
@@ -122,12 +118,10 @@ impl TestArea {
 
         assert!(
             haystack.contains(needle),
-            format!(
-                "Could not find \"{}\" inside file \"{}\".\nFound:\n---\n{}\n---\n",
-                needle,
-                name.as_ref().display(),
-                haystack
-            )
+            "Could not find \"{}\" inside file \"{}\".\nFound:\n---\n{}\n---\n",
+            needle,
+            name.as_ref().display(),
+            haystack
         );
     }
 
@@ -138,11 +132,9 @@ impl TestArea {
 
         assert!(
             !haystack.contains(needle),
-            format!(
-                "Found \"{}\" inside file \"{}\", when it was not expected",
-                needle,
-                name.as_ref().display(),
-            )
+            "Found \"{}\" inside file \"{}\", when it was not expected",
+            needle,
+            name.as_ref().display(),
         );
     }
 }
@@ -150,23 +142,19 @@ impl TestArea {
 pub fn assert_success(result: &std::process::Output) {
     assert!(
         result.status.success(),
-        format!(
-            "Command was not successful! \nSTDOUT:\n---\n{}\n--- \n\nSTDERR:\n---\n{}\n---",
-            std::str::from_utf8(&result.stdout).unwrap(),
-            std::str::from_utf8(&result.stderr).unwrap()
-        )
+        "Command was not successful! \nSTDOUT:\n---\n{}\n--- \n\nSTDERR:\n---\n{}\n---",
+        std::str::from_utf8(&result.stdout).unwrap(),
+        std::str::from_utf8(&result.stderr).unwrap()
     );
 }
 
 pub fn assert_failed(result: &std::process::Output) {
     assert!(
         !result.status.success(),
-        format!(
-            "Command was unexpectedly successful! \nSTDOUT:\n---\n{}\n--- \n\nSTDERR:\n---\n{}\n---",
-            std::str::from_utf8(&result.stdout).unwrap(),
-            std::str::from_utf8(&result.stderr).unwrap()
-            )
-        );
+        "Command was unexpectedly successful! \nSTDOUT:\n---\n{}\n--- \n\nSTDERR:\n---\n{}\n---",
+        std::str::from_utf8(&result.stdout).unwrap(),
+        std::str::from_utf8(&result.stderr).unwrap()
+    );
 }
 
 pub fn assert_output(result: &std::process::Output, needle: &str) {
@@ -175,11 +163,11 @@ pub fn assert_output(result: &std::process::Output, needle: &str) {
 
     assert!(
         stdout.contains(needle) || stderr.contains(needle),
-        format!(
-            "Could not find \"{}\" in STDOUT or STDERR:\n\n------ STDOUT ------\n{}\n \
+        "Could not find \"{}\" in STDOUT or STDERR:\n\n------ STDOUT ------\n{}\n \
             ------ STDERR ------\n{}\n",
-            needle, stdout, stderr
-        )
+        needle,
+        stdout,
+        stderr
     )
 }
 
@@ -189,10 +177,10 @@ pub fn refute_output(result: &std::process::Output, needle: &str) {
 
     assert!(
         !stdout.contains(needle) && !stderr.contains(needle),
-        format!(
-            "Found {} in the command output, even though it shoudn't be there: \
+        "Found {} in the command output, even though it shoudn't be there: \
             \n\n------ STDOUT ------\n{}\n------ STDERR --------\n{}\n",
-            needle, stdout, stderr
-        )
+        needle,
+        stdout,
+        stderr
     );
 }
