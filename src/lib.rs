@@ -143,7 +143,7 @@ impl Document {
             None
         };
 
-        let markdown = doctave_markdown::parse(frontmatter::without(&raw));
+        let markdown = doctave_markdown::parse(frontmatter::without(&raw), None);
 
         Document {
             id: DOCUMENT_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
