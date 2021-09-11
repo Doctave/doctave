@@ -22,7 +22,7 @@ h6 {
 p,
 li {
     color: #3C3C3C;
-    font-size: 14pt;
+    font-size: 13pt;
     line-height: 24pt;
 }
 
@@ -574,7 +574,7 @@ nav ul {
 }
 
 nav ul li {
-    line-height: 32pt;
+    line-height: 24pt;
 }
 
 nav ul ul li {
@@ -582,7 +582,7 @@ nav ul ul li {
 }
 
 nav ul a {
-    font-size: 14pt;
+    font-size: 13pt;
     font-weight: 700;
 }
 
@@ -593,7 +593,7 @@ nav ul ul {
 }
 
 nav ul ul a {
-    font-size: 14pt;
+    font-size: 13pt;
     font-weight: 400;
     color: #545454;
 }
@@ -605,17 +605,10 @@ nav ul ul a {
 .sidebar-right {}
 
 .page-nav-header {
-    text-transform: uppercase;
-    color: #CECECE;
-    margin-bottom: 10pt;
+    color: #ADADAD;
+    margin-bottom: 4pt;
     font-size: 12pt;
-    font-weight: 600;
-}
-
-.sidebar-right hr {
-    border: 1px solid #E5E5E5;
-    margin-top: 0pt;
-    margin-bottom: 5pt;
+    font-weight: 400;
 }
 
 .sidebar-right ul {
@@ -624,7 +617,7 @@ nav ul ul a {
 }
 
 .sidebar-right li a {
-    font-size: 14pt;
+    font-size: 13pt;
     font-weight: 400;
     color: #626262;
     text-decoration: none;
