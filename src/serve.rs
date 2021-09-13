@@ -1,5 +1,6 @@
 use std::thread;
 use std::time::Instant;
+use std::sync::Arc;
 
 use bunt::termcolor::{ColorChoice, StandardStream};
 use crossbeam_channel::bounded;
@@ -7,13 +8,11 @@ use crossbeam_channel::bounded;
 use crate::config::Config;
 use crate::livereload_server::LivereloadServer;
 use crate::preview_server::PreviewServer;
-use crate::site::Site;
+use crate::site::{Site, InMemorySite};
 use crate::watcher::Watcher;
 use crate::Result;
 
 pub struct ServeCommand {
-    config: Config,
-    site: Site,
 }
 
 #[derive(Default)]
@@ -28,9 +27,7 @@ impl ServeCommand {
         } else {
             StandardStream::stdout(ColorChoice::Never)
         };
-        let site = Site::new(config.clone());
-
-        let cmd = ServeCommand { config, site };
+        let site = Arc::new(InMemorySite::new(config.clone()));
 
         bunt::writeln!(stdout, "{$bold}{$blue}Doctave | Serve{/$}{/$}")?;
         println!("Starting development server...\n");
@@ -38,13 +35,13 @@ impl ServeCommand {
         // Do initial build ---------------------------
 
         let start = Instant::now();
-        cmd.site.build().unwrap();
+        site.build().unwrap();
         let duration = start.elapsed();
 
         // Watcher ------------------------------------
 
         let (watch_snd, watch_rcv) = bounded(128);
-        let watcher = Watcher::new(vec![cmd.config.project_root().join("docs")], watch_snd);
+        let watcher = Watcher::new(vec![config.project_root().join("docs")], watch_snd);
         thread::Builder::new()
             .name("watcher".into())
             .spawn(move || watcher.run())
@@ -61,12 +58,12 @@ impl ServeCommand {
 
         // Preview Server -----------------------------
 
-        let port = options.port.unwrap_or_else(|| cmd.config.port());
+        let port = options.port.unwrap_or_else(|| config.port());
 
         let http_server = PreviewServer::new(
             &format!("0.0.0.0:{}", port),
-            &cmd.config.out_dir(),
-            cmd.config.color_enabled(),
+            site.clone(),
+            config.color_enabled(),
         );
         thread::Builder::new()
             .name("http-server".into())
@@ -80,7 +77,7 @@ impl ServeCommand {
             bunt::writeln!(stdout, "    File {$bold}{}{/$} {}.", path.display(), msg)?;
 
             let start = Instant::now();
-            cmd.site.build().unwrap();
+            site.build().unwrap();
             let duration = start.elapsed();
 
             bunt::writeln!(stdout, "    Site rebuilt in {$bold}{:?}{/$}\n", duration)?;

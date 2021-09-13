@@ -3,13 +3,10 @@ use std::time::Instant;
 use bunt::termcolor::{ColorChoice, StandardStream};
 
 use crate::config::Config;
-use crate::site::{BuildMode, Site};
+use crate::site::{BuildMode, DiskBackedSite, Site};
 use crate::Result;
 
-pub struct BuildCommand {
-    config: Config,
-    site: Site,
-}
+pub struct BuildCommand {}
 
 impl BuildCommand {
     pub fn run(config: Config) -> Result<()> {
@@ -19,14 +16,13 @@ impl BuildCommand {
             StandardStream::stdout(ColorChoice::Never)
         };
 
-        let site = Site::new(config.clone());
-        let cmd = BuildCommand { config, site };
+        let site = DiskBackedSite::new(config.clone());
 
-        let target_dir = &cmd.config.out_dir();
+        let target_dir = config.out_dir();
 
         bunt::writeln!(stdout, "{$bold}{$blue}Doctave | Build{/$}{/$}")?;
 
-        if let BuildMode::Release = cmd.config.build_mode() {
+        if let BuildMode::Release = config.build_mode() {
             bunt::writeln!(
                 stdout,
                 "Building site into {$bold}{}{/$} in {$bold}release mode{/$}\n",
@@ -41,7 +37,7 @@ impl BuildCommand {
         }
 
         let start = Instant::now();
-        let result = cmd.site.build();
+        let result = site.build();
         let duration = start.elapsed();
 
         if result.is_ok() {

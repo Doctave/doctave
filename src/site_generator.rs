@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
-use std::fs::{self, File};
+use std::fs;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -18,21 +18,25 @@ use crate::{Error, Result};
 static INCLUDE_DIR: &str = "_include";
 static HEAD_FILE: &str = "_head.html";
 
-pub struct SiteGenerator<'a> {
-    config: &'a Config,
-    site: &'a Site,
+pub struct SiteGenerator<'a, T: Site> {
+    config: Config,
+    site: Box<&'a T>,
     timestamp: String,
 }
 
-impl<'a> SiteGenerator<'a> {
-    pub fn new(config: &'a Config, site: &'a Site) -> Self {
+impl<'a, T: Site> SiteGenerator<'a, T> {
+    pub fn new(site: &'a T) -> Self {
         let start = SystemTime::now();
 
         let since_the_epoch = start
             .duration_since(UNIX_EPOCH)
             .expect("Time went backwards");
 
-        SiteGenerator { config, site, timestamp: format!("{}", since_the_epoch.as_secs()) }
+        SiteGenerator {
+            site: Box::new(site),
+            config: site.config().clone(),
+            timestamp: format!("{}", since_the_epoch.as_secs()),
+        }
     }
 
     pub fn run(&self) -> Result<()> {
@@ -82,18 +86,7 @@ impl<'a> SiteGenerator<'a> {
 
             let destination = self.config.out_dir().join(stripped_path);
 
-            fs::create_dir_all(
-                destination
-                    .parent()
-                    .expect("asset did not have parent directory"),
-            )
-            .map_err(|e| Error::io(e, "Could not create custom asset parent directory"))?;
-
-            File::create(&destination)
-                .map_err(|e| Error::io(e, "Could not create custom asset in assets directory"))?;
-
-            fs::copy(asset.path(), destination)
-                .map_err(|e| Error::io(e, "Could not copy custom asset"))?;
+            self.site.copy_file(asset.path(), &destination)?;
         }
 
         Ok(())
@@ -101,69 +94,60 @@ impl<'a> SiteGenerator<'a> {
 
     /// Builds fixed assets required by Doctave
     fn build_assets(&self) -> Result<()> {
-        fs::create_dir_all(self.config.out_dir().join("assets"))
-            .map_err(|e| Error::io(e, "Could not create assets directory"))?;
-
         // Add JS
-        fs::write(
-            self.config.out_dir().join("assets").join("mermaid.js"),
-            crate::MERMAID_JS,
+        self.site.add_file(
+            &self.config.out_dir().join("assets").join("mermaid.js"),
+            crate::MERMAID_JS.into(),
         )
         .map_err(|e| Error::io(e, "Could not write mermaid.js to assets directory"))?;
-        fs::write(
-            self.config.out_dir().join("assets").join("elasticlunr.js"),
-            crate::ELASTIC_LUNR,
+        self.site.add_file(
+            &self.config.out_dir().join("assets").join("elasticlunr.js"),
+            crate::ELASTIC_LUNR.into(),
         )
         .map_err(|e| Error::io(e, "Could not write elasticlunr.js to assets directory"))?;
         if let BuildMode::Dev = self.config.build_mode() {
             // Livereload only in release mode
-            fs::write(
-                self.config.out_dir().join("assets").join("livereload.js"),
-                crate::LIVERELOAD_JS,
+            self.site.add_file(
+                &self.config.out_dir().join("assets").join("livereload.js"),
+                crate::LIVERELOAD_JS.into(),
             )
             .map_err(|e| Error::io(e, "Could not write livereload.js to assets directory"))?;
         }
-        fs::write(
-            self.config.out_dir().join("assets").join("prism.js"),
-            crate::PRISM_JS,
+        self.site.add_file(
+            &self.config.out_dir().join("assets").join("prism.js"),
+            crate::PRISM_JS.into(),
         )
         .map_err(|e| Error::io(e, "Could not write prism.js to assets directory"))?;
-        fs::write(
-            self.config.out_dir().join("assets").join("doctave-app.js"),
-            crate::APP_JS,
+        self.site.add_file(
+            &self.config.out_dir().join("assets").join("doctave-app.js"),
+            crate::APP_JS.into(),
         )
         .map_err(|e| Error::io(e, "Could not write doctave-app.js to assets directory"))?;
 
         // Add styles
-        fs::write(
-            self.config
+        self.site.add_file(
+            &self
+                .config
                 .out_dir()
                 .join("assets")
                 .join("prism-atom-dark.css"),
-            crate::ATOM_DARK_CSS,
+            crate::ATOM_DARK_CSS.into(),
         )
         .map_err(|e| Error::io(e, "Could not write prism-atom-dark.css to assets directory"))?;
-        fs::write(
-            self.config
+        self.site.add_file(
+            &self
+                .config
                 .out_dir()
                 .join("assets")
                 .join("prism-ghcolors.css"),
-            crate::GH_COLORS_CSS,
+            crate::GH_COLORS_CSS.into(),
         )
         .map_err(|e| Error::io(e, "Could not write prism-ghcolors.css to assets directory"))?;
-        fs::write(
-            self.config.out_dir().join("assets").join("normalize.css"),
-            crate::NORMALIZE_CSS,
+        self.site.add_file(
+            &self.config.out_dir().join("assets").join("normalize.css"),
+            crate::NORMALIZE_CSS.into(),
         )
         .map_err(|e| Error::io(e, "Could not write normalize.css to assets directory"))?;
-
-        let mut style = File::create(
-            self.config
-                .out_dir()
-                .join("assets")
-                .join("doctave-style.css"),
-        )
-        .map_err(|e| Error::io(e, "Could not create doctave-style.css in assets directory"))?;
 
         let mut data = serde_json::Map::new();
         data.insert(
@@ -175,9 +159,21 @@ impl<'a> SiteGenerator<'a> {
             serde_json::Value::String(self.config.main_color_dark().to_css_string()),
         );
 
+        let mut out = Vec::new();
+
         crate::HANDLEBARS
-            .render_to_write("style.css", &data, &mut style)
-            .map_err(|e| Error::handlebars(e, "Could not write custom style sheet"))
+            .render_to_write("style.css", &data, &mut out)
+            .map_err(|e| Error::handlebars(e, "Could not write custom style sheet"))?;
+
+        let destination = self
+            .config
+            .out_dir()
+            .join("assets")
+            .join("doctave-style.css");
+
+        self.site.add_file(&destination, out.into())?;
+
+        Ok(())
     }
 
     fn build_directory(
@@ -186,24 +182,10 @@ impl<'a> SiteGenerator<'a> {
         nav: &[Link],
         head_include: Option<&str>,
     ) -> Result<()> {
-        fs::create_dir_all(dir.destination(self.config.out_dir()))
-            .map_err(|e| Error::io(e, "Could not create site directory"))?;
-
         let results: Result<Vec<()>> = dir
             .docs
             .par_iter()
             .map(|doc| {
-                let mut file =
-                    File::create(doc.destination(self.config.out_dir())).map_err(|e| {
-                        Error::io(
-                            e,
-                            format!(
-                                "Could not create page {}",
-                                doc.destination(self.config.out_dir()).display()
-                            ),
-                        )
-                    })?;
-
                 let page_title = if doc.uri_path() == "/" {
                     self.config.title().to_string()
                 } else {
@@ -212,14 +194,18 @@ impl<'a> SiteGenerator<'a> {
 
                 let data = TemplateData {
                     content: doc.html().to_string(),
-                    headings: doc.headings().iter().map(|heading| {
-                        let mut map = BTreeMap::new();
-                        map.insert("title", heading.title.clone());
-                        map.insert("anchor", heading.anchor.clone());
-                        map.insert("level", heading.level.to_string());
+                    headings: doc
+                        .headings()
+                        .iter()
+                        .map(|heading| {
+                            let mut map = BTreeMap::new();
+                            map.insert("title", heading.title.clone());
+                            map.insert("anchor", heading.anchor.clone());
+                            map.insert("level", heading.level.to_string());
 
-                        map
-                    }).collect::<Vec<_>>(),
+                            map
+                        })
+                        .collect::<Vec<_>>(),
                     navigation: &nav,
                     current_path: doc.uri_path(),
                     project_title: self.config.title().to_string(),
@@ -230,9 +216,13 @@ impl<'a> SiteGenerator<'a> {
                     head_include,
                 };
 
+                let mut out = Vec::new();
+
                 crate::HANDLEBARS
-                    .render_to_write("page", &data, &mut file)
+                    .render_to_write("page", &data, &mut out)
                     .map_err(|e| Error::handlebars(e, "Could not render template"))?;
+
+                self.site.add_file(&doc.destination(self.config.out_dir()), out.into())?;
 
                 Ok(())
             })
@@ -250,11 +240,13 @@ impl<'a> SiteGenerator<'a> {
 
         self.build_search_index_for_dir(root, &mut index);
 
-        fs::write(
-            self.config.out_dir().join("search_index.json"),
-            index.to_json().as_bytes(),
-        )
-        .map_err(|e| Error::io(e, "Could not create search index"))
+        {
+            self.site.add_file(
+                &self.config.out_dir().join("search_index.json"),
+                index.to_json().as_bytes().into(),
+            )
+            .map_err(|e| Error::io(e, "Could not create search index"))
+        }
     }
 
     fn build_search_index_for_dir(&self, root: &Directory, index: &mut Index) {
