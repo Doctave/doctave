@@ -431,7 +431,6 @@ integration_test!(include_header, |area| {
     );
 
     let result = area.cmd(&["build"]);
-    println!("{:?}", result);
     assert_success(&result);
 
     let index = Path::new("site").join("index.html");

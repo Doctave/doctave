@@ -50,15 +50,11 @@ integration_test!(serve_smoke_test, |area| {
     request_data.push_str("\r\n");
     request_data.push_str("\r\n");
 
-    println!("request_data = {:?}", request_data);
 
-    let request = stream.write_all(request_data.as_bytes()).unwrap();
-    println!("request = {:?}", request);
+    stream.write_all(request_data.as_bytes()).unwrap();
 
     let mut buf = String::new();
-    let result = stream.read_to_string(&mut buf).unwrap();
-    println!("result = {}", result);
-    println!("buf = {}", buf);
+    stream.read_to_string(&mut buf).unwrap();
 
     sender1.send(()).unwrap();
     receiver2.recv().unwrap();

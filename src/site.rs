@@ -58,6 +58,7 @@ impl<T: Site> Site for &T {
     }
 }
 
+#[derive(Debug)]
 pub struct InMemorySite {
     config: Config,
     contents: RwLock<HashMap<PathBuf, Vec<u8>>>,
@@ -212,15 +213,18 @@ mod test {
 
     #[test]
     fn you_can_add_a_file_and_read_it_back() {
-        let path = Path::new("index.html");
+        let path = Path::new("/workspace/site/index.html");
         let content = "An Content";
 
-        let config = Config::from_yaml_str(Path::new(""), "---\ntitle: Title").unwrap();
+        let config = Config::from_yaml_str(Path::new("/workspace"), "---\ntitle: Title").unwrap();
+
         let site = InMemorySite::new(config);
 
         site.add_file(&path, content.into()).unwrap();
 
-        assert_eq!(site.read_path(path).unwrap(), content.as_bytes());
-        assert!(site.has_file(&path));
+        let uri = Path::new("index.html");
+
+        assert_eq!(site.read_path(uri).unwrap(), content.as_bytes());
+        assert!(site.has_file(uri));
     }
 }
