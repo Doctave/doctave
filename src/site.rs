@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+use std::sync::RwLock;
 use std::fs;
+use std::path::{Path, PathBuf};
 
 use crate::config::Config;
 use crate::site_generator::SiteGenerator;
@@ -21,18 +24,105 @@ impl std::fmt::Display for BuildMode {
     }
 }
 
-/// A handle to the output directory where the site will be generated.
-///
-/// Completely agnostic about where the original Markdown files are
-/// located. Only cares about the destination directory.
-pub struct Site {
+pub trait Site: Send + Sync {
+    fn config(&self) -> &Config;
+    fn add_file(&self, path: &Path, content: Vec<u8>) -> std::io::Result<()>;
+    fn copy_file(&self, from: &Path, to: &Path) -> std::io::Result<()>;
+    fn read_path(&self, path: &Path) -> Option<Vec<u8>>;
+    fn has_file(&self, path: &Path) -> bool;
+    fn reset(&self) -> Result<()>;
+    fn build(&self) -> Result<()>;
+}
+
+impl<T: Site> Site for &T {
+    fn config(&self) -> &Config {
+        (*self).config()
+    }
+    fn add_file(&self, path: &Path, content: Vec<u8>) -> std::io::Result<()> {
+        (*self).add_file(path, content)
+    }
+    fn copy_file(&self, from: &Path, to: &Path) -> std::io::Result<()> {
+        (*self).copy_file(to, from)
+    }
+    fn read_path(&self, path: &Path) -> Option<Vec<u8>> {
+        (*self).read_path(path)
+    }
+    fn has_file(&self, path: &Path) -> bool {
+        (*self).has_file(path)
+    }
+    fn reset(&self) -> Result<()> {
+        (*self).reset()
+    }
+    fn build(&self) -> Result<()> {
+        (*self).build()
+    }
+}
+
+#[derive(Debug)]
+pub struct InMemorySite {
+    config: Config,
+    contents: RwLock<HashMap<PathBuf, Vec<u8>>>,
+}
+
+impl InMemorySite {
+    pub fn new(config: Config) -> Self {
+        InMemorySite {
+            config,
+            contents: RwLock::new(HashMap::new()),
+        }
+    }
+}
+
+impl Site for InMemorySite {
+    fn config(&self) -> &Config {
+        &self.config
+    }
+
+    fn add_file(&self, path: &Path, content: Vec<u8>) -> std::io::Result<()> {
+        let mut contents = self.contents.write().unwrap();
+
+        let path = path.strip_prefix(self.config.out_dir()).unwrap();
+
+        contents.insert(path.to_owned(), content.into());
+        Ok(())
+    }
+
+    fn copy_file(&self, from: &Path, to: &Path) -> std::io::Result<()> {
+        let content = fs::read(from)?;
+        self.add_file(to, content)
+    }
+
+    fn read_path(&self, path: &Path) -> Option<Vec<u8>> {
+        let contents = self.contents.read().unwrap();
+        contents.get(path).map(|s| s.clone())
+    }
+
+    fn has_file(&self, path: &Path) -> bool {
+        let contents = self.contents.read().unwrap();
+        contents.contains_key(path)
+    }
+
+    fn reset(&self) -> Result<()> {
+        let mut contents = self.contents.write().unwrap();
+        *contents = HashMap::new();
+
+        Ok(())
+    }
+
+    fn build(&self) -> Result<()> {
+        let generator = SiteGenerator::new(self);
+
+        generator.run()
+    }
+}
+
+pub struct DiskBackedSite {
     config: Config,
 }
 
-impl Site {
-    /// Create a new handle to a site output directory.
-    pub fn new(config: Config) -> Site {
-        Site { config }
+impl DiskBackedSite {
+    pub fn new(config: Config) -> Self {
+        DiskBackedSite { config }
     }
 
     pub fn create_dir(&self) -> Result<()> {
@@ -62,17 +152,79 @@ impl Site {
 
         Ok(())
     }
+}
 
-    pub fn reset(&self) -> Result<()> {
+impl Site for DiskBackedSite {
+    fn config(&self) -> &Config {
+        &self.config
+    }
+
+    fn add_file(&self, path: &Path, content: Vec<u8>) -> std::io::Result<()> {
+        fs::create_dir_all(
+            self.config
+                .out_dir()
+                .join(path.parent().expect("Path had no parent directory")),
+        )?;
+
+        fs::write(self.config.out_dir().join(path), &content)?;
+
+        Ok(())
+    }
+
+    fn copy_file(&self, from: &Path, to: &Path) -> std::io::Result<()> {
+        fs::create_dir_all(
+            self.config
+                .out_dir()
+                .join(to.parent().expect("Path had no parent directory")),
+        )?;
+
+        fs::copy(from, to).map(|_| ())
+    }
+
+    fn read_path(&self, path: &Path) -> Option<Vec<u8>> {
+        if path.exists() {
+            Some(fs::read(path).unwrap())
+        } else {
+            None
+        }
+    }
+
+    fn has_file(&self, path: &Path) -> bool {
+        path.exists()
+    }
+
+    fn reset(&self) -> Result<()> {
         self.delete_dir()?;
         self.create_dir()?;
 
         Ok(())
     }
 
-    pub fn build(&self) -> Result<()> {
-        let generator = SiteGenerator::new(&self.config, &self);
+    fn build(&self) -> Result<()> {
+        let generator = SiteGenerator::new(self);
 
         generator.run()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn you_can_add_a_file_and_read_it_back() {
+        let path = Path::new("/workspace/site/index.html");
+        let content = "An Content";
+
+        let config = Config::from_yaml_str(Path::new("/workspace"), "---\ntitle: Title").unwrap();
+
+        let site = InMemorySite::new(config);
+
+        site.add_file(&path, content.into()).unwrap();
+
+        let uri = Path::new("index.html");
+
+        assert_eq!(site.read_path(uri).unwrap(), content.as_bytes());
+        assert!(site.has_file(uri));
     }
 }

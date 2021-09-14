@@ -88,16 +88,6 @@ impl Directory {
         &self.path
     }
 
-    fn destination(&self, out: &Path) -> PathBuf {
-        self.docs
-            .get(0)
-            .unwrap()
-            .destination(out)
-            .parent()
-            .unwrap()
-            .to_path_buf()
-    }
-
     fn index(&self) -> &Document {
         &self
             .docs

@@ -1,24 +1,26 @@
 use std::ffi::OsStr;
-use std::fs::File;
 use std::net::SocketAddr;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::sync::Arc;
 
 use ascii::AsciiString;
 use bunt::termcolor::{ColorChoice, StandardStream};
 use tiny_http::{Request, Response, Server};
 
+use crate::site::{InMemorySite, Site};
+
 pub struct PreviewServer {
     color: bool,
     addr: SocketAddr,
-    out_dir: PathBuf,
+    site: Arc<InMemorySite>,
 }
 
 impl PreviewServer {
-    pub fn new<P: Into<PathBuf>>(addr: &str, out_dir: P, color: bool) -> Self {
+    pub fn new(addr: &str, site: Arc<InMemorySite>, color: bool) -> Self {
         PreviewServer {
-            color,
             addr: addr.parse().expect("invalid address for preview server"),
-            out_dir: out_dir.into(),
+            site,
+            color,
         }
     }
 
@@ -44,23 +46,21 @@ impl PreviewServer {
         for request in server.incoming_requests() {
             pool.scoped(|scope| {
                 scope.execute(|| {
-                    handle_request(request, self.out_dir.clone());
+                    handle_request(request, &self.site);
                 });
             })
         }
     }
 }
 
-fn handle_request(request: Request, out_dir: PathBuf) {
+fn handle_request(request: Request, site: &InMemorySite) {
     let result = {
         let uri = request.url().parse::<http::Uri>().unwrap();
 
-        match resolve_file(&Path::new(uri.path()), &out_dir) {
-            Some((f, None)) => {
-                request.respond(Response::from_file(File::open(f).unwrap()).with_status_code(200))
-            }
-            Some((f, Some(content_type))) => request.respond(
-                Response::from_file(File::open(f).unwrap())
+        match resolve_file(&Path::new(uri.path()), &site) {
+            Some((data, None)) => request.respond(Response::from_data(data).with_status_code(200)),
+            Some((data, Some(content_type))) => request.respond(
+                Response::from_data(data)
                     .with_status_code(200)
                     .with_header(tiny_http::Header {
                         field: "Content-Type".parse().unwrap(),
@@ -78,28 +78,28 @@ fn handle_request(request: Request, out_dir: PathBuf) {
     }
 }
 
-fn resolve_file(path: &Path, out_dir: &Path) -> Option<(PathBuf, Option<&'static str>)> {
+fn resolve_file(path: &Path, site: &InMemorySite) -> Option<(Vec<u8>, Option<&'static str>)> {
     if path.to_str().map(|s| s.contains("..")).unwrap_or(false) {
         return None;
     }
 
     let mut components = path.components();
     components.next();
-    let mut path = out_dir.join(components.as_path());
+    let mut path = components.as_path().to_owned();
 
-    if path.is_file() && path.exists() {
-        Some((path.to_path_buf(), content_type_for(path.extension())))
-    } else if path.is_dir() && path.join("index.html").exists() {
+    if site.has_file(&path) {
+        Some((site.read_path(&path).unwrap(), content_type_for(path.extension())))
+    } else if site.has_file(&path.join("index.html")) {
         let p = path.join("index.html");
         let extension = p.extension();
 
-        Some((p.clone(), content_type_for(extension)))
+        Some((site.read_path(&p).unwrap(), content_type_for(extension)))
     } else {
         // Try with a .html extension
         path.set_extension("html");
 
-        if path.exists() {
-            Some((path.clone(), content_type_for(path.extension())))
+        if site.has_file(&path) {
+            Some((site.read_path(&path).unwrap(), content_type_for(path.extension())))
         } else {
             None
         }
