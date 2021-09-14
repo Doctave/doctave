@@ -12,7 +12,7 @@ h3,
 h4,
 h5,
 h6 {
-    color: rgb(95,111,204);
+    color: rgb(104,117,245);
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     margin-top: 34pt;
@@ -22,12 +22,12 @@ h6 {
 p,
 li {
     color: #3C3C3C;
-    font-size: 14pt;
+    font-size: 13pt;
     line-height: 24pt;
 }
 
 a {
-    color: rgb(95,111,204);
+    color: rgb(104,117,245);
 }
 
 img {
@@ -205,7 +205,7 @@ th {
 }
 
 .wave-container svg path {
-    fill: rgb(95,111,204);
+    fill: rgb(104,117,245);
 }
 
 .menu-toggle-button,
@@ -276,7 +276,7 @@ th {
         z-index: 50;
         height: 25px;
         width: 25px;
-        background: rgb(95,111,204);
+        background: rgb(104,117,245);
         color: white;
         padding: 10px;
         border-radius: 25px;
@@ -347,36 +347,48 @@ th {
 
 /* Dark mode ----------------------------------------------------------- */
 
-#light-dark-mode-switch:hover:after {
-    background: #E6E6E6;
-}
-
-#light-dark-mode-switch:after {
+#light-dark-mode-switch {
     display: block;
     cursor: pointer;
-    content: "☾";
-    font-family: 'Inter', sans-serif;
-    font-size: 1.9em;
     color: #979797;
     background: #F3F3F3;
     width: 35px;
     height: 35px;
     line-height: 1.2em;
     text-align: center;
-    padding-left: 5px;
+    padding: 5px;
     box-sizing: border-box;
     border-radius: 5px;
 }
 
-.dark #light-dark-mode-switch:after {
-    content: "☼";
-    padding-left: 0px;
-    background: #676767;
-    color: #AFAFAF;
+#light-dark-mode-switch:hover {
+    background: #CECECE;
 }
 
-.dark #light-dark-mode-switch:hover:after {
-    background: #4d4d4d;
+#light-dark-mode-switch svg {
+    fill: #979797;
+    height: 26px;
+    width: 25px;
+    /* Icon slightly off center? */
+    margin-left: 2px;
+    margin-top: -1px;
+}
+
+.dark #light-dark-mode-switch svg {
+    margin-left: 0px;
+    margin-top: 0px;
+}
+
+.dark #dark-mode-icon {
+    display: none;
+}
+
+#light-mode-icon {
+    display: none;
+}
+
+.dark #light-mode-icon {
+    display: block;
 }
 
 .dark {
@@ -403,7 +415,7 @@ th {
 .dark h4,
 .dark h5,
 .dark h6 {
-    color: rgb(192,198,235);
+    color: rgb(224,226,253);
 }
 
 .dark * {
@@ -411,7 +423,7 @@ th {
 }
 
 .dark a {
-    color: rgb(192,198,235);
+    color: rgb(224,226,253);
 }
 
 .dark h2.project-name a {
@@ -419,23 +431,23 @@ th {
 }
 
 .dark h2.project-name:after {
-    color: rgb(192,198,235);
+    color: rgb(224,226,253);
 }
 
 .dark h2.project-name:after {
-    color: rgb(192,198,235);
+    color: rgb(224,226,253);
 }
 
 .dark nav a {
-    color: rgb(192,198,235);
+    color: rgb(224,226,253);
 }
 
 .dark nav a.active:before {
-    border-color: rgb(192,198,235);
+    border-color: rgb(224,226,253);
 }
 
 .dark nav a.active {
-    color: rgb(192,198,235);
+    color: rgb(224,226,253);
 }
 
 .dark nav ul ul a {
@@ -471,7 +483,7 @@ th {
 }
 
 .dark .sidebar-right li a:hover {
-    border-bottom: 1px solid rgb(192,198,235);
+    border-bottom: 1px solid rgb(224,226,253);
 }
 
 .dark .mermaid * {
@@ -527,7 +539,7 @@ th {
     content: "DOCS";
     font-size: 12pt;
     display: block;
-    color: rgb(95,111,204);
+    color: rgb(104,117,245);
     opacity: 56%;
 }
 
@@ -543,17 +555,17 @@ nav a {
 }
 
 nav a.active {
-    color: rgb(95,111,204);
+    color: rgb(104,117,245);
 }
 
 nav a.active:before {
     content: "";
-    border-left: 3px solid rgb(95,111,204);
+    border-left: 3px solid rgb(104,117,245);
     padding-left: 10px;
 }
 
 nav a:hover {
-    border-bottom: 1px solid rgb(95,111,204);
+    border-bottom: 1px solid rgb(104,117,245);
 }
 
 nav ul {
@@ -562,7 +574,7 @@ nav ul {
 }
 
 nav ul li {
-    line-height: 32pt;
+    line-height: 24pt;
 }
 
 nav ul ul li {
@@ -570,7 +582,7 @@ nav ul ul li {
 }
 
 nav ul a {
-    font-size: 14pt;
+    font-size: 13pt;
     font-weight: 700;
 }
 
@@ -581,7 +593,7 @@ nav ul ul {
 }
 
 nav ul ul a {
-    font-size: 14pt;
+    font-size: 13pt;
     font-weight: 400;
     color: #545454;
 }
@@ -593,17 +605,10 @@ nav ul ul a {
 .sidebar-right {}
 
 .page-nav-header {
-    text-transform: uppercase;
-    color: #CECECE;
-    margin-bottom: 10pt;
+    color: #ADADAD;
+    margin-bottom: 4pt;
     font-size: 12pt;
-    font-weight: 600;
-}
-
-.sidebar-right hr {
-    border: 1px solid #E5E5E5;
-    margin-top: 0pt;
-    margin-bottom: 5pt;
+    font-weight: 400;
 }
 
 .sidebar-right ul {
@@ -612,14 +617,14 @@ nav ul ul a {
 }
 
 .sidebar-right li a {
-    font-size: 14pt;
+    font-size: 13pt;
     font-weight: 400;
     color: #626262;
     text-decoration: none;
 }
 
 .sidebar-right li a:hover {
-    border-bottom: 1px solid rgb(95,111,204);
+    border-bottom: 1px solid rgb(104,117,245);
 }
 
 .sidebar-right a:hover {}

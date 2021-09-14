@@ -11,15 +11,15 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1602321483" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1602321483" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1631602225" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1631602225" media="screen" />
 
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1602321483" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1631602225" media="screen" />
 
     
 
     <script>
-    var DOCTAVE_TIMESTAMP = "1602321483";
+    var DOCTAVE_TIMESTAMP = "1631602225";
     var color = localStorage.getItem('doctave-color')
 
     if (color === 'dark') {
@@ -114,7 +114,15 @@
             
         
     </ul>
-    <span id='light-dark-mode-switch'></span>
+    <span id='light-dark-mode-switch'>
+        <svg xmlns="http://www.w3.org/2000/svg" id="dark-mode-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+        </svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" id="light-mode-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />
+        </svg>
+    </span>
 </nav>
 
             </div>
@@ -140,14 +148,14 @@ started with.</p>
 <pre><code># On Mac / Linux
 $ cat doctave.yaml
 ---
-title: &quot;My project&quot;
+title: "My project"
 
 
 
 # On Windows
 $ type doctave.yaml
 ---
-title: &quot;My project&quot;
+title: "My project"
 
 </code></pre>
 <p>Currently, you only have the project's name mentioned. This title is shown on the page navigation,
@@ -170,11 +178,11 @@ you can quickly see what your changes look like.</p>
 <p>If you are not familiar with Markdown syntax, or need a refresher, you can read our <a href="/features/markdown">Markdown
 reference</a> or check out <a href="https://guides.github.com/features/mastering-markdown/">this
 guide</a> by GitHub. Note that there are a few
-different flavors of Markdown. Doctave supports all the &quot;basics&quot; Markdown features, as well as a few
-&quot;GitHub flavored Markdown&quot; features - namely task lists and tables.</p>
+different flavors of Markdown. Doctave supports all the "basics" Markdown features, as well as a few
+"GitHub flavored Markdown" features - namely task lists and tables.</p>
 <h2 id="adding-pages-5">Adding pages</h2>
 <p>To add a new page, all you need to do is add another Markdown file.</p>
-<p>Let's say you want to add another page; a &quot;How To Build&quot; page. All you need to do is create a that
+<p>Let's say you want to add another page; a "How To Build" page. All you need to do is create a that
 page inside your docs folder.</p>
 <pre><code># On Mac / Linux
 $ touch docs/building.md
@@ -196,7 +204,7 @@ title: How to build
 
 ...
 </code></pre>
-<p>Open up your browser, and you should now see a <em>&quot;How to build&quot;</em> link in the sidebar. And if you
+<p>Open up your browser, and you should now see a <em>"How to build"</em> link in the sidebar. And if you
 click it, you will be taken to the page.</p>
 <h2 id="what-next?-6">What next?</h2>
 <p>That's really all there is to know about getting started with Doctave. Here are some resources that
@@ -212,7 +220,6 @@ can help going forward:</p>
             <div class='sidebar-right'>
                 <div class='page-nav' id='page-nav'>
                     <p class='page-nav-header'>On this page</p>
-                    <hr />
                     <ul>
                         
                             <li class='page-nav-level-1'>
@@ -252,10 +259,10 @@ can help going forward:</p>
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js?v=1602321483"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js?v=1602321483"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js?v=1602321483"></script>
-    <script type="text/javascript" src="/assets/prism.js?v=1602321483"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v=1631602225"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v=1631602225"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v=1631602225"></script>
+    <script type="text/javascript" src="/assets/prism.js?v=1631602225"></script>
 </body>
 
 </html>
