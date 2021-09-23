@@ -1,5 +1,4 @@
 #[deny(clippy::all)]
-
 #[cfg(test)]
 #[macro_use]
 extern crate indoc;
@@ -26,8 +25,8 @@ use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub use config::Config;
 pub use build::BuildCommand;
+pub use config::Config;
 pub use error::Error;
 pub use init::InitCommand;
 pub use serve::{ServeCommand, ServeOptions};
@@ -36,6 +35,7 @@ pub use site::BuildMode;
 pub use doctave_markdown::{Heading, Markdown};
 use handlebars::Handlebars;
 use navigation::Link;
+use serde::Serialize;
 
 static APP_JS: &str = include_str!("assets/app.js");
 static MERMAID_JS: &str = include_str!("assets/mermaid.min.js");
@@ -79,8 +79,8 @@ pub type Result<T> = std::result::Result<T, error::Error>;
 #[derive(Debug, Clone)]
 pub struct Directory {
     path: PathBuf,
-    docs: Vec<Document>,
-    dirs: Vec<Directory>,
+    pub docs: Vec<Document>,
+    pub dirs: Vec<Directory>,
 }
 
 impl Directory {
@@ -95,6 +95,31 @@ impl Directory {
             .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
             .expect("No index file found for directory")
     }
+
+    #[allow(unused)]
+    fn traverse_documents(&self) -> Box<dyn Iterator<Item = &Document> + '_> {
+        Box::new(
+            self.docs
+                .iter()
+                .chain(self.dirs.iter().flat_map(|d| d.traverse_documents())),
+        )
+    }
+
+    fn traverse_documents_mut(&mut self) -> Box<dyn Iterator<Item = &mut Document> + '_> {
+        Box::new(
+            self.docs.iter_mut().chain(
+                self.dirs
+                    .iter_mut()
+                    .flat_map(|d| d.traverse_documents_mut()),
+            ),
+        )
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct BidirectionalLinkEnd {
+    pub linking_page_path: PathBuf,
+    pub linking_page_title: String,
 }
 
 use std::sync::atomic::AtomicU32;
@@ -102,7 +127,7 @@ use std::sync::atomic::AtomicU32;
 static DOCUMENT_ID: AtomicU32 = AtomicU32::new(1);
 
 #[derive(Debug, Clone, PartialEq)]
-struct Document {
+pub struct Document {
     pub id: u32,
     /// The relative path in the docs folder to the file
     path: PathBuf,
@@ -110,6 +135,7 @@ struct Document {
     raw: String,
     markdown: Markdown,
     frontmatter: BTreeMap<String, String>,
+    incoming_links: Vec<BidirectionalLinkEnd>,
 }
 
 impl Document {
@@ -142,6 +168,7 @@ impl Document {
             markdown,
             rename,
             frontmatter,
+            incoming_links: Vec::new(),
         }
     }
 
@@ -164,7 +191,7 @@ impl Document {
         }
     }
 
-    fn uri_path(&self) -> String {
+    fn uri_path(&self) -> PathBuf {
         Link::path_to_uri(&self.html_path())
     }
 
@@ -176,6 +203,18 @@ impl Document {
         &self.markdown.headings
     }
 
+    fn links(&self) -> &[doctave_markdown::Link] {
+        &self.markdown.links
+    }
+
+    fn incoming_links(&self) -> &[BidirectionalLinkEnd] {
+        &self.incoming_links
+    }
+
+    fn add_incoming_link(&mut self, link: BidirectionalLinkEnd) {
+        self.incoming_links.push(link)
+    }
+
     fn html(&self) -> &str {
         &self.markdown.as_html
     }
@@ -185,5 +224,67 @@ impl Document {
             .get("title")
             .map(|t| t.as_ref())
             .unwrap_or_else(|| self.path.file_stem().unwrap().to_str().unwrap())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn traverses_documents() {
+        let root = Directory {
+            path: PathBuf::from("foo"),
+            docs: vec![Document::new(
+                Path::new("foo/1"),
+                String::new(),
+                BTreeMap::new(),
+            )],
+            dirs: vec![
+                Directory {
+                    path: PathBuf::from("foo/bar"),
+                    docs: vec![
+                        Document::new(Path::new("foo/bar/2"), String::new(), BTreeMap::new()),
+                        Document::new(Path::new("foo/bar/3"), String::new(), BTreeMap::new()),
+                    ],
+                    dirs: vec![
+
+                Directory {
+                    path: PathBuf::from("foo/bar"),
+                    docs: vec![
+                        Document::new(Path::new("foo/bar/baz/4"), String::new(), BTreeMap::new()),
+                        Document::new(Path::new("foo/bar/baz/5"), String::new(), BTreeMap::new()),
+                    ],
+                    dirs: vec![],
+                },
+                    ],
+                },
+                Directory {
+                    path: PathBuf::from("foo/bar"),
+                    docs: vec![
+                        Document::new(Path::new("foo/bar/6"), String::new(), BTreeMap::new()),
+                        Document::new(Path::new("foo/bar/7"), String::new(), BTreeMap::new()),
+                    ],
+                    dirs: vec![],
+                },
+            ],
+        };
+
+        let expected: Vec<String> = vec![
+            "1".to_owned(),
+            "2".to_owned(),
+            "3".to_owned(),
+            "4".to_owned(),
+            "5".to_owned(),
+            "6".to_owned(),
+            "7".to_owned(),
+        ];
+
+        assert_eq!(
+            root.traverse_documents()
+                .map(|d| d.title())
+                .collect::<Vec<_>>(),
+            expected
+        );
     }
 }

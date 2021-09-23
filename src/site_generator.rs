@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use elasticlunr::Index;
@@ -12,7 +12,7 @@ use walkdir::WalkDir;
 use crate::config::Config;
 use crate::navigation::{Link, Navigation};
 use crate::site::{BuildMode, Site};
-use crate::{Directory, Document};
+use crate::{BidirectionalLinkEnd, Directory, Document};
 use crate::{Error, Result};
 
 static INCLUDE_DIR: &str = "_include";
@@ -40,7 +40,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
     }
 
     pub fn run(&self) -> Result<()> {
-        let root = self.find_docs(self.config.project_root());
+        let mut root = self.find_docs(self.config.project_root());
         let nav_builder = Navigation::new(&self.config);
         let navigation = nav_builder.build_for(&root);
 
@@ -48,6 +48,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
 
         let head_include = self.read_head_include()?;
 
+        self.resolve_bidirectional_links(&mut root);
         self.build_includes()?;
         self.build_assets()?;
         self.build_directory(&root, &navigation, head_include.as_deref())?;
@@ -66,6 +67,55 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
             Ok(Some(content))
         } else {
             Ok(None)
+        }
+    }
+
+    fn find_links(&self, dir: &Directory) -> Vec<(PathBuf, String, Vec<doctave_markdown::Link>)> {
+        let mut records: Vec<(PathBuf, String, Vec<doctave_markdown::Link>)> = dir
+            .docs
+            .iter()
+            .map(|doc| (doc.uri_path(), doc.title().to_owned(), doc.links().to_vec()))
+            .collect();
+
+        for child in &dir.dirs {
+            let mut child_links = self.find_links(&child);
+            records.append(&mut child_links);
+        }
+
+        records
+    }
+
+    fn resolve_bidirectional_links(&self, dir: &mut Directory) {
+        let paths_to_links = self.find_links(&dir);
+
+        for doc in &mut dir.traverse_documents_mut() {
+            let doc_uri_path = doc.uri_path();
+
+            fn matches_path(left: &doctave_markdown::Link, right: &Path) -> bool {
+                match &left.url {
+                    doctave_markdown::UrlType::Local(p) => {
+                        let left_normalized = p.strip_prefix("/").unwrap_or(p);
+                        let right_normalized = right.strip_prefix("/").unwrap_or(right);
+
+                        left_normalized.with_extension("") == right_normalized.with_extension("")
+                    }
+                    doctave_markdown::UrlType::Remote(_) => false,
+                }
+            }
+
+            let docs_with_links_to_me = paths_to_links.iter().filter(|(_, _, links)| {
+                links
+                    .iter()
+                    .find(|l| matches_path(&l, &doc_uri_path))
+                    .is_some()
+            });
+
+            for (path, title, _) in docs_with_links_to_me {
+                doc.add_incoming_link(BidirectionalLinkEnd {
+                    linking_page_path: path.clone(),
+                    linking_page_title: title.clone(),
+                })
+            }
         }
     }
 
@@ -95,59 +145,67 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
     /// Builds fixed assets required by Doctave
     fn build_assets(&self) -> Result<()> {
         // Add JS
-        self.site.add_file(
-            &self.config.out_dir().join("assets").join("mermaid.js"),
-            crate::MERMAID_JS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write mermaid.js to assets directory"))?;
-        self.site.add_file(
-            &self.config.out_dir().join("assets").join("elasticlunr.js"),
-            crate::ELASTIC_LUNR.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write elasticlunr.js to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("mermaid.js"),
+                crate::MERMAID_JS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write mermaid.js to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("elasticlunr.js"),
+                crate::ELASTIC_LUNR.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write elasticlunr.js to assets directory"))?;
         if let BuildMode::Dev = self.config.build_mode() {
             // Livereload only in release mode
-            self.site.add_file(
-                &self.config.out_dir().join("assets").join("livereload.js"),
-                crate::LIVERELOAD_JS.into(),
-            )
-            .map_err(|e| Error::io(e, "Could not write livereload.js to assets directory"))?;
+            self.site
+                .add_file(
+                    &self.config.out_dir().join("assets").join("livereload.js"),
+                    crate::LIVERELOAD_JS.into(),
+                )
+                .map_err(|e| Error::io(e, "Could not write livereload.js to assets directory"))?;
         }
-        self.site.add_file(
-            &self.config.out_dir().join("assets").join("prism.js"),
-            crate::PRISM_JS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write prism.js to assets directory"))?;
-        self.site.add_file(
-            &self.config.out_dir().join("assets").join("doctave-app.js"),
-            crate::APP_JS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write doctave-app.js to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("prism.js"),
+                crate::PRISM_JS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write prism.js to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("doctave-app.js"),
+                crate::APP_JS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write doctave-app.js to assets directory"))?;
 
         // Add styles
-        self.site.add_file(
-            &self
-                .config
-                .out_dir()
-                .join("assets")
-                .join("prism-atom-dark.css"),
-            crate::ATOM_DARK_CSS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write prism-atom-dark.css to assets directory"))?;
-        self.site.add_file(
-            &self
-                .config
-                .out_dir()
-                .join("assets")
-                .join("prism-ghcolors.css"),
-            crate::GH_COLORS_CSS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write prism-ghcolors.css to assets directory"))?;
-        self.site.add_file(
-            &self.config.out_dir().join("assets").join("normalize.css"),
-            crate::NORMALIZE_CSS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write normalize.css to assets directory"))?;
+        self.site
+            .add_file(
+                &self
+                    .config
+                    .out_dir()
+                    .join("assets")
+                    .join("prism-atom-dark.css"),
+                crate::ATOM_DARK_CSS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write prism-atom-dark.css to assets directory"))?;
+        self.site
+            .add_file(
+                &self
+                    .config
+                    .out_dir()
+                    .join("assets")
+                    .join("prism-ghcolors.css"),
+                crate::GH_COLORS_CSS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write prism-ghcolors.css to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("normalize.css"),
+                crate::NORMALIZE_CSS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write normalize.css to assets directory"))?;
 
         let mut data = serde_json::Map::new();
         data.insert(
@@ -186,7 +244,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
             .docs
             .par_iter()
             .map(|doc| {
-                let page_title = if doc.uri_path() == "/" {
+                let page_title = if doc.uri_path().as_path() == Path::new("/") {
                     self.config.title().to_string()
                 } else {
                     doc.title().to_string()
@@ -212,6 +270,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
                     logo: self.config.logo().map(|l| l.to_string()),
                     build_mode: self.config.build_mode().to_string(),
                     timestamp: &self.timestamp,
+                    incoming_links: doc.incoming_links().to_vec(),
                     page_title,
                     head_include,
                 };
@@ -222,7 +281,8 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
                     .render_to_write("page", &data, &mut out)
                     .map_err(|e| Error::handlebars(e, "Could not render template"))?;
 
-                self.site.add_file(&doc.destination(self.config.out_dir()), out.into())?;
+                self.site
+                    .add_file(&doc.destination(self.config.out_dir()), out.into())?;
 
                 Ok(())
             })
@@ -241,11 +301,12 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
         self.build_search_index_for_dir(root, &mut index);
 
         {
-            self.site.add_file(
-                &self.config.out_dir().join("search_index.json"),
-                index.to_json().as_bytes().into(),
-            )
-            .map_err(|e| Error::io(e, "Could not create search index"))
+            self.site
+                .add_file(
+                    &self.config.out_dir().join("search_index.json"),
+                    index.to_json().as_bytes().into(),
+                )
+                .map_err(|e| Error::io(e, "Could not create search index"))
         }
     }
 
@@ -255,7 +316,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
                 &doc.id.to_string(),
                 &[
                     &doc.title(),
-                    &doc.uri_path().as_str(),
+                    doc.uri_path().to_str().expect("Unable to format path"),
                     doc.markdown_section(),
                 ],
             );
@@ -293,6 +354,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
             if entry.file_type().is_file() && entry.path().extension() == Some(OsStr::new("md")) {
                 let path = entry.path().strip_prefix(self.config.docs_dir()).unwrap();
 
+                // Actually loads and parses the Markdown
                 docs.push(Document::load(entry.path(), path));
             } else {
                 let path = entry.into_path();
@@ -338,7 +400,15 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
         let content = dir
             .docs
             .iter()
-            .map(|d| format!("* [{}]({})", d.title(), d.uri_path()))
+            .map(|d| {
+                format!(
+                    "* [{}]({})",
+                    d.title(),
+                    d.uri_path()
+                        .to_str()
+                        .expect("Unable to format path for search index")
+                )
+            })
             .collect::<Vec<_>>()
             .join("\n");
 
@@ -381,10 +451,11 @@ pub struct TemplateData<'a> {
     pub headings: Vec<BTreeMap<&'static str, String>>,
     pub navigation: &'a [Link],
     pub head_include: Option<&'a str>,
-    pub current_path: String,
+    pub current_path: PathBuf,
     pub page_title: String,
     pub logo: Option<String>,
     pub project_title: String,
     pub build_mode: String,
     pub timestamp: &'a str,
+    pub incoming_links: Vec<BidirectionalLinkEnd>,
 }

@@ -317,8 +317,8 @@ dependencies = [
 
 [[package]]
 name = "doctave-markdown"
-version = "0.5.1"
-source = "git+https://github.com/Doctave/doctave-markdown?tag=0.5.1#a0b4cda77fb07d25f5091fbc0aaa940afa041a26"
+version = "0.6.0"
+source = "git+https://github.com/Doctave/doctave-markdown?tag=0.6.0#6229956db327f314476f14da33e3bf038ccd1506"
 dependencies = [
  "ammonia",
  "pulldown-cmark",
@@ -463,9 +463,9 @@ dependencies = [
 
 [[package]]
 name = "handlebars"
-version = "3.4.0"
+version = "4.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5deefd4816fb852b1ff3cb48f6c41da67be2d0e1d20b26a7a3b076da11f064b1"
+checksum = "66b09e2322d20d14bc2572401ce7c1d60b4748580a76c230ed9c1f8938f0c833"
 dependencies = [
  "log",
  "pest",

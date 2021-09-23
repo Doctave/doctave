@@ -130,13 +130,13 @@ impl From<&Directory> for Vec<Link> {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Link {
-    pub path: String,
+    pub path: PathBuf,
     pub title: String,
     pub children: Vec<Link>,
 }
 
 impl Link {
-    pub fn path_to_uri(path: &Path) -> String {
+    pub fn path_to_uri(path: &Path) -> PathBuf {
         let mut tmp = path.to_owned();
 
         // Default to stipping .html extensions
@@ -158,7 +158,7 @@ impl Link {
             .collect::<Vec<_>>()
             .join("/");
 
-        format!("/{}", uri_path)
+        PathBuf::from("/").join(uri_path)
     }
 
     pub fn path_to_uri_with_extension(path: &Path) -> String {
@@ -231,21 +231,21 @@ mod test {
             navigation.build_for(&root),
             vec![
                 Link {
-                    path: String::from("/child"),
+                    path: PathBuf::from("/child"),
                     title: String::from("Nested Root"),
                     children: vec![Link {
-                        path: String::from("/child/three"),
+                        path: PathBuf::from("/child/three"),
                         title: String::from("Three"),
                         children: vec![]
                     }]
                 },
                 Link {
-                    path: String::from("/one"),
+                    path: PathBuf::from("/one"),
                     title: String::from("One"),
                     children: vec![]
                 },
                 Link {
-                    path: String::from("/two"),
+                    path: PathBuf::from("/two"),
                     title: String::from("Two"),
                     children: vec![]
                 },
@@ -295,64 +295,64 @@ mod test {
             navigation.build_for(&root),
             vec![
                 Link {
-                    path: String::from("/002"),
+                    path: PathBuf::from("/002"),
                     title: String::from("11"),
                     children: vec![],
                 },
                 Link {
-                    path: String::from("/child"),
+                    path: PathBuf::from("/child"),
                     title: String::from("Index"),
                     children: vec![
                         Link {
-                            path: String::from("/child/004"),
+                            path: PathBuf::from("/child/004"),
                             title: String::from("11"),
                             children: vec![],
                         },
                         Link {
-                            path: String::from("/child/002"),
+                            path: PathBuf::from("/child/002"),
                             title: String::from("22"),
                             children: vec![],
                         },
                         Link {
-                            path: String::from("/child/003"),
+                            path: PathBuf::from("/child/003"),
                             title: String::from("AA"),
                             children: vec![],
                         },
                         Link {
-                            path: String::from("/child/001"),
+                            path: PathBuf::from("/child/001"),
                             title: String::from("BB"),
                             children: vec![],
                         },
                     ]
                 },
                 Link {
-                    path: String::from("/child2"),
+                    path: PathBuf::from("/child2"),
                     title: String::from("Index"),
                     children: vec![
                         Link {
-                            path: String::from("/child2/001"),
+                            path: PathBuf::from("/child2/001"),
                             title: String::from("123"),
                             children: vec![]
                         },
                         Link {
-                            path: String::from("/child2/002"),
+                            path: PathBuf::from("/child2/002"),
                             title: String::from("aa"),
                             children: vec![]
                         },
                         Link {
-                            path: String::from("/child2/004"),
+                            path: PathBuf::from("/child2/004"),
                             title: String::from("bb"),
                             children: vec![]
                         },
                         Link {
-                            path: String::from("/child2/003"),
+                            path: PathBuf::from("/child2/003"),
                             title: String::from("cc"),
                             children: vec![]
                         },
                     ]
                 },
                 Link {
-                    path: String::from("/001"),
+                    path: PathBuf::from("/001"),
                     title: String::from("bb"),
                     children: vec![],
                 },
@@ -392,15 +392,15 @@ mod test {
             navigation.customize(&rules, &links),
             vec![
                 Link {
-                    path: String::from("/one"),
+                    path: PathBuf::from("/one"),
                     title: String::from("One"),
                     children: vec![],
                 },
                 Link {
-                    path: String::from("/child"),
+                    path: PathBuf::from("/child"),
                     title: String::from("Nested Root"),
                     children: vec![Link {
-                        path: String::from("/child/three"),
+                        path: PathBuf::from("/child/three"),
                         title: String::from("Three"),
                         children: vec![],
                     },],
@@ -459,18 +459,18 @@ mod test {
             navigation.customize(&rules, &links),
             vec![
                 Link {
-                    path: String::from("/one"),
+                    path: PathBuf::from("/one"),
                     title: String::from("One"),
                     children: vec![]
                 },
                 Link {
-                    path: String::from("/child"),
+                    path: PathBuf::from("/child"),
                     title: String::from("Nested Root"),
                     children: vec![Link {
-                        path: String::from("/child/nested"),
+                        path: PathBuf::from("/child/nested"),
                         title: String::from("Nested Root"),
                         children: vec![Link {
-                            path: String::from("/child/nested/four"),
+                            path: PathBuf::from("/child/nested/four"),
                             title: String::from("Four"),
                             children: vec![]
                         },]
@@ -506,7 +506,7 @@ mod test {
         assert_eq!(
             navigation.customize(&rules, &links),
             vec![Link {
-                path: String::from("/child/three"),
+                path: PathBuf::from("/child/three"),
                 title: String::from("Three"),
                 children: vec![]
             },]
@@ -539,10 +539,10 @@ mod test {
         assert_eq!(
             navigation.customize(&rules, &links),
             vec![Link {
-                path: String::from("/child"),
+                path: PathBuf::from("/child"),
                 title: String::from("Nested Root"),
                 children: vec![Link {
-                    path: String::from("/one"),
+                    path: PathBuf::from("/one"),
                     title: String::from("One"),
                     children: vec![],
                 }]

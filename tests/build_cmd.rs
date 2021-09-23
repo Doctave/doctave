@@ -457,3 +457,27 @@ integration_test!(cache_buster, |area| {
     // Famous last words ofc...
     area.assert_contains(&index, "doctave-style.css?v=1");
 });
+
+integration_test!(bidirectional_linking, |area| {
+    area.create_config();
+    area.mkdir(Path::new("docs").join("_include"));
+    area.write_file(Path::new("docs").join("README.md"), b"# Hi");
+    area.write_file(
+        Path::new("docs").join("black_mesa.md"),
+        b"---\ntitle: Black Mesa\n---\n\n[Acme](/acme_inc)",
+    );
+    area.write_file(
+        Path::new("docs").join("acme_inc.md"),
+        b"",
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    let acme = Path::new("site").join("acme_inc.html");
+
+    area.assert_contains(&acme, "<a href='/black_mesa'>Black Mesa</a>");
+
+    let head = Path::new("site").join("_head.html");
+    area.refute_exists(&head);
+});

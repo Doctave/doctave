@@ -17,38 +17,38 @@
     <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v={{ timestamp }}" media="screen" />
 
     {{#if (eq build_mode "dev") }}
-    <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
+        <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
 
-    <script>
-    // Don't reset scrolling on livereload
-    window.addEventListener('scroll', function() {
-        localStorage.setItem('doctave-scrollPosition', window.scrollY);
+        <script>
+            // Don't reset scrolling on livereload
+            window.addEventListener('scroll', function() {
+                localStorage.setItem('doctave-scrollPosition', window.scrollY);
 
-        dragRightMenu();
-    }, false);
+                dragRightMenu();
+            }, false);
 
-    window.addEventListener('load', function() {
-        if (localStorage.getItem('doctave-scrollPosition') !== null)
-            window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
+            window.addEventListener('load', function() {
+                if (localStorage.getItem('doctave-scrollPosition') !== null)
+                    window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
 
-        document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
-            disableScrollifMenuOpen();
-        });
-    }, false);
-    </script>
+                document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
+                    disableScrollifMenuOpen();
+                });
+            }, false);
+        </script>
     {{/if}}
 
     <script>
-    var DOCTAVE_TIMESTAMP = "{{ timestamp }}";
-    var color = localStorage.getItem('doctave-color')
+        var DOCTAVE_TIMESTAMP = "{{ timestamp }}";
+        var color = localStorage.getItem('doctave-color')
 
-    if (color === 'dark') {
-        document.getElementsByTagName('html')[0].classList.remove('light');
-        document.getElementsByTagName('html')[0].classList.add('dark');
-    } else {
-        document.getElementsByTagName('html')[0].classList.remove('dark');
-        document.getElementsByTagName('html')[0].classList.add('light');
-    }
+        if (color === 'dark') {
+            document.getElementsByTagName('html')[0].classList.remove('light');
+            document.getElementsByTagName('html')[0].classList.add('dark');
+        } else {
+            document.getElementsByTagName('html')[0].classList.remove('dark');
+            document.getElementsByTagName('html')[0].classList.add('light');
+        }
     </script>
 
     {{#if head_include }}
@@ -98,6 +98,18 @@
                             </li>
                         {{/each}}
                     </ul>
+                    {{#if (gt (len incoming_links) 0) }}
+                        <div class="incoming-links">
+                            <p class='page-nav-header'>Page referenced by</p>
+                            <ul>
+                                {{#each incoming_links}}
+                                    <li>
+                                        <a href='{{this.linking_page_path}}'>{{this.linking_page_title}}</a>
+                                    </li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    {{/if}}
                 </div>
             </div>
             <div class='wave-container'>

@@ -647,6 +647,27 @@ nav ul ul a {
     display: none;
 }
 
+.incoming-links {
+    margin-top: 16px;
+}
+
+.sidebar-right .incoming-links li a {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 5px;
+    border-radius: 99px;
+    background: {{ theme_main }};
+    color: #FFF;
+    font-size: 11pt;
+}
+
+.sidebar-right .incoming-links li a:hover {
+    text-decoration: underline;
+    border: none;
+}
+
 
 /* Search -------------------------------------------------------------- */
 

@@ -5,6 +5,8 @@ Doctave is an opinionated documentation site generator that converts your Markdo
 into a beautiful developer documentation site. This site you are looking at now is built with
 Doctave!
 
+CHANGE
+
 It is not a generic static site generator - it is only meant for generating documentation sites from
 Markdown. This allows the tool to be much simpler than other solutions, and requires little to no
 configuration. You just start documenting.
