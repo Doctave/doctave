@@ -21,13 +21,19 @@ This open source tool is built and maintained by [Doctave.com](https://www.docta
 Doctave comes with a number of documentation-specific features out of the box. No plugins needed.
 
 - [Mermaid.js](https://mermaid-js.github.io/) diagrams
-- Full-text search
+- Offline full-text search
 - Local live-reloading server
 - Responsive design
 - Dark mode
 - GitHub flavored markdown
 - Minimal configuration
-- Fast build, built in Rust
+- Fast build times (Doctave is built with Rust)
+
+## Hosting
+
+Doctave-generated sites can be hosted on any static site hosting provider, such as [GitHub
+Pages](https://pages.github.com/). You can also use [Doctave.com](https://www.doctave.com), which is
+a specialized Doctave host, for free for public docs.
 
 ## Screenshots
 
@@ -80,6 +86,8 @@ $ doctave init
 Then, run the `serve` command to preview your site locally.
 
 ```
+$ doctave serve
+
 Doctave | Serve
 Starting development server...
 
