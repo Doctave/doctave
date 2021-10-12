@@ -1,7 +1,8 @@
-![Doctave logo](./src/assets/gh-readme-logo.png)
+[![CI Status](https://github.com/Doctave/doctave/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Doctave/doctave/actions)
+[![Docs](./docs/_include/assets/doctave-badge.png)](https://cli.doctave.com/)
 
-Doctave
-=======
+
+![Doctave](./docs/_include/assets/doctave-logo-wide.png)
 
 Doctave is an opinionated documentation site generator that converts your Markdown files into
 a beautiful documentation site with minimal effort.
