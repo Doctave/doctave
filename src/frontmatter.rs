@@ -1,15 +1,10 @@
 use std::collections::BTreeMap;
 
 pub fn parse(input: &str) -> std::io::Result<BTreeMap<String, String>> {
-    if input.starts_with("---\n") {
-        let after_starter_mark = &input[4..];
-        let end_mark = after_starter_mark.find("---\n");
+    let pos = end_pos(input);
 
-        if end_mark.is_none() {
-            return Ok(BTreeMap::new());
-        };
-
-        serde_yaml::from_str(&input[4..end_mark.unwrap() + 4])
+    if pos > 0 {
+        serde_yaml::from_str(&input[0..pos].trim_end().trim_end_matches('-'))
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
     } else {
         Ok(BTreeMap::new())
@@ -25,6 +20,15 @@ pub fn end_pos(input: &str) -> usize {
             0
         } else {
             end_mark.unwrap() + 8
+        }
+    } else if input.starts_with("---\r\n") {
+        let after_starter_mark = &input[5..];
+        let end_mark = after_starter_mark.find("---\r\n");
+
+        if end_mark.is_none() {
+            0
+        } else {
+            end_mark.unwrap() + 10
         }
     } else {
         0
@@ -106,5 +110,21 @@ mod test {
         let without_frontmatter = without(input);
 
         assert_eq!(without_frontmatter, "\n# Runbooks\n");
+    }
+
+    #[test]
+    fn windows_line_endings() {
+        let input = "---\r\ntitle: Runbooks\r\n---\r\n\r\n# More content\r\n";
+
+        let values = parse(input).unwrap();
+
+        let expected = Some("Runbooks".to_owned());
+        let actual = values.get("title");
+
+        assert_eq!(actual, expected.as_ref());
+
+        let without_frontmatter = without(input);
+
+        assert_eq!(without_frontmatter, "\r\n# More content\r\n");
     }
 }
