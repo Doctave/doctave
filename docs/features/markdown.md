@@ -82,6 +82,77 @@ Both **bold**, _italics_, and ~~strikethrough~~ are supported.
 
 ![A random image](https://picsum.photos/600/400)
 
+## Emojis
+
+You can use [GitHub style shortcodes](https://emojipedia.org/shortcodes/) for emojis.
+
+This means you can write `:bell:` and Doctave will render is as :bell:. These work particularly well
+with callouts (see below):
+
+{% info :zap:  I want your attention %}
+This is important!
+{% end %}
+
+## Callouts
+
+You can bring attention to sections using callouts.
+
+
+### Basic usage
+```
+{% info This is the title %}
+
+And this is the content!
+
+So much space for activities!
+
+{% end %}
+```
+
+Gives you:
+
+{% info This is the title %}
+
+And this is the content!
+
+So much space for activities!
+
+{% end %}
+
+### Without a title
+
+```
+{% info %}
+
+You can skip the title
+
+{% end %}
+```
+
+Gives you:
+
+{% info %}
+
+You can skip the title
+
+{% end %}
+
+### Types
+
+Instead of `info`, you can use `success`, `warning`, or `error` for different colored callouts:
+
+{% success A success message %}
+This is positive news
+{% end %}
+
+{% warning A warning message %}
+You should use caution
+{% end %}
+
+{% error An error message %}
+Something went wrong
+{% end %}
+
 ## Quotes
 
 ```

@@ -195,7 +195,7 @@ dependencies = [
  "ansi_term",
  "atty",
  "bitflags",
- "strsim",
+ "strsim 0.8.0",
  "textwrap",
  "unicode-width",
  "vec_map",
@@ -317,11 +317,14 @@ dependencies = [
 
 [[package]]
 name = "doctave-markdown"
-version = "0.5.1"
-source = "git+https://github.com/Doctave/doctave-markdown?tag=0.5.1#a0b4cda77fb07d25f5091fbc0aaa940afa041a26"
+version = "0.7.0"
+source = "git+https://github.com/Doctave/doctave-markdown?tag=0.7.0#3c1c7439045bcf251fdc302c7293f9ba94ba3aa1"
 dependencies = [
  "ammonia",
+ "emojis",
+ "lazy_static",
  "pulldown-cmark",
+ "regex",
  "url 2.2.2",
 ]
 
@@ -350,6 +353,15 @@ dependencies = [
  "serde_json",
  "strum",
  "strum_macros",
+]
+
+[[package]]
+name = "emojis"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cbf85aeacc72b7b5d9e78b39399562a2846566936e41a6f59f9d96b3fa7c4f96"
+dependencies = [
+ "strsim 0.10.0",
 ]
 
 [[package]]
@@ -1223,6 +1235,12 @@ name = "strsim"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
+
+[[package]]
+name = "strsim"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "strum"

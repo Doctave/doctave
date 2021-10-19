@@ -22,8 +22,8 @@ Doctave comes with a number of documentation-specific features out of the box. N
 - Full-text search
 - Local live-reloading server
 - Responsive design
-- GitHub flavored markdown
-- Minimal configuration
+- GitHub flavored Markdown with [rich features](/features/markdown)
+- [Minimal configuration](/configuration)
 - Fast build, built in Rust
 
 

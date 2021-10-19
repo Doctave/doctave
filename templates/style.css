@@ -91,6 +91,76 @@ th {
     padding: 15px;
 }
 
+.callout {
+    margin-top: 28px;
+    margin-bottom: 28px;
+    width: 100%;
+    border-radius: 5px;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 4px;
+    box-sizing: border-box;
+}
+
+.callout p {
+    padding-top: 8px;
+    margin-top: 0px;
+    margin-bottom: 4px;
+    line-height: 18pt;
+}
+
+.callout p:last-child {
+    margin-bottom: 4px;
+}
+
+.callout .callout-title {
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    margin-left: -16px;
+    margin-top: -16px;
+    margin-right: -16px;
+    margin-bottom: 0px;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+
+    font-weight: 700;
+    color: #FFF !important;
+}
+
+.callout.info {
+    background: #e6efff;
+}
+
+.callout.info p.callout-title {
+    background: #6875f5;
+}
+
+.callout.success {
+    background: #ECFDF5;
+}
+
+.callout.success p.callout-title {
+    background: #34D399;
+}
+
+.callout.warning {
+    background: #FFFBEB;
+}
+
+.callout.warning p.callout-title {
+    background: #FBBF24;
+}
+
+.callout.error {
+    background: #FEF2F2;
+}
+
+.callout.error p.callout-title {
+    background: #F87171;
+}
+
 /* General layout ------------------------------------------------------ */
 
 .page {
@@ -137,7 +207,7 @@ th {
 .logo img {
     height: 45px;
     width: 45px;
-    padding-right: 20px;
+    padding-right: 12px;
     box-shadow: none;
 }
 
@@ -457,6 +527,11 @@ th {
 .dark code {
     color: #323232;
 }
+
+.dark .callout p {
+    color: #374151;
+}
+
 
 .dark #search-results li {
     background: #202B33;
