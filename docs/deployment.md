@@ -41,7 +41,6 @@ In Doctave, you do this by adding the file under `docs/_include`.
 On Mac/Linux:
 ```
 $ touch docs/_include/.nojekyll
-
 ```
 
 On Windows:
