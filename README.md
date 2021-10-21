@@ -72,7 +72,7 @@ You can also use the Rust package manager, Cargo, to install Doctave. Currently 
 listed on crates.io, but you can install it directly from GitHub:
 
 ```
-$ cargo install --git https://github.com/Doctave/doctave --tag 0.2.1
+$ cargo install --git https://github.com/Doctave/doctave --tag 0.3.0
 ```
 
 ## Getting started

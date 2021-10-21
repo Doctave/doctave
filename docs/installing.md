@@ -21,14 +21,12 @@ install Doctave via the following command:
 ```
 $ brew install doctave/doctave/doctave
 ```
-
 This will take a few minutes as Doctave is compiled from scratch for your machine.
-
 ### Cargo (Rust package manager)
 
 You can also use the Rust package manager, Cargo, to install Doctave. Currently Doctave is not
 listed on crates.io, but you can install it directly from GitHub:
 
 ```
-$ cargo install --git https://github.com/Doctave/doctave --tag 0.2.1
+$ cargo install --git https://github.com/Doctave/doctave --tag 0.3.0
 ```
