@@ -1,7 +1,7 @@
 use std::collections::HashMap;
-use std::sync::RwLock;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::RwLock;
 
 use crate::config::Config;
 use crate::site_generator::SiteGenerator;

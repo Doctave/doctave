@@ -1,6 +1,6 @@
+use std::sync::Arc;
 use std::thread;
 use std::time::Instant;
-use std::sync::Arc;
 
 use bunt::termcolor::{ColorChoice, StandardStream};
 use crossbeam_channel::bounded;
@@ -8,12 +8,11 @@ use crossbeam_channel::bounded;
 use crate::config::Config;
 use crate::livereload_server::LivereloadServer;
 use crate::preview_server::PreviewServer;
-use crate::site::{Site, InMemorySite};
+use crate::site::{InMemorySite, Site};
 use crate::watcher::Watcher;
 use crate::Result;
 
-pub struct ServeCommand {
-}
+pub struct ServeCommand {}
 
 #[derive(Default)]
 pub struct ServeOptions {
@@ -64,6 +63,7 @@ impl ServeCommand {
             &format!("0.0.0.0:{}", port),
             site.clone(),
             config.color_enabled(),
+            config.base_path().to_owned(),
         );
         thread::Builder::new()
             .name("http-server".into())

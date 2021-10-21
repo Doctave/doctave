@@ -1,6 +1,6 @@
 use std::ffi::OsStr;
 use std::net::SocketAddr;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use ascii::AsciiString;
@@ -11,16 +11,23 @@ use crate::site::{InMemorySite, Site};
 
 pub struct PreviewServer {
     color: bool,
+    base_path: String,
     addr: SocketAddr,
     site: Arc<InMemorySite>,
 }
 
 impl PreviewServer {
-    pub fn new(addr: &str, site: Arc<InMemorySite>, color: bool) -> Self {
+    pub fn new(
+        addr: &str,
+        site: Arc<InMemorySite>,
+        color: bool,
+        base_path: String,
+    ) -> Self {
         PreviewServer {
             addr: addr.parse().expect("invalid address for preview server"),
             site,
             color,
+            base_path,
         }
     }
 
@@ -37,8 +44,9 @@ impl PreviewServer {
 
             bunt::writeln!(
                 stdout,
-                "Server running on {$bold}http://{}/{/$}\n",
-                self.addr
+                "Server running on {$bold}http://{}{}{/$}\n",
+                self.addr,
+                self.base_path
             )
             .unwrap();
         }
@@ -46,27 +54,29 @@ impl PreviewServer {
         for request in server.incoming_requests() {
             pool.scoped(|scope| {
                 scope.execute(|| {
-                    handle_request(request, &self.site);
+                    handle_request(request, &self.site, &self.base_path);
                 });
             })
         }
     }
 }
 
-fn handle_request(request: Request, site: &InMemorySite) {
+fn handle_request(request: Request, site: &InMemorySite, base_path: &str) {
     let result = {
         let uri = request.url().parse::<http::Uri>().unwrap();
 
-        match resolve_file(&Path::new(uri.path()), &site) {
+        let path = PathBuf::from(uri.path());
+
+        match resolve_file(&path, &site, base_path) {
             Some((data, None)) => request.respond(Response::from_data(data).with_status_code(200)),
-            Some((data, Some(content_type))) => request.respond(
-                Response::from_data(data)
-                    .with_status_code(200)
-                    .with_header(tiny_http::Header {
+            Some((data, Some(content_type))) => {
+                request.respond(Response::from_data(data).with_status_code(200).with_header(
+                    tiny_http::Header {
                         field: "Content-Type".parse().unwrap(),
                         value: AsciiString::from_ascii(content_type).unwrap(),
-                    }),
-            ),
+                    },
+                ))
+            }
             None => request.respond(Response::new_empty(tiny_http::StatusCode(404))),
         }
     };
@@ -78,17 +88,30 @@ fn handle_request(request: Request, site: &InMemorySite) {
     }
 }
 
-fn resolve_file(path: &Path, site: &InMemorySite) -> Option<(Vec<u8>, Option<&'static str>)> {
+fn resolve_file(
+    path: &Path,
+    site: &InMemorySite,
+    base_path: &str,
+) -> Option<(Vec<u8>, Option<&'static str>)> {
     if path.to_str().map(|s| s.contains("..")).unwrap_or(false) {
         return None;
     }
 
-    let mut components = path.components();
-    components.next();
-    let mut path = components.as_path().to_owned();
+    let mut path = path;
+
+    if path.starts_with(base_path) {
+        path = path.strip_prefix(base_path).unwrap();
+    } else {
+        return None;
+    }
+
+    let mut path = path.strip_prefix("/").unwrap_or(path).to_owned();
 
     if site.has_file(&path) {
-        Some((site.read_path(&path).unwrap(), content_type_for(path.extension())))
+        Some((
+            site.read_path(&path).unwrap(),
+            content_type_for(path.extension()),
+        ))
     } else if site.has_file(&path.join("index.html")) {
         let p = path.join("index.html");
         let extension = p.extension();
@@ -99,7 +122,10 @@ fn resolve_file(path: &Path, site: &InMemorySite) -> Option<(Vec<u8>, Option<&'s
         path.set_extension("html");
 
         if site.has_file(&path) {
-            Some((site.read_path(&path).unwrap(), content_type_for(path.extension())))
+            Some((
+                site.read_path(&path).unwrap(),
+                content_type_for(path.extension()),
+            ))
         } else {
             None
         }

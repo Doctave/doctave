@@ -3,11 +3,12 @@ use std::path::{Path, PathBuf};
 
 use colorsys::prelude::*;
 use colorsys::Rgb;
+use http::Uri;
 use serde::Deserialize;
 
-use crate::{Error, Result};
-use crate::site::BuildMode;
 use crate::navigation::Link;
+use crate::site::BuildMode;
+use crate::{Error, Result};
 
 #[derive(Debug, Clone, Deserialize)]
 struct DoctaveYaml {
@@ -16,6 +17,7 @@ struct DoctaveYaml {
     colors: Option<ColorsYaml>,
     logo: Option<PathBuf>,
     navigation: Option<Vec<Navigation>>,
+    base_path: Option<String>,
 }
 
 impl DoctaveYaml {
@@ -30,7 +32,7 @@ impl DoctaveYaml {
     }
 
     /// Runs checks that validate the values of provided in the Yaml file
-    fn validate(&self, project_root: &Path) -> Result<()> {
+    fn validate(&mut self, project_root: &Path) -> Result<()> {
         // Validate color
         if let Some(color) = &self.colors.as_ref().and_then(|c| c.main.as_ref()) {
             Rgb::from_hex_str(color).map_err(|_e| {
@@ -93,6 +95,27 @@ impl DoctaveYaml {
         if let Some(navs) = &self.navigation {
             for nav in navs {
                 validate_level(nav, &self, &project_root)?;
+            }
+        }
+
+        // Validate base path
+        if let Some(path) = &mut self.base_path {
+            let uri: Uri = path.parse().map_err(|_| {
+                Error::new(format!(
+                    "base_path was not valid absolute URI path. Got `{}`",
+                    path
+                ))
+            })?;
+
+            if !uri.path().starts_with("/") {
+                return Err(Error::new(format!(
+                    "Base path must be an absolute path. Got `{}`.",
+                    path
+                )));
+            }
+
+            if !path.ends_with("/") {
+                path.push('/');
             }
         }
 
@@ -199,6 +222,7 @@ pub struct Config {
     project_root: PathBuf,
     out_dir: PathBuf,
     docs_dir: PathBuf,
+    base_path: String,
     title: String,
     colors: Colors,
     logo: Option<String>,
@@ -219,7 +243,7 @@ impl Config {
     }
 
     pub fn from_yaml_str(project_root: &Path, yaml: &str) -> Result<Self> {
-        let doctave_yaml: DoctaveYaml = serde_yaml::from_str(yaml)
+        let mut doctave_yaml: DoctaveYaml = serde_yaml::from_str(yaml)
             .map_err(|e| Error::yaml(e, "Could not parse doctave.yaml"))?;
 
         doctave_yaml.validate(project_root)?;
@@ -229,12 +253,16 @@ impl Config {
             project_root: project_root.to_path_buf(),
             out_dir: project_root.join("site"),
             docs_dir: project_root.join("docs"),
+            base_path: doctave_yaml.base_path.unwrap_or(String::from("/")),
             title: doctave_yaml.title,
             colors: doctave_yaml
                 .colors
                 .map(|c| c.into())
                 .unwrap_or(Colors::default()),
-            logo: doctave_yaml.logo.map(|p| Link::path_to_uri_with_extension(&p)),
+            logo: doctave_yaml
+                .logo
+                .map(|p| Link::path_to_uri_with_extension(&p))
+                .map(|p| p.as_str().trim_start_matches("/").to_owned()),
             navigation: doctave_yaml.navigation.map(|n| NavRule::from_yaml_input(n)),
             port: doctave_yaml.port.unwrap_or_else(|| 4001),
             build_mode: BuildMode::Dev,
@@ -261,6 +289,11 @@ impl Config {
     /// The directory that contains all the Markdown documentation
     pub fn docs_dir(&self) -> &Path {
         &self.docs_dir
+    }
+
+    /// The directory that contains all the Markdown documentation
+    pub fn base_path(&self) -> &str {
+        &self.base_path
     }
 
     /// Rules that set the site navigation structure
@@ -350,11 +383,13 @@ mod test {
         assert!(
             format!("{}", error)
                 .contains("Invalid HEX color provided for colors.main in doctave.yaml"),
-            "Error message was: {}", error
+            "Error message was: {}",
+            error
         );
         assert!(
             format!("{}", error).contains("Found 'not-a-color'"),
-            "Error message was: {}", error
+            "Error message was: {}",
+            error
         );
     }
 
@@ -369,10 +404,55 @@ mod test {
         let error = Config::from_yaml_str(Path::new(""), yaml).unwrap_err();
 
         assert!(
-            format!("{}", error)
-                .contains("Could not find logo specified in doctave.yaml"),
-            "Error message was: {}", error
+            format!("{}", error).contains("Could not find logo specified in doctave.yaml"),
+            "Error message was: {}",
+            error
         );
+    }
+
+    #[test]
+    fn validate_base_path() {
+        let yaml = indoc! {"
+            ---
+            title: The Title
+            base_path: not/absolute
+        "};
+
+        let error = Config::from_yaml_str(Path::new(""), yaml).unwrap_err();
+
+        println!("{:?}", error);
+
+        assert!(
+            format!("{}", error)
+                .contains("base_path was not valid absolute URI path. Got `not/absolute`"),
+            "Got incorrect error message: {}",
+            error
+        );
+    }
+
+    #[test]
+    fn validate_base_path_ends_with_slash() {
+        let yaml = indoc! {"
+            ---
+            title: The Title
+            base_path: /docs
+        "};
+
+        let config = Config::from_yaml_str(Path::new(""), yaml).unwrap();
+
+        assert_eq!(config.base_path(), "/docs/");
+    }
+
+    #[test]
+    fn validate_default_base_path() {
+        let yaml = indoc! {"
+            ---
+            title: The Title
+        "};
+
+        let config = Config::from_yaml_str(Path::new(""), yaml).unwrap();
+
+        assert_eq!(config.base_path(), "/");
     }
 
     #[test]
@@ -392,7 +472,8 @@ mod test {
                 "Invalid pattern for navigation children. \
                 Found 'not-wildcard', expected \"*\" or a list of child pages"
             ),
-            "Error message was: {}", error
+            "Error message was: {}",
+            error
         );
     }
 
@@ -418,10 +499,7 @@ mod test {
 
         assert_eq!(
             NavRule::from_yaml_input(input),
-            vec![NavRule::Dir(
-                PathBuf::from("docs").join("features"),
-                None
-            )]
+            vec![NavRule::Dir(PathBuf::from("docs").join("features"), None)]
         );
     }
 
@@ -446,9 +524,7 @@ mod test {
         let input = vec![Navigation {
             path: PathBuf::from("docs").join("features"), // TODO: Make not rely on our docs
             children: Some(NavChildren::List(vec![Navigation {
-                path: PathBuf::from("docs")
-                    .join("features")
-                    .join("markdown.md"),
+                path: PathBuf::from("docs").join("features").join("markdown.md"),
                 children: None,
             }])),
         }];
@@ -458,9 +534,7 @@ mod test {
             vec![NavRule::Dir(
                 PathBuf::from("docs").join("features"),
                 Some(DirIncludeRule::Explicit(vec![NavRule::File(
-                    PathBuf::from("docs")
-                        .join("features")
-                        .join("markdown.md")
+                    PathBuf::from("docs").join("features").join("markdown.md")
                 )]))
             )]
         );

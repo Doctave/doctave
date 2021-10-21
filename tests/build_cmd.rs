@@ -457,3 +457,95 @@ integration_test!(cache_buster, |area| {
     // Famous last words ofc...
     area.assert_contains(&index, "doctave-style.css?v=1");
 });
+
+integration_test!(base_path, |area| {
+    area.create_config();
+    area.mkdir("docs");
+    area.write_file(Path::new("docs").join("README.md"), b"[link](/foo)");
+    area.write_file(Path::new("docs").join("other.md"), b"[link](/)");
+    area.write_file(
+        Path::new("doctave.yaml"),
+        indoc! {"
+    ---
+    title: Base Path
+    base_path: /docs
+    "}
+        .as_bytes(),
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+    println!("{}", std::str::from_utf8(&result.stdout).unwrap());
+
+    let index = area.path.join("site/index.html");
+
+    area.refute_contains(&index, "<a href=\"/\">");
+    area.refute_contains(&index, "<a href='/'>");
+
+    area.refute_contains(&index, "<a href=\"/other\">");
+    area.assert_contains(&index, "<a href=\"/docs/other\">");
+});
+
+integration_test!(base_path_with_custom_navigation, |area| {
+    area.create_config();
+    area.mkdir("docs");
+    area.write_file(Path::new("docs").join("README.md"), b"[link](/foo)");
+    area.write_file(Path::new("docs").join("other.md"), b"[link](/)");
+    area.write_file(
+        Path::new("doctave.yaml"),
+        indoc! {"
+    ---
+    title: Base Path
+    base_path: /docs
+    navigation:
+        - path: docs/other.md
+    "}
+        .as_bytes(),
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+    println!("{}", std::str::from_utf8(&result.stdout).unwrap());
+
+    let index = area.path.join("site/index.html");
+
+    area.refute_contains(&index, "<a href=\"/\">");
+    area.refute_contains(&index, "<a href='/'>");
+
+    area.refute_contains(&index, "<a href=\"/other\">");
+    area.assert_contains(&index, "<a href=\"/docs/other\">");
+});
+
+integration_test!(base_path_with_logo, |area| {
+    area.create_config();
+    area.mkdir(Path::new("docs").join("_include").join("assets"));
+    area.write_file(Path::new("docs").join("README.md"), b"[link](/foo)");
+    // Create a fake logo
+    area.write_file(
+        Path::new("docs")
+            .join("_include")
+            .join("assets")
+            .join("fake-logo.png"),
+        b"",
+    );
+    area.write_file(
+        Path::new("doctave.yaml"),
+        indoc! {"
+    ---
+    title: Base Path
+    base_path: /docs
+    logo: assets/fake-logo.png
+    "}
+        .as_bytes(),
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+    println!("{}", std::str::from_utf8(&result.stdout).unwrap());
+
+    let index = area.path.join("site").join("index.html");
+    area.assert_contains(&index, "/assets/fake-logo.png");
+
+    area.refute_contains(&index, "<a href=\"/\">");
+    area.refute_contains(&index, "<a href='/'>");
+});
