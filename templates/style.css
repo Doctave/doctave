@@ -12,11 +12,22 @@ h3,
 h4,
 h5,
 h6 {
-    color: {{ theme_main }};
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     margin-top: 34pt;
-    padding-bottom: 14pt;
+    padding-bottom: 0pt;
+}
+
+h1,
+h2 {
+    color: {{ theme_main }};
+}
+
+h3,
+h4,
+h5,
+h6 {
+    color: #374151;
 }
 
 p,
@@ -50,6 +61,7 @@ code {
 }
 
 pre {
+    border: 1px solid #E5E7EB;
     position: relative;
     padding: 1.5rem;
     background: #F8F9FB;
