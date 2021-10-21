@@ -3,6 +3,7 @@ title: Doctave
 colors:
   main: "#6875f5"
 logo: assets/doctave-logo.svg
+base_path: /example
 
 navigation:
   - path: docs/installing.md

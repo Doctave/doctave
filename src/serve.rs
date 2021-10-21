@@ -63,7 +63,7 @@ impl ServeCommand {
             &format!("0.0.0.0:{}", port),
             site.clone(),
             config.color_enabled(),
-            config.base_path().map(|p| p.to_owned()),
+            config.base_path().to_owned(),
         );
         thread::Builder::new()
             .name("http-server".into())

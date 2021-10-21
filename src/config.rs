@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 
 use colorsys::prelude::*;
 use colorsys::Rgb;
+use http::Uri;
 use serde::Deserialize;
 
 use crate::navigation::Link;
@@ -16,7 +17,7 @@ struct DoctaveYaml {
     colors: Option<ColorsYaml>,
     logo: Option<PathBuf>,
     navigation: Option<Vec<Navigation>>,
-    base_path: Option<PathBuf>,
+    base_path: Option<String>,
 }
 
 impl DoctaveYaml {
@@ -31,7 +32,7 @@ impl DoctaveYaml {
     }
 
     /// Runs checks that validate the values of provided in the Yaml file
-    fn validate(&self, project_root: &Path) -> Result<()> {
+    fn validate(&mut self, project_root: &Path) -> Result<()> {
         // Validate color
         if let Some(color) = &self.colors.as_ref().and_then(|c| c.main.as_ref()) {
             Rgb::from_hex_str(color).map_err(|_e| {
@@ -98,12 +99,23 @@ impl DoctaveYaml {
         }
 
         // Validate base path
-        if let Some(path) = &self.base_path {
-            if !path.is_absolute() {
+        if let Some(path) = &mut self.base_path {
+            let uri: Uri = path.parse().map_err(|_| {
+                Error::new(format!(
+                    "base_path was not valid absolute URI path. Got `{}`",
+                    path
+                ))
+            })?;
+
+            if !uri.path().starts_with("/") {
                 return Err(Error::new(format!(
                     "Base path must be an absolute path. Got `{}`.",
-                    path.display()
+                    path
                 )));
+            }
+
+            if !path.ends_with("/") {
+                path.push('/');
             }
         }
 
@@ -210,7 +222,7 @@ pub struct Config {
     project_root: PathBuf,
     out_dir: PathBuf,
     docs_dir: PathBuf,
-    base_path: Option<PathBuf>,
+    base_path: String,
     title: String,
     colors: Colors,
     logo: Option<String>,
@@ -231,7 +243,7 @@ impl Config {
     }
 
     pub fn from_yaml_str(project_root: &Path, yaml: &str) -> Result<Self> {
-        let doctave_yaml: DoctaveYaml = serde_yaml::from_str(yaml)
+        let mut doctave_yaml: DoctaveYaml = serde_yaml::from_str(yaml)
             .map_err(|e| Error::yaml(e, "Could not parse doctave.yaml"))?;
 
         doctave_yaml.validate(project_root)?;
@@ -241,7 +253,7 @@ impl Config {
             project_root: project_root.to_path_buf(),
             out_dir: project_root.join("site"),
             docs_dir: project_root.join("docs"),
-            base_path: doctave_yaml.base_path,
+            base_path: doctave_yaml.base_path.unwrap_or(String::from("/")),
             title: doctave_yaml.title,
             colors: doctave_yaml
                 .colors
@@ -249,7 +261,8 @@ impl Config {
                 .unwrap_or(Colors::default()),
             logo: doctave_yaml
                 .logo
-                .map(|p| Link::path_to_uri_with_extension(&p)),
+                .map(|p| Link::path_to_uri_with_extension(&p))
+                .map(|p| p.as_str().trim_start_matches("/").to_owned()),
             navigation: doctave_yaml.navigation.map(|n| NavRule::from_yaml_input(n)),
             port: doctave_yaml.port.unwrap_or_else(|| 4001),
             build_mode: BuildMode::Dev,
@@ -279,8 +292,8 @@ impl Config {
     }
 
     /// The directory that contains all the Markdown documentation
-    pub fn base_path(&self) -> Option<&Path> {
-        self.base_path.as_deref()
+    pub fn base_path(&self) -> &str {
+        &self.base_path
     }
 
     /// Rules that set the site navigation structure
@@ -407,12 +420,39 @@ mod test {
 
         let error = Config::from_yaml_str(Path::new(""), yaml).unwrap_err();
 
+        println!("{:?}", error);
+
         assert!(
             format!("{}", error)
-                .contains("Base path must be an absolute path. Got `not/absolute`."),
-            "Error message was: {}",
+                .contains("base_path was not valid absolute URI path. Got `not/absolute`"),
+            "Got incorrect error message: {}",
             error
         );
+    }
+
+    #[test]
+    fn validate_base_path_ends_with_slash() {
+        let yaml = indoc! {"
+            ---
+            title: The Title
+            base_path: /docs
+        "};
+
+        let config = Config::from_yaml_str(Path::new(""), yaml).unwrap();
+
+        assert_eq!(config.base_path(), "/docs/");
+    }
+
+    #[test]
+    fn validate_default_base_path() {
+        let yaml = indoc! {"
+            ---
+            title: The Title
+        "};
+
+        let config = Config::from_yaml_str(Path::new(""), yaml).unwrap();
+
+        assert_eq!(config.base_path(), "/");
     }
 
     #[test]

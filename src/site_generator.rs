@@ -222,7 +222,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
                     base_path: self
                         .config
                         .base_path()
-                        .map(|b| format!("{}", b.display())),
+                        .to_owned(),
                     timestamp: &self.timestamp,
                     page_title,
                     head_include,
@@ -398,7 +398,7 @@ pub struct TemplateData<'a> {
     pub head_include: Option<&'a str>,
     pub current_path: String,
     pub page_title: String,
-    pub base_path: Option<String>,
+    pub base_path: String,
     pub logo: Option<String>,
     pub project_title: String,
     pub build_mode: String,

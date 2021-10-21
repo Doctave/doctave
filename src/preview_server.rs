@@ -11,7 +11,7 @@ use crate::site::{InMemorySite, Site};
 
 pub struct PreviewServer {
     color: bool,
-    base_path: Option<PathBuf>,
+    base_path: String,
     addr: SocketAddr,
     site: Arc<InMemorySite>,
 }
@@ -21,7 +21,7 @@ impl PreviewServer {
         addr: &str,
         site: Arc<InMemorySite>,
         color: bool,
-        base_path: Option<PathBuf>,
+        base_path: String,
     ) -> Self {
         PreviewServer {
             addr: addr.parse().expect("invalid address for preview server"),
@@ -42,13 +42,11 @@ impl PreviewServer {
                 StandardStream::stdout(ColorChoice::Never)
             };
 
-            let path = self.base_path.clone().unwrap_or(PathBuf::from("/"));
-
             bunt::writeln!(
                 stdout,
                 "Server running on {$bold}http://{}{}{/$}\n",
                 self.addr,
-                path.display()
+                self.base_path
             )
             .unwrap();
         }
@@ -56,14 +54,14 @@ impl PreviewServer {
         for request in server.incoming_requests() {
             pool.scoped(|scope| {
                 scope.execute(|| {
-                    handle_request(request, &self.site, self.base_path.as_deref());
+                    handle_request(request, &self.site, &self.base_path);
                 });
             })
         }
     }
 }
 
-fn handle_request(request: Request, site: &InMemorySite, base_path: Option<&Path>) {
+fn handle_request(request: Request, site: &InMemorySite, base_path: &str) {
     let result = {
         let uri = request.url().parse::<http::Uri>().unwrap();
 
@@ -93,7 +91,7 @@ fn handle_request(request: Request, site: &InMemorySite, base_path: Option<&Path
 fn resolve_file(
     path: &Path,
     site: &InMemorySite,
-    base_path: Option<&Path>,
+    base_path: &str,
 ) -> Option<(Vec<u8>, Option<&'static str>)> {
     if path.to_str().map(|s| s.contains("..")).unwrap_or(false) {
         return None;
@@ -101,12 +99,10 @@ fn resolve_file(
 
     let mut path = path;
 
-    if let Some(base) = base_path {
-        if path.starts_with(base) {
-            path = path.strip_prefix(base).unwrap();
-        } else {
-            return None;
-        }
+    if path.starts_with(base_path) {
+        path = path.strip_prefix(base_path).unwrap();
+    } else {
+        return None;
     }
 
     let mut path = path.strip_prefix("/").unwrap_or(path).to_owned();

@@ -80,15 +80,14 @@ impl<'a> Navigation<'a> {
             let mut without_docs_part = path.components();
             let _ = without_docs_part.next();
 
-            let link_path = match self.config.base_path() {
-                Some(base_path) => link
+            let link_path = link
                     .path
-                    .strip_prefix(&format!("{}", base_path.display()))
-                    .unwrap(),
-                None => &link.path,
-            };
+                    .strip_prefix(self.config.base_path())
+                    .unwrap();
 
-            link_path == Link::path_to_uri(without_docs_part.as_path())
+            let doc_path = Link::path_to_uri(without_docs_part.as_path());
+
+            link_path.trim_start_matches("/") == doc_path.trim_start_matches("/")
         });
 
         match search_result {
@@ -117,7 +116,7 @@ impl Link {
     pub fn path_to_uri(path: &Path) -> String {
         let mut tmp = path.to_owned();
 
-        // Default to stipping .html extensions
+        // Default to stripping .html extensions
         tmp.set_extension("");
 
         if tmp.file_name() == Some(OsStr::new("index")) {
@@ -170,7 +169,7 @@ mod test {
 
     use crate::Document;
 
-    fn page(path: &str, name: &str, base_path: Option<&Path>) -> Document {
+    fn page(path: &str, name: &str, base_path: Option<&str>) -> Document {
         let mut frontmatter = BTreeMap::new();
         frontmatter.insert("title".to_string(), name.to_string());
 
@@ -178,7 +177,7 @@ mod test {
             Path::new(path),
             "Not important".to_string(),
             frontmatter,
-            base_path,
+            base_path.unwrap_or("/")
         )
     }
 
@@ -544,10 +543,10 @@ mod test {
                 page(
                     "README.md",
                     "Getting Started",
-                    Some(&PathBuf::from("/docs")),
+                    Some("/docs"),
                 ),
-                page("one.md", "One", Some(&PathBuf::from("/docs"))),
-                page("two.md", "Two", Some(&PathBuf::from("/docs"))),
+                page("one.md", "One", Some("/docs")),
+                page("two.md", "Two", Some("/docs")),
             ],
             dirs: vec![Directory {
                 path: PathBuf::from("docs").join("child"),
@@ -555,9 +554,9 @@ mod test {
                     page(
                         "child/README.md",
                         "Nested Root",
-                        Some(&PathBuf::from("/docs")),
+                        Some("/docs"),
                     ),
-                    page("child/three.md", "Three", Some(&PathBuf::from("/docs"))),
+                    page("child/three.md", "Three", Some("/docs")),
                 ],
                 dirs: vec![],
             }],

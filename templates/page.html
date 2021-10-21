@@ -11,13 +11,13 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="{{ base_path }}/assets/normalize.css?v={{ timestamp }}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{{ base_path }}/assets/doctave-style.css?v={{ timestamp }}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{{ base_path }}assets/normalize.css?v={{ timestamp }}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{{ base_path }}assets/doctave-style.css?v={{ timestamp }}" media="screen" />
 
-    <link rel="stylesheet" type="text/css" href="{{ base_path }}/assets/prism-ghcolors.css?v={{ timestamp }}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{{ base_path }}assets/prism-ghcolors.css?v={{ timestamp }}" media="screen" />
 
     {{#if (eq build_mode "dev") }}
-        <script type='text/javascript' src="{{ base_path }}/assets/livereload.js?port=35729" async="" defer=""></script>
+        <script type='text/javascript' src="{{ base_path }}assets/livereload.js?port=35729" async="" defer=""></script>
 
         <script>
             // Don't reset scrolling on livereload
@@ -65,20 +65,12 @@
         <div class='header'>
             <div class='logo'>
                 {{#if logo }}
-                    {{#if base_path }}
-                        <a href="{{ base_path }}">
-                    {{ else }}
-                        <a href="/">
-                    {{/if}}
+                    <a href="{{ base_path }}">
                         <img src="{{ base_path }}{{ logo }}" alt='{{ project_title }} logo'></img>
                     </a>
                 {{/if}}
                 <h2 class='project-name'>
-                    {{#if base_path }}
-                        <a href="{{ base_path }}">
-                    {{ else }}
-                        <a href="/">
-                    {{/if}}
+                    <a href="{{ base_path }}">
                         {{ project_title }}
                     </a>
                 </h2>
@@ -118,10 +110,10 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="{{ base_path }}/assets/mermaid.js?v={{ timestamp }}"></script>
-    <script type="text/javascript" src="{{ base_path }}/assets/elasticlunr.js?v={{ timestamp }}"></script>
-    <script type="text/javascript" src="{{ base_path }}/assets/doctave-app.js?v={{ timestamp }}"></script>
-    <script type="text/javascript" src="{{ base_path }}/assets/prism.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="{{ base_path }}assets/mermaid.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="{{ base_path }}assets/elasticlunr.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="{{ base_path }}assets/doctave-app.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="{{ base_path }}assets/prism.js?v={{ timestamp }}"></script>
 </body>
 
 </html>

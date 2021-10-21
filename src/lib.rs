@@ -137,7 +137,7 @@ struct Document {
     raw: String,
     markdown: Markdown,
     frontmatter: BTreeMap<String, String>,
-    base_path: Option<PathBuf>,
+    base_path: String,
 }
 
 impl Document {
@@ -145,7 +145,7 @@ impl Document {
     ///
     /// Must be provided both the absolute path to the file, and the relative
     /// path inside the docs directory to the original file.
-    fn load(absolute_path: &Path, relative_docs_path: &Path, base_path: Option<&Path>) -> Self {
+    fn load(absolute_path: &Path, relative_docs_path: &Path, base_path: &str) -> Self {
         let raw = fs::read_to_string(absolute_path).unwrap();
         let frontmatter =
             frontmatter::parse(&raw).expect("TODO: Print an error when frontmatter is busted");
@@ -158,7 +158,7 @@ impl Document {
         path: &Path,
         raw: String,
         frontmatter: BTreeMap<String, String>,
-        base_path: Option<&Path>,
+        base_path: &str,
     ) -> Self {
         let rename = if path.ends_with("README.md") {
             Some("index".to_string())
@@ -166,18 +166,18 @@ impl Document {
             None
         };
 
-        let markdown_options = base_path.map(|path| {
+        let markdown_options = {
             let mut opts = doctave_markdown::ParseOptions::default();
-            opts.url_root = format!("{}", path.display());
+            opts.url_root = base_path.to_owned();
             opts
-        });
+        };
 
-        let markdown = doctave_markdown::parse(frontmatter::without(&raw), markdown_options);
+        let markdown = doctave_markdown::parse(frontmatter::without(&raw), Some(markdown_options));
 
         Document {
             id: DOCUMENT_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
             path: path.to_path_buf(),
-            base_path: base_path.map(|base| base.to_path_buf()),
+            base_path: base_path.to_owned(),
             raw,
             markdown,
             rename,
@@ -209,13 +209,8 @@ impl Document {
     /// The URI path to this file.
     ///
     /// E.g: /foo/bar.html => /foo/bar
-    ///
-    /// Is affected by the base path
     fn uri_path(&self) -> String {
-        match &self.base_path {
-            None => Link::path_to_uri(&self.html_path()),
-            Some(base) => Link::path_to_uri(&base.join(self.html_path())),
-        }
+        Link::path_to_uri(&Path::new(&self.base_path).join(self.html_path()))
     }
 
     fn markdown_section(&self) -> &str {
