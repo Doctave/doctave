@@ -16,7 +16,7 @@ impl<'a> Navigation<'a> {
 
     /// Builds a navigation tree given a root directory
     pub fn build_for(&self, dir: &Directory) -> Vec<Link> {
-        let default: Vec<Link> = dir.into();
+        let default: Vec<Link> = dir.links();
 
         match &self.config.navigation() {
             None => default,
@@ -80,7 +80,15 @@ impl<'a> Navigation<'a> {
             let mut without_docs_part = path.components();
             let _ = without_docs_part.next();
 
-            link.path == Link::path_to_uri(without_docs_part.as_path())
+            let link_path = match self.config.base_path() {
+                Some(base_path) => link
+                    .path
+                    .strip_prefix(&format!("{}", base_path.display()))
+                    .unwrap(),
+                None => &link.path,
+            };
+
+            link_path == Link::path_to_uri(without_docs_part.as_path())
         });
 
         match search_result {
@@ -95,36 +103,6 @@ impl<'a> Navigation<'a> {
                 return recursive_results.get(0).map(|l| l.clone());
             }
         }
-    }
-}
-
-impl From<&Directory> for Vec<Link> {
-    fn from(dir: &Directory) -> Vec<Link> {
-        let mut links = dir
-            .docs
-            .iter()
-            .map(|d| Link {
-                title: d.title().to_owned(),
-                path: d.uri_path(),
-                children: vec![],
-            })
-            .filter(|l| l.path != dir.index().uri_path())
-            .collect::<Vec<_>>();
-
-        let mut children = dir
-            .dirs
-            .iter()
-            .map(|d| Link {
-                title: d.index().title().to_owned(),
-                path: d.index().uri_path(),
-                children: d.into(),
-            })
-            .collect::<Vec<_>>();
-
-        links.append(&mut children);
-        links.sort_by(|a, b| alphanumeric_sort::compare_str(&a.title, &b.title));
-
-        links
     }
 }
 
@@ -158,7 +136,7 @@ impl Link {
             .collect::<Vec<_>>()
             .join("/");
 
-        format!("/{}", uri_path)
+        format!("/{}", uri_path.as_str().trim_start_matches("/"))
     }
 
     pub fn path_to_uri_with_extension(path: &Path) -> String {
@@ -180,7 +158,7 @@ impl Link {
             .collect::<Vec<_>>()
             .join("/");
 
-        format!("/{}", uri_path)
+        format!("/{}", uri_path.as_str().trim_start_matches("/"))
     }
 }
 
@@ -192,11 +170,16 @@ mod test {
 
     use crate::Document;
 
-    fn page(path: &str, name: &str) -> Document {
+    fn page(path: &str, name: &str, base_path: Option<&Path>) -> Document {
         let mut frontmatter = BTreeMap::new();
         frontmatter.insert("title".to_string(), name.to_string());
 
-        Document::new(Path::new(path), "Not important".to_string(), frontmatter)
+        Document::new(
+            Path::new(path),
+            "Not important".to_string(),
+            frontmatter,
+            base_path,
+        )
     }
 
     fn config(yaml: Option<&str>) -> Config {
@@ -211,15 +194,15 @@ mod test {
         let root = Directory {
             path: PathBuf::from("docs"),
             docs: vec![
-                page("README.md", "Getting Started"),
-                page("one.md", "One"),
-                page("two.md", "Two"),
+                page("README.md", "Getting Started", None),
+                page("one.md", "One", None),
+                page("two.md", "Two", None),
             ],
             dirs: vec![Directory {
                 path: PathBuf::from("docs").join("child"),
                 docs: vec![
-                    page("child/README.md", "Nested Root"),
-                    page("child/three.md", "Three"),
+                    page("child/README.md", "Nested Root", None),
+                    page("child/three.md", "Three", None),
                 ],
                 dirs: vec![],
             }],
@@ -259,30 +242,30 @@ mod test {
         let root = Directory {
             path: PathBuf::from("docs"),
             docs: vec![
-                page("README.md", "Getting Started"),
-                page("001.md", "bb"),
-                page("002.md", "11"),
+                page("README.md", "Getting Started", None),
+                page("001.md", "bb", None),
+                page("002.md", "11", None),
             ],
             dirs: vec![
                 Directory {
                     path: PathBuf::from("docs").join("bb_child"),
                     docs: vec![
-                        page("child/README.md", "Index"),
-                        page("child/001.md", "BB"),
-                        page("child/002.md", "22"),
-                        page("child/003.md", "AA"),
-                        page("child/004.md", "11"),
+                        page("child/README.md", "Index", None),
+                        page("child/001.md", "BB", None),
+                        page("child/002.md", "22", None),
+                        page("child/003.md", "AA", None),
+                        page("child/004.md", "11", None),
                     ],
                     dirs: vec![],
                 },
                 Directory {
                     path: PathBuf::from("docs").join("aa_child"),
                     docs: vec![
-                        page("child2/README.md", "Index"),
-                        page("child2/001.md", "123"),
-                        page("child2/002.md", "aa"),
-                        page("child2/003.md", "cc"),
-                        page("child2/004.md", "bb"),
+                        page("child2/README.md", "Index", None),
+                        page("child2/001.md", "123", None),
+                        page("child2/002.md", "aa", None),
+                        page("child2/003.md", "cc", None),
+                        page("child2/004.md", "bb", None),
                     ],
                     dirs: vec![],
                 },
@@ -365,15 +348,15 @@ mod test {
         let root = Directory {
             path: PathBuf::from("docs"),
             docs: vec![
-                page("README.md", "Getting Started"),
-                page("one.md", "One"),
-                page("two.md", "Two"),
+                page("README.md", "Getting Started", None),
+                page("one.md", "One", None),
+                page("two.md", "Two", None),
             ],
             dirs: vec![Directory {
                 path: PathBuf::from("docs").join("child"),
                 docs: vec![
-                    page("child/README.md", "Nested Root"),
-                    page("child/three.md", "Three"),
+                    page("child/README.md", "Nested Root", None),
+                    page("child/three.md", "Three", None),
                 ],
                 dirs: vec![],
             }],
@@ -386,7 +369,7 @@ mod test {
 
         let config = config(None);
         let navigation = Navigation::new(&config);
-        let links: Vec<Link> = (&root).into();
+        let links: Vec<Link> = root.links();
 
         assert_eq!(
             navigation.customize(&rules, &links),
@@ -414,21 +397,21 @@ mod test {
         let root = Directory {
             path: PathBuf::from("docs"),
             docs: vec![
-                page("README.md", "Getting Started"),
-                page("one.md", "One"),
-                page("two.md", "Two"),
+                page("README.md", "Getting Started", None),
+                page("one.md", "One", None),
+                page("two.md", "Two", None),
             ],
             dirs: vec![Directory {
                 path: PathBuf::from("docs").join("child"),
                 docs: vec![
-                    page("child/README.md", "Nested Root"),
-                    page("child/three.md", "Three"),
+                    page("child/README.md", "Nested Root", None),
+                    page("child/three.md", "Three", None),
                 ],
                 dirs: vec![Directory {
                     path: PathBuf::from("docs").join("child").join("nested"),
                     docs: vec![
-                        page("child/nested/README.md", "Nested Root"),
-                        page("child/nested/four.md", "Four"),
+                        page("child/nested/README.md", "Nested Root", None),
+                        page("child/nested/four.md", "Four", None),
                     ],
                     dirs: vec![],
                 }],
@@ -453,7 +436,7 @@ mod test {
 
         let config = config(None);
         let navigation = Navigation::new(&config);
-        let links: Vec<Link> = (&root).into();
+        let links: Vec<Link> = root.links();
 
         assert_eq!(
             navigation.customize(&rules, &links),
@@ -484,12 +467,12 @@ mod test {
     fn manual_menu_file_from_nested_directory() {
         let root = Directory {
             path: PathBuf::from("docs"),
-            docs: vec![page("README.md", "Getting Started")],
+            docs: vec![page("README.md", "Getting Started", None)],
             dirs: vec![Directory {
                 path: PathBuf::from("docs").join("child"),
                 docs: vec![
-                    page("child/README.md", "Nested Root"),
-                    page("child/three.md", "Three"),
+                    page("child/README.md", "Nested Root", None),
+                    page("child/three.md", "Three", None),
                 ],
                 dirs: vec![],
             }],
@@ -501,7 +484,7 @@ mod test {
 
         let config = config(None);
         let navigation = Navigation::new(&config);
-        let links: Vec<Link> = (&root).into();
+        let links: Vec<Link> = root.links();
 
         assert_eq!(
             navigation.customize(&rules, &links),
@@ -517,10 +500,13 @@ mod test {
     fn manual_menu_file_from_parent_directory() {
         let root = Directory {
             path: PathBuf::from("docs"),
-            docs: vec![page("README.md", "Getting Started"), page("one.md", "One")],
+            docs: vec![
+                page("README.md", "Getting Started", None),
+                page("one.md", "One", None),
+            ],
             dirs: vec![Directory {
                 path: PathBuf::from("docs").join("child"),
-                docs: vec![page("child/README.md", "Nested Root")],
+                docs: vec![page("child/README.md", "Nested Root", None)],
                 dirs: vec![],
             }],
         };
@@ -534,7 +520,7 @@ mod test {
 
         let config = config(None);
         let navigation = Navigation::new(&config);
-        let links: Vec<Link> = (&root).into();
+        let links: Vec<Link> = root.links();
 
         assert_eq!(
             navigation.customize(&rules, &links),
@@ -548,5 +534,66 @@ mod test {
                 }]
             },]
         );
+    }
+
+    #[test]
+    fn build_with_base_url() {
+        let root = Directory {
+            path: PathBuf::from("docs"),
+            docs: vec![
+                page(
+                    "README.md",
+                    "Getting Started",
+                    Some(&PathBuf::from("/docs")),
+                ),
+                page("one.md", "One", Some(&PathBuf::from("/docs"))),
+                page("two.md", "Two", Some(&PathBuf::from("/docs"))),
+            ],
+            dirs: vec![Directory {
+                path: PathBuf::from("docs").join("child"),
+                docs: vec![
+                    page(
+                        "child/README.md",
+                        "Nested Root",
+                        Some(&PathBuf::from("/docs")),
+                    ),
+                    page("child/three.md", "Three", Some(&PathBuf::from("/docs"))),
+                ],
+                dirs: vec![],
+            }],
+        };
+
+        let config = config(Some(indoc! {"
+        ---
+        title: Not in the root
+        base_url: /docs
+        "}));
+
+        let navigation = Navigation::new(&config);
+
+        assert_eq!(
+            navigation.build_for(&root),
+            vec![
+                Link {
+                    path: String::from("/docs/child"),
+                    title: String::from("Nested Root"),
+                    children: vec![Link {
+                        path: String::from("/docs/child/three"),
+                        title: String::from("Three"),
+                        children: vec![],
+                    },],
+                },
+                Link {
+                    path: String::from("/docs/one"),
+                    title: String::from("One"),
+                    children: vec![],
+                },
+                Link {
+                    path: String::from("/docs/two"),
+                    title: String::from("Two"),
+                    children: vec![],
+                },
+            ]
+        )
     }
 }

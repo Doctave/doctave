@@ -95,59 +95,67 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
     /// Builds fixed assets required by Doctave
     fn build_assets(&self) -> Result<()> {
         // Add JS
-        self.site.add_file(
-            &self.config.out_dir().join("assets").join("mermaid.js"),
-            crate::MERMAID_JS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write mermaid.js to assets directory"))?;
-        self.site.add_file(
-            &self.config.out_dir().join("assets").join("elasticlunr.js"),
-            crate::ELASTIC_LUNR.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write elasticlunr.js to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("mermaid.js"),
+                crate::MERMAID_JS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write mermaid.js to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("elasticlunr.js"),
+                crate::ELASTIC_LUNR.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write elasticlunr.js to assets directory"))?;
         if let BuildMode::Dev = self.config.build_mode() {
             // Livereload only in release mode
-            self.site.add_file(
-                &self.config.out_dir().join("assets").join("livereload.js"),
-                crate::LIVERELOAD_JS.into(),
-            )
-            .map_err(|e| Error::io(e, "Could not write livereload.js to assets directory"))?;
+            self.site
+                .add_file(
+                    &self.config.out_dir().join("assets").join("livereload.js"),
+                    crate::LIVERELOAD_JS.into(),
+                )
+                .map_err(|e| Error::io(e, "Could not write livereload.js to assets directory"))?;
         }
-        self.site.add_file(
-            &self.config.out_dir().join("assets").join("prism.js"),
-            crate::PRISM_JS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write prism.js to assets directory"))?;
-        self.site.add_file(
-            &self.config.out_dir().join("assets").join("doctave-app.js"),
-            crate::APP_JS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write doctave-app.js to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("prism.js"),
+                crate::PRISM_JS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write prism.js to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("doctave-app.js"),
+                crate::APP_JS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write doctave-app.js to assets directory"))?;
 
         // Add styles
-        self.site.add_file(
-            &self
-                .config
-                .out_dir()
-                .join("assets")
-                .join("prism-atom-dark.css"),
-            crate::ATOM_DARK_CSS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write prism-atom-dark.css to assets directory"))?;
-        self.site.add_file(
-            &self
-                .config
-                .out_dir()
-                .join("assets")
-                .join("prism-ghcolors.css"),
-            crate::GH_COLORS_CSS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write prism-ghcolors.css to assets directory"))?;
-        self.site.add_file(
-            &self.config.out_dir().join("assets").join("normalize.css"),
-            crate::NORMALIZE_CSS.into(),
-        )
-        .map_err(|e| Error::io(e, "Could not write normalize.css to assets directory"))?;
+        self.site
+            .add_file(
+                &self
+                    .config
+                    .out_dir()
+                    .join("assets")
+                    .join("prism-atom-dark.css"),
+                crate::ATOM_DARK_CSS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write prism-atom-dark.css to assets directory"))?;
+        self.site
+            .add_file(
+                &self
+                    .config
+                    .out_dir()
+                    .join("assets")
+                    .join("prism-ghcolors.css"),
+                crate::GH_COLORS_CSS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write prism-ghcolors.css to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("normalize.css"),
+                crate::NORMALIZE_CSS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write normalize.css to assets directory"))?;
 
         let mut data = serde_json::Map::new();
         data.insert(
@@ -211,6 +219,10 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
                     project_title: self.config.title().to_string(),
                     logo: self.config.logo().map(|l| l.to_string()),
                     build_mode: self.config.build_mode().to_string(),
+                    base_path: self
+                        .config
+                        .base_path()
+                        .map(|b| format!("{}", b.display())),
                     timestamp: &self.timestamp,
                     page_title,
                     head_include,
@@ -222,7 +234,8 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
                     .render_to_write("page", &data, &mut out)
                     .map_err(|e| Error::handlebars(e, "Could not render template"))?;
 
-                self.site.add_file(&doc.destination(self.config.out_dir()), out.into())?;
+                self.site
+                    .add_file(&doc.destination(self.config.out_dir()), out.into())?;
 
                 Ok(())
             })
@@ -241,11 +254,12 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
         self.build_search_index_for_dir(root, &mut index);
 
         {
-            self.site.add_file(
-                &self.config.out_dir().join("search_index.json"),
-                index.to_json().as_bytes().into(),
-            )
-            .map_err(|e| Error::io(e, "Could not create search index"))
+            self.site
+                .add_file(
+                    &self.config.out_dir().join("search_index.json"),
+                    index.to_json().as_bytes().into(),
+                )
+                .map_err(|e| Error::io(e, "Could not create search index"))
         }
     }
 
@@ -293,7 +307,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
             if entry.file_type().is_file() && entry.path().extension() == Some(OsStr::new("md")) {
                 let path = entry.path().strip_prefix(self.config.docs_dir()).unwrap();
 
-                docs.push(Document::load(entry.path(), path));
+                docs.push(Document::load(entry.path(), path, self.config.base_path()));
             } else {
                 let path = entry.into_path();
 
@@ -371,6 +385,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
                 content
             ),
             frontmatter,
+            self.config.base_path(),
         )
     }
 }
@@ -383,6 +398,7 @@ pub struct TemplateData<'a> {
     pub head_include: Option<&'a str>,
     pub current_path: String,
     pub page_title: String,
+    pub base_path: Option<String>,
     pub logo: Option<String>,
     pub project_title: String,
     pub build_mode: String,

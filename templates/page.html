@@ -11,44 +11,44 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v={{ timestamp }}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v={{ timestamp }}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{{ base_path }}/assets/normalize.css?v={{ timestamp }}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{{ base_path }}/assets/doctave-style.css?v={{ timestamp }}" media="screen" />
 
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v={{ timestamp }}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{{ base_path }}/assets/prism-ghcolors.css?v={{ timestamp }}" media="screen" />
 
     {{#if (eq build_mode "dev") }}
-    <script type='text/javascript' src="/assets/livereload.js?port=35729" async="" defer=""></script>
+        <script type='text/javascript' src="{{ base_path }}/assets/livereload.js?port=35729" async="" defer=""></script>
 
-    <script>
-    // Don't reset scrolling on livereload
-    window.addEventListener('scroll', function() {
-        localStorage.setItem('doctave-scrollPosition', window.scrollY);
+        <script>
+            // Don't reset scrolling on livereload
+            window.addEventListener('scroll', function() {
+                localStorage.setItem('doctave-scrollPosition', window.scrollY);
 
-        dragRightMenu();
-    }, false);
+                dragRightMenu();
+            }, false);
 
-    window.addEventListener('load', function() {
-        if (localStorage.getItem('doctave-scrollPosition') !== null)
-            window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
+            window.addEventListener('load', function() {
+                if (localStorage.getItem('doctave-scrollPosition') !== null)
+                    window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
 
-        document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
-            disableScrollifMenuOpen();
-        });
-    }, false);
-    </script>
+                document.getElementById('menu-toggle-switch').addEventListener('change', function(e) {
+                    disableScrollifMenuOpen();
+                });
+            }, false);
+        </script>
     {{/if}}
 
     <script>
-    var DOCTAVE_TIMESTAMP = "{{ timestamp }}";
-    var color = localStorage.getItem('doctave-color')
+        var DOCTAVE_TIMESTAMP = "{{ timestamp }}";
+        var color = localStorage.getItem('doctave-color')
 
-    if (color === 'dark') {
-        document.getElementsByTagName('html')[0].classList.remove('light');
-        document.getElementsByTagName('html')[0].classList.add('dark');
-    } else {
-        document.getElementsByTagName('html')[0].classList.remove('dark');
-        document.getElementsByTagName('html')[0].classList.add('light');
-    }
+        if (color === 'dark') {
+            document.getElementsByTagName('html')[0].classList.remove('light');
+            document.getElementsByTagName('html')[0].classList.add('dark');
+        } else {
+            document.getElementsByTagName('html')[0].classList.remove('dark');
+            document.getElementsByTagName('html')[0].classList.add('light');
+        }
     </script>
 
     {{#if head_include }}
@@ -65,12 +65,20 @@
         <div class='header'>
             <div class='logo'>
                 {{#if logo }}
-                    <a href='/'>
-                        <img src="{{ logo }}" alt='{{ project_title }} logo'></img>
+                    {{#if base_path }}
+                        <a href="{{ base_path }}">
+                    {{ else }}
+                        <a href="/">
+                    {{/if}}
+                        <img src="{{ base_path }}{{ logo }}" alt='{{ project_title }} logo'></img>
                     </a>
                 {{/if}}
                 <h2 class='project-name'>
-                    <a href='/'>
+                    {{#if base_path }}
+                        <a href="{{ base_path }}">
+                    {{ else }}
+                        <a href="/">
+                    {{/if}}
                         {{ project_title }}
                     </a>
                 </h2>
@@ -110,10 +118,10 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js?v={{ timestamp }}"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js?v={{ timestamp }}"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js?v={{ timestamp }}"></script>
-    <script type="text/javascript" src="/assets/prism.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="{{ base_path }}/assets/mermaid.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="{{ base_path }}/assets/elasticlunr.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="{{ base_path }}/assets/doctave-app.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="{{ base_path }}/assets/prism.js?v={{ timestamp }}"></script>
 </body>
 
 </html>

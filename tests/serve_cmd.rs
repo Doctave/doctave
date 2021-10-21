@@ -50,7 +50,6 @@ integration_test!(serve_smoke_test, |area| {
     request_data.push_str("\r\n");
     request_data.push_str("\r\n");
 
-
     stream.write_all(request_data.as_bytes()).unwrap();
 
     let mut buf = String::new();

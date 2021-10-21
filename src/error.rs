@@ -57,7 +57,7 @@ impl fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-impl From<std::io::Error>  for Error {
+impl From<std::io::Error> for Error {
     fn from(other: std::io::Error) -> Error {
         Error::io(other, "IO error occurred")
     }
