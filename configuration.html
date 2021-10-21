@@ -11,24 +11,24 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1631602225" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1631602225" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1634824096" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1634824096" media="screen" />
 
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1631602225" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1634824096" media="screen" />
 
     
 
     <script>
-    var DOCTAVE_TIMESTAMP = "1631602225";
-    var color = localStorage.getItem('doctave-color')
+        var DOCTAVE_TIMESTAMP = "1634824096";
+        var color = localStorage.getItem('doctave-color')
 
-    if (color === 'dark') {
-        document.getElementsByTagName('html')[0].classList.remove('light');
-        document.getElementsByTagName('html')[0].classList.add('dark');
-    } else {
-        document.getElementsByTagName('html')[0].classList.remove('dark');
-        document.getElementsByTagName('html')[0].classList.add('light');
-    }
+        if (color === 'dark') {
+            document.getElementsByTagName('html')[0].classList.remove('light');
+            document.getElementsByTagName('html')[0].classList.add('dark');
+        } else {
+            document.getElementsByTagName('html')[0].classList.remove('dark');
+            document.getElementsByTagName('html')[0].classList.add('light');
+        }
     </script>
 
     
@@ -46,12 +46,12 @@
         <div class='header'>
             <div class='logo'>
                 
-                    <a href='/'>
+                    <a href="/">
                         <img src="/assets/doctave-logo.svg" alt='Doctave logo'></img>
                     </a>
                 
                 <h2 class='project-name'>
-                    <a href='/'>
+                    <a href="/">
                         Doctave
                     </a>
                 </h2>
@@ -131,9 +131,12 @@
 <p>This document goes through all the different configuration options available.</p>
 <h2 id="doctave.yaml-2">Doctave.yaml</h2>
 <p>First, let's look at the options available in the <code>doctave.yaml</code> file.</p>
-<p><strong>NOTE!</strong> Any changes you make to this file will only come into effect when you restart the preview
-server, or rebuild your site.</p>
-<h3 id="title-3">title</h3>
+<div class="callout info"><p class="callout-title">⚠️ Remember to restart</p>
+<p>
+Any changes you make to this file will only come into effect when you restart the preview
+server, or rebuild your site.
+</p>
+</div><h3 id="title-3">title</h3>
 <p>This sets the name of your project. It serves two purposes:</p>
 <ul>
 <li>It will displayed as the title at the top right of the page</li>
@@ -153,7 +156,20 @@ title: Authentication service
 <pre><code class="language-yaml">---
 port: 5432
 </code></pre>
-<h3 id="colors.main-5">colors.main</h3>
+<h3 id="base_path-5">base_path</h3>
+<p>Tells Doctave to generate all URLs based on a subpath. Use this if you are deploying your site under
+a subdirectory, such as <code>https://example.com/docs</code>.</p>
+<p>You won't have to change any URLs inside your docs when this value is changed. You can stil
+construct paths to other pages and assets as if the site was served from the root of the URL. E.g.
+if you have a page <code>docs/deployment/workflow.md</code>, you can link to it with <code>/deployment/workflow</code>,
+without worrying about the base_path.</p>
+<p>This is an optional setting.</p>
+<p>This setting <em>must be an absolute path</em>.</p>
+<p>Example:</p>
+<pre><code class="language-yaml">---
+base_path: /docs
+</code></pre>
+<h3 id="colors.main-6">colors.main</h3>
 <p>This sets the main color for your site. You can read more about this in
 <a href="/features/customization">customization</a>. Currently this is the only color you can customize.</p>
 <p>This is an optional setting.</p>
@@ -164,14 +180,14 @@ colors:
   main: #FF78E4
 
 </code></pre>
-<h3 id="logo-6">logo</h3>
+<h3 id="logo-7">logo</h3>
 <p>The name of the file to serve as your logo. You can read more about this in
 <a href="/features/customization">customization</a>.</p>
 <p>This is an optional setting.</p>
 <pre><code class="language-yaml">---
 logo: logo.png
 </code></pre>
-<h3 id="navigation-7">navigation</h3>
+<h3 id="navigation-8">navigation</h3>
 <p>Customizes your site navigation on the left side of the page.</p>
 <p>You can read more about this under <a href="/features/custom-navigation.md">custom navigation</a>.</p>
 <p>This is an optional setting.</p>
@@ -181,25 +197,25 @@ logo: logo.png
   - path: docs/features
     children: "*"
 </code></pre>
-<h2 id="all-commands-8">All commands</h2>
+<h2 id="all-commands-9">All commands</h2>
 <p>All commands support the following option.</p>
-<h3 id="--no-color-9">--no-color</h3>
+<h3 id="--no-color-10">--no-color</h3>
 <p>Disable terminal colors.</p>
 <p>This is an optional argument.</p>
 <p>Example:</p>
 <pre><code>$ doctave serve --no-color
 </code></pre>
-<h2 id="serve-command-10">Serve command</h2>
+<h2 id="serve-command-11">Serve command</h2>
 <p>Currently the <code>serve</code> command takes only one optional argument.</p>
-<h3 id="--port,--p-11">--port, -p</h3>
+<h3 id="--port,--p-12">--port, -p</h3>
 <p>Sets the port the development server will listen on when running the <code>serve</code> command.</p>
 <p>This is an optional argument.</p>
 <p>Example:</p>
 <pre><code>$ doctave serve --port 5432
 </code></pre>
-<h2 id="build-command-12">Build command</h2>
+<h2 id="build-command-13">Build command</h2>
 <p>Currently the <code>build</code> command takes only one optional argument.</p>
-<h3 id="--release-13">--release</h3>
+<h3 id="--release-14">--release</h3>
 <p>This flag will build the site without development dependencies. Currently this means stripping out
 livereload.js from the bundle, but can be extended in the future to include other actions.</p>
 <p>This is an optional argument.</p>
@@ -230,39 +246,43 @@ livereload.js from the bundle, but can be extended in the future to include othe
                             </li>
                         
                             <li class='page-nav-level-3'>
-                                <a href='#colors.main-5'>colors.main</a>
+                                <a href='#base_path-5'>base_path</a>
                             </li>
                         
                             <li class='page-nav-level-3'>
-                                <a href='#logo-6'>logo</a>
+                                <a href='#colors.main-6'>colors.main</a>
                             </li>
                         
                             <li class='page-nav-level-3'>
-                                <a href='#navigation-7'>navigation</a>
+                                <a href='#logo-7'>logo</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#navigation-8'>navigation</a>
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#all-commands-8'>All commands</a>
+                                <a href='#all-commands-9'>All commands</a>
                             </li>
                         
                             <li class='page-nav-level-3'>
-                                <a href='#--no-color-9'>--no-color</a>
+                                <a href='#--no-color-10'>--no-color</a>
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#serve-command-10'>Serve command</a>
+                                <a href='#serve-command-11'>Serve command</a>
                             </li>
                         
                             <li class='page-nav-level-3'>
-                                <a href='#--port,--p-11'>--port, -p</a>
+                                <a href='#--port,--p-12'>--port, -p</a>
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#build-command-12'>Build command</a>
+                                <a href='#build-command-13'>Build command</a>
                             </li>
                         
                             <li class='page-nav-level-3'>
-                                <a href='#--release-13'>--release</a>
+                                <a href='#--release-14'>--release</a>
                             </li>
                         
                     </ul>
@@ -278,10 +298,10 @@ livereload.js from the bundle, but can be extended in the future to include othe
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js?v=1631602225"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js?v=1631602225"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js?v=1631602225"></script>
-    <script type="text/javascript" src="/assets/prism.js?v=1631602225"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v=1634824096"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v=1634824096"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v=1634824096"></script>
+    <script type="text/javascript" src="/assets/prism.js?v=1634824096"></script>
 </body>
 
 </html>

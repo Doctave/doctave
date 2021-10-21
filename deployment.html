@@ -11,24 +11,24 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1631602225" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1631602225" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1634824096" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1634824096" media="screen" />
 
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1631602225" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1634824096" media="screen" />
 
     
 
     <script>
-    var DOCTAVE_TIMESTAMP = "1631602225";
-    var color = localStorage.getItem('doctave-color')
+        var DOCTAVE_TIMESTAMP = "1634824096";
+        var color = localStorage.getItem('doctave-color')
 
-    if (color === 'dark') {
-        document.getElementsByTagName('html')[0].classList.remove('light');
-        document.getElementsByTagName('html')[0].classList.add('dark');
-    } else {
-        document.getElementsByTagName('html')[0].classList.remove('dark');
-        document.getElementsByTagName('html')[0].classList.add('light');
-    }
+        if (color === 'dark') {
+            document.getElementsByTagName('html')[0].classList.remove('light');
+            document.getElementsByTagName('html')[0].classList.add('dark');
+        } else {
+            document.getElementsByTagName('html')[0].classList.remove('dark');
+            document.getElementsByTagName('html')[0].classList.add('light');
+        }
     </script>
 
     
@@ -46,12 +46,12 @@
         <div class='header'>
             <div class='logo'>
                 
-                    <a href='/'>
+                    <a href="/">
                         <img src="/assets/doctave-logo.svg" alt='Doctave logo'></img>
                     </a>
                 
                 <h2 class='project-name'>
-                    <a href='/'>
+                    <a href="/">
                         Doctave
                     </a>
                 </h2>
@@ -130,21 +130,28 @@
                 <h1 id="deployment-1">Deployment</h1>
 <p>Doctave builds a static site bundle into the <code>site</code> directory which is fully self contained. You can
 take the output of <code>doctave build --release</code> and deploy it in any way you see fit.</p>
+<div class="callout info"><p class="callout-title">👉 Deploying under a custom path</p>
+<p>By default Doctave assumes the deployed page is accessible under the root url. E.g.
+<code>wwww.example.com</code>.</p>
+<p>If you want to deploy under a subdirectory, such as <code>www.example.com/docs</code>, you
+have to set the <code>base_path</code> in your <code>doctave.yaml</code> file. This will make Doctave generate URLs
+relative to e.g <code>/docs</code> instead of the plain root url <code>/</code>.</p>
+<p>Read more <a href="/configuration#base_path-5">here</a>.</p>
+</div>
 <p>Below is a walkthrough on how to publish your docs on Github Pages. We will be adding more tutorials
 for other hosting options over time.</p>
 <h2 id="github-pages-2">Github Pages</h2>
 <p>This guide assumes you have:</p>
-<ul>
+<ol>
 <li>Hosted your repository on Github</li>
 <li>Enabled Github Pages in your repository's settings</li>
-</ul>
+</ol>
 <h3 id="disable-jekyll-builds-3">Disable Jekyll builds</h3>
 <p>First, you need to tell Github not to use Jekyll to build your site. You do this by including a
 <code>.nojekyll</code> file in the root of site. </p>
 <p>In Doctave, you do this by adding the file under <code>docs/_include</code>.</p>
 <p>On Mac/Linux:</p>
 <pre><code>$ touch docs/_include/.nojekyll
-
 </code></pre>
 <p>On Windows:</p>
 <pre><code>$ echo.&gt; docs\_include\.nojekyll
@@ -160,9 +167,13 @@ only the <code>site</code> folder in that branch, not your other source code, an
 <p>Luckily, there is a handy command line tool, <a href="https://www.npmjs.com/package/gh-pages">gh-pages</a>
 that takes care of all of that for you. All you need to do, is run a single command, and your site
 will be published.</p>
-<p><em>Note: At the time of writing, <code>gh-pages@3.1.0</code> does not work for projects without a package.json
+<div class="callout warning"><p class="callout-title">⚠️ Note about gh-pages</p>
+<p>
+At the time of writing, <code>gh-pages@3.1.0</code> does not work for projects without a package.json
 file. This is why this guide recommends using <code>3.0.0</code>. Read more in <a href="https://github.com/tschaub/gh-pages/issues/354">this
-issue</a>.</em></p>
+issue</a>.
+</p>
+</div>
 <pre><code>npm install -g gh-pages@3.0.0
 </code></pre>
 <h3 id="build-your-site-6">Build your site</h3>
@@ -223,10 +234,10 @@ Published
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js?v=1631602225"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js?v=1631602225"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js?v=1631602225"></script>
-    <script type="text/javascript" src="/assets/prism.js?v=1631602225"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v=1634824096"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v=1634824096"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v=1634824096"></script>
+    <script type="text/javascript" src="/assets/prism.js?v=1634824096"></script>
 </body>
 
 </html>

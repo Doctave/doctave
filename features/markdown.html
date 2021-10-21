@@ -11,24 +11,24 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1631602225" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1631602225" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1634824096" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1634824096" media="screen" />
 
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1631602225" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1634824096" media="screen" />
 
     
 
     <script>
-    var DOCTAVE_TIMESTAMP = "1631602225";
-    var color = localStorage.getItem('doctave-color')
+        var DOCTAVE_TIMESTAMP = "1634824096";
+        var color = localStorage.getItem('doctave-color')
 
-    if (color === 'dark') {
-        document.getElementsByTagName('html')[0].classList.remove('light');
-        document.getElementsByTagName('html')[0].classList.add('dark');
-    } else {
-        document.getElementsByTagName('html')[0].classList.remove('dark');
-        document.getElementsByTagName('html')[0].classList.add('light');
-    }
+        if (color === 'dark') {
+            document.getElementsByTagName('html')[0].classList.remove('light');
+            document.getElementsByTagName('html')[0].classList.add('dark');
+        } else {
+            document.getElementsByTagName('html')[0].classList.remove('dark');
+            document.getElementsByTagName('html')[0].classList.add('light');
+        }
     </script>
 
     
@@ -46,12 +46,12 @@
         <div class='header'>
             <div class='logo'>
                 
-                    <a href='/'>
+                    <a href="/">
                         <img src="/assets/doctave-logo.svg" alt='Doctave logo'></img>
                     </a>
                 
                 <h2 class='project-name'>
-                    <a href='/'>
+                    <a href="/">
                         Doctave
                     </a>
                 </h2>
@@ -188,18 +188,65 @@ heading on the page will be emphasized, like the "Markdown syntax" title on this
 <pre><code>![A random image](https://picsum.photos/600/400)
 </code></pre>
 <p><img src="https://picsum.photos/600/400" alt="A random image"></p>
-<h2 id="quotes-9">Quotes</h2>
+<h2 id="emojis-9">Emojis</h2>
+<p>You can use <a href="https://emojipedia.org/shortcodes/">GitHub style shortcodes</a> for emojis.</p>
+<p>This means you can write <code>:bell:</code> and Doctave will render is as 🔔. These work particularly well
+with callouts (see below):</p>
+<div class="callout info"><p class="callout-title">⚡  I want your attention</p>
+<p>
+This is important!
+</p>
+</div><h2 id="callouts-10">Callouts</h2>
+<p>You can bring attention to sections using callouts.</p>
+<h3 id="basic-usage-11">Basic usage</h3>
+<pre><code>{% info This is the title %}
+
+And this is the content!
+
+So much space for activities!
+
+{% end %}
+</code></pre>
+<p>Gives you:</p>
+<div class="callout info"><p class="callout-title">This is the title</p>
+<p>And this is the content!</p>
+<p>So much space for activities!</p>
+</div><h3 id="without-a-title-12">Without a title</h3>
+<pre><code>{% info %}
+
+You can skip the title
+
+{% end %}
+</code></pre>
+<p>Gives you:</p>
+<div class="callout info">
+<p>You can skip the title</p>
+</div><h3 id="types-13">Types</h3>
+<p>Instead of <code>info</code>, you can use <code>success</code>, <code>warning</code>, or <code>error</code> for different colored callouts:</p>
+<div class="callout success"><p class="callout-title">A success message</p>
+<p>
+This is positive news
+</p>
+</div><div class="callout warning"><p class="callout-title">A warning message</p>
+<p>
+You should use caution
+</p>
+</div><div class="callout error"><p class="callout-title">An error message</p>
+<p>
+Something went wrong
+</p>
+</div><h2 id="quotes-14">Quotes</h2>
 <pre><code>&gt; It's true, because it's a quote
 </code></pre>
 <blockquote>
 <p>It's true, because it's a quote</p>
 </blockquote>
-<h2 id="code-10">Code</h2>
-<h3 id="inline-11">Inline</h3>
+<h2 id="code-15">Code</h2>
+<h3 id="inline-16">Inline</h3>
 <pre><code>Use `backticks for inline code snippets`.
 </code></pre>
 <p>Use <code>backticks for inline code snippets</code>.</p>
-<h3 id="block-12">Block</h3>
+<h3 id="block-17">Block</h3>
 <p>Either use three backticks</p>
 <pre><code>```
 For().your().code()
@@ -227,20 +274,20 @@ end
     @table = table_name_singularised.to_s.pluralize
 end
 </code></pre>
-<h2 id="task-lists-13">Task Lists</h2>
+<h2 id="task-lists-18">Task Lists</h2>
 <pre><code>- [ ] This is a list of todos
 - [x] This is a completed item
 - [ ] This is an uncompleted item
 </code></pre>
 <ul>
-<li>
+<li><input disabled="" type="checkbox">
 This is a list of todos</li>
-<li>
+<li><input disabled="" type="checkbox" checked="">
 This is a completed item</li>
-<li>
+<li><input disabled="" type="checkbox">
 This is an uncompleted item</li>
 </ul>
-<h2 id="tables-14">Tables</h2>
+<h2 id="tables-19">Tables</h2>
 <pre><code>This is a heading              | This is another heading  |
 -------------------------------|--------------------------|
 This is content for a columns  | This is **bold**         |
@@ -290,27 +337,47 @@ You can have more rows         | And more columns         |
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#quotes-9'>Quotes</a>
+                                <a href='#emojis-9'>Emojis</a>
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#code-10'>Code</a>
+                                <a href='#callouts-10'>Callouts</a>
                             </li>
                         
                             <li class='page-nav-level-3'>
-                                <a href='#inline-11'>Inline</a>
+                                <a href='#basic-usage-11'>Basic usage</a>
                             </li>
                         
                             <li class='page-nav-level-3'>
-                                <a href='#block-12'>Block</a>
+                                <a href='#without-a-title-12'>Without a title</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#types-13'>Types</a>
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#task-lists-13'>Task Lists</a>
+                                <a href='#quotes-14'>Quotes</a>
                             </li>
                         
                             <li class='page-nav-level-2'>
-                                <a href='#tables-14'>Tables</a>
+                                <a href='#code-15'>Code</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#inline-16'>Inline</a>
+                            </li>
+                        
+                            <li class='page-nav-level-3'>
+                                <a href='#block-17'>Block</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#task-lists-18'>Task Lists</a>
+                            </li>
+                        
+                            <li class='page-nav-level-2'>
+                                <a href='#tables-19'>Tables</a>
                             </li>
                         
                     </ul>
@@ -326,10 +393,10 @@ You can have more rows         | And more columns         |
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js?v=1631602225"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js?v=1631602225"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js?v=1631602225"></script>
-    <script type="text/javascript" src="/assets/prism.js?v=1631602225"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v=1634824096"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v=1634824096"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v=1634824096"></script>
+    <script type="text/javascript" src="/assets/prism.js?v=1634824096"></script>
 </body>
 
 </html>
