@@ -135,7 +135,7 @@ impl Link {
             .collect::<Vec<_>>()
             .join("/");
 
-        format!("/{}", uri_path.as_str().trim_start_matches("/"))
+        format!("{}", uri_path.as_str().trim_start_matches("/"))
     }
 
     pub fn path_to_uri_with_extension(path: &Path) -> String {
@@ -157,7 +157,7 @@ impl Link {
             .collect::<Vec<_>>()
             .join("/");
 
-        format!("/{}", uri_path.as_str().trim_start_matches("/"))
+        format!("{}", uri_path.as_str().trim_start_matches("/"))
     }
 }
 
@@ -536,17 +536,23 @@ mod test {
     }
 
     #[test]
-    fn build_with_base_url() {
+    fn build_with_base_path() {
+        let config = config(Some(indoc! {"
+        ---
+        title: Not in the root
+        base_path: /example
+        "}));
+
         let root = Directory {
             path: PathBuf::from("docs"),
             docs: vec![
                 page(
                     "README.md",
                     "Getting Started",
-                    Some("/docs"),
+                    Some(config.base_path()),
                 ),
-                page("one.md", "One", Some("/docs")),
-                page("two.md", "Two", Some("/docs")),
+                page("one.md", "One", Some(config.base_path())),
+                page("two.md", "Two", Some(config.base_path())),
             ],
             dirs: vec![Directory {
                 path: PathBuf::from("docs").join("child"),
@@ -554,19 +560,13 @@ mod test {
                     page(
                         "child/README.md",
                         "Nested Root",
-                        Some("/docs"),
+                        Some(config.base_path()),
                     ),
-                    page("child/three.md", "Three", Some("/docs")),
+                    page("child/three.md", "Three", Some(config.base_path())),
                 ],
                 dirs: vec![],
             }],
         };
-
-        let config = config(Some(indoc! {"
-        ---
-        title: Not in the root
-        base_url: /docs
-        "}));
 
         let navigation = Navigation::new(&config);
 
@@ -574,21 +574,21 @@ mod test {
             navigation.build_for(&root),
             vec![
                 Link {
-                    path: String::from("/docs/child"),
+                    path: String::from("/example/child"),
                     title: String::from("Nested Root"),
                     children: vec![Link {
-                        path: String::from("/docs/child/three"),
+                        path: String::from("/example/child/three"),
                         title: String::from("Three"),
                         children: vec![],
                     },],
                 },
                 Link {
-                    path: String::from("/docs/one"),
+                    path: String::from("/example/one"),
                     title: String::from("One"),
                     children: vec![],
                 },
                 Link {
-                    path: String::from("/docs/two"),
+                    path: String::from("/example/two"),
                     title: String::from("Two"),
                     children: vec![],
                 },

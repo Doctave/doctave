@@ -210,7 +210,7 @@ impl Document {
     ///
     /// E.g: /foo/bar.html => /foo/bar
     fn uri_path(&self) -> String {
-        Link::path_to_uri(&Path::new(&self.base_path).join(self.html_path()))
+        format!("{}{}", self.base_path, Link::path_to_uri(&self.html_path()))
     }
 
     fn markdown_section(&self) -> &str {
