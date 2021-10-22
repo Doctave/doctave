@@ -579,6 +579,7 @@ th {
 
 .dark pre {
     background: #202B33;
+    border: 1px solid #202B33;
     color: #FFF;
 }
 
