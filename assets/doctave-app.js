@@ -123,11 +123,11 @@ function setColor() {
     var color = localStorage.getItem('doctave-color')
 
     if (color === 'dark') {
-        document.querySelector("link[rel='stylesheet'][href*='prism-']").href = "/assets/prism-atom-dark.css?v=" + DOCTAVE_TIMESTAMP;
+        document.querySelector("link[rel='stylesheet'][href*='prism-']").href = BASE_PATH + "assets/prism-atom-dark.css?v=" + DOCTAVE_TIMESTAMP;
         document.getElementsByTagName('html')[0].classList.remove('light');
         document.getElementsByTagName('html')[0].classList.add('dark');
     } else {
-        document.querySelector("link[rel='stylesheet'][href*='prism-']").href = "/assets/prism-ghcolors.css?" + DOCTAVE_TIMESTAMP;
+        document.querySelector("link[rel='stylesheet'][href*='prism-']").href = BASE_PATH + "assets/prism-ghcolors.css?" + DOCTAVE_TIMESTAMP;
         document.getElementsByTagName('html')[0].classList.remove('dark');
         document.getElementsByTagName('html')[0].classList.add('light');
     }
@@ -148,7 +148,7 @@ if (color === 'dark') {
 var INDEX;
 
 // Load search index
-fetch('/search_index.json')
+fetch(BASE_PATH + 'search_index.json')
     .then(function(response) {
         if (!response.ok) {
             throw new Error("HTTP error " + response.status);
