@@ -13,7 +13,13 @@ fn main() {
                 .help("Disable terminal color output")
                 .global(true),
         )
-        .subcommand(SubCommand::with_name("init").about("Initialize a new project (start here!)"))
+        .subcommand(
+            SubCommand::with_name("init")
+                .about("Initialize a new project (start here!)")
+                .arg(Arg::with_name("docs-dir").long("docs-dir").help(
+                    "An optional custom root directory for your documentation. (Defaults to docs/)",
+                ).takes_value(true)),
+        )
         .subcommand(
             SubCommand::with_name("build")
                 .about("Builds your site from the project's Markdown files")
@@ -61,7 +67,8 @@ fn main() {
 
 fn init(cmd: &ArgMatches) -> doctave::Result<()> {
     let root_dir = std::env::current_dir().expect("Unable to determine current directory");
-    doctave::InitCommand::run(root_dir, !cmd.is_present("no-color"))
+    let doc_root = cmd.value_of("docs-dir").map(|str| str.to_string());
+    doctave::InitCommand::run(root_dir, !cmd.is_present("no-color"), doc_root)
 }
 
 fn build(cmd: &ArgMatches) -> doctave::Result<()> {

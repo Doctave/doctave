@@ -17,12 +17,7 @@ pub struct PreviewServer {
 }
 
 impl PreviewServer {
-    pub fn new(
-        addr: &str,
-        site: Arc<InMemorySite>,
-        color: bool,
-        base_path: String,
-    ) -> Self {
+    pub fn new(addr: &str, site: Arc<InMemorySite>, color: bool, base_path: String) -> Self {
         PreviewServer {
             addr: addr.parse().expect("invalid address for preview server"),
             site,
