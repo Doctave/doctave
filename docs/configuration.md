@@ -67,6 +67,21 @@ Example:
 base_path: /docs
 ```
 
+### docs_dir
+
+Tells Doctave to use the specified path as the base path for generating documentation.
+
+This option should be used if you wish to store your documentation in a directory that is not `docs/`.
+
+This is an optional setting.
+
+Example:
+```yaml
+---
+docs_dir: custom_documentation_directory/
+---
+```
+
 ### colors.main
 
 This sets the main color for your site. You can read more about this in

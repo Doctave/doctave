@@ -136,7 +136,8 @@ impl DoctaveYaml {
             None => "docs".to_string(),
         };
 
-        project_root.join(to_join)
+        let doc_root_path = project_root.join(to_join);
+        doc_root_path
     }
 }
 #[derive(Debug, Clone, Deserialize)]
