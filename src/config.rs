@@ -18,6 +18,7 @@ struct DoctaveYaml {
     logo: Option<PathBuf>,
     navigation: Option<Vec<Navigation>>,
     base_path: Option<String>,
+    docs_dir: Option<String>,
 }
 
 impl DoctaveYaml {
@@ -33,6 +34,13 @@ impl DoctaveYaml {
 
     /// Runs checks that validate the values of provided in the Yaml file
     fn validate(&mut self, project_root: &Path) -> Result<()> {
+        // Get the root doc path
+        // We don't validate if it exists or not because the rest
+        // of the application is responsible for assuming that "docs"
+        // is the default, and checking whether or not the directory
+        // exists.
+        let docs_dir_path = self.docs_dir(project_root);
+
         // Validate color
         if let Some(color) = &self.colors.as_ref().and_then(|c| c.main.as_ref()) {
             Rgb::from_hex_str(color).map_err(|_e| {
@@ -46,7 +54,7 @@ impl DoctaveYaml {
 
         // Validate logo exists
         if let Some(p) = &self.logo {
-            let location = project_root.join("docs").join("_include").join(p);
+            let location = docs_dir_path.join("_include").join(p);
             if !location.exists() {
                 return Err(Error::new(format!(
                     "Could not find logo specified in doctave.yaml at {}.\n\
@@ -120,6 +128,15 @@ impl DoctaveYaml {
         }
 
         Ok(())
+    }
+
+    fn docs_dir(&self, project_root: &Path) -> PathBuf {
+        let to_join = match &self.docs_dir {
+            Some(docs_dir) => docs_dir.clone(),
+            None => "docs".to_string(),
+        };
+
+        project_root.join(to_join)
     }
 }
 #[derive(Debug, Clone, Deserialize)]
@@ -252,7 +269,7 @@ impl Config {
             color: true,
             project_root: project_root.to_path_buf(),
             out_dir: project_root.join("site"),
-            docs_dir: project_root.join("docs"),
+            docs_dir: doctave_yaml.docs_dir(project_root),
             base_path: doctave_yaml.base_path.unwrap_or(String::from("/")),
             title: doctave_yaml.title,
             colors: doctave_yaml

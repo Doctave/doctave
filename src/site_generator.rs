@@ -40,7 +40,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
     }
 
     pub fn run(&self) -> Result<()> {
-        let root = self.find_docs(self.config.project_root());
+        let root = self.find_docs();
         let nav_builder = Navigation::new(&self.config);
         let navigation = nav_builder.build_for(&root);
 
@@ -219,10 +219,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
                     project_title: self.config.title().to_string(),
                     logo: self.config.logo().map(|l| l.to_string()),
                     build_mode: self.config.build_mode().to_string(),
-                    base_path: self
-                        .config
-                        .base_path()
-                        .to_owned(),
+                    base_path: self.config.base_path().to_owned(),
                     timestamp: &self.timestamp,
                     page_title,
                     head_include,
@@ -279,14 +276,12 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
         }
     }
 
-    fn find_docs(&self, project_root: &Path) -> Directory {
-        let mut root_dir = self
-            .walk_dir(project_root.join("docs"))
-            .unwrap_or(Directory {
-                path: project_root.join("docs"),
-                docs: vec![],
-                dirs: vec![],
-            });
+    fn find_docs(&self) -> Directory {
+        let mut root_dir = self.walk_dir(self.config.docs_dir()).unwrap_or(Directory {
+            path: self.config.docs_dir().to_path_buf(),
+            docs: vec![],
+            dirs: vec![],
+        });
 
         self.generate_missing_indices(&mut root_dir);
 
