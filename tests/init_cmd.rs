@@ -99,3 +99,32 @@ integration_test!(skips_generating_docs_if_docs_folder_exists, |area| {
     area.refute_exists(Path::new("docs").join("examples.md"));
     area.assert_exists(Path::new("doctave.yaml"));
 });
+
+integration_test!(custom_docsdir_generates, |area| {
+    let result = area.cmd(&["init", "--docs-dir", "custom_docs_dir"]);
+    assert_success(&result);
+
+    area.assert_contains(
+        Path::new("doctave.yaml"),
+        indoc! {"
+        ---
+        title: \"My Project\"
+        
+        docs_dir: custom_docs_dir
+    "},
+    );
+
+    area.assert_exists(Path::new("custom_docs_dir").join("README.md"));
+    area.assert_exists(Path::new("custom_docs_dir").join("examples.md"));
+});
+
+integration_test!(custom_docsdir_skips_generating_if_path_exists, |area| {
+    area.mkdir("custom_docs_dir");
+
+    let result = area.cmd(&["init", "--docs-dir", "custom_docs_dir"]);
+    assert_success(&result);
+
+    area.refute_exists(Path::new("custom_docs_dir").join("README.md"));
+    area.refute_exists(Path::new("custom_docs_dir").join("examples.md"));
+    area.assert_exists(Path::new("doctave.yaml"));
+});
