@@ -40,7 +40,7 @@ impl ServeCommand {
         // Watcher ------------------------------------
 
         let (watch_snd, watch_rcv) = bounded(128);
-        let watcher = Watcher::new(vec![config.project_root().join("docs")], watch_snd);
+        let watcher = Watcher::new(vec![config.docs_dir().to_path_buf()], watch_snd);
         thread::Builder::new()
             .name("watcher".into())
             .spawn(move || watcher.run())

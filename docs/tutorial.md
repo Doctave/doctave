@@ -32,6 +32,12 @@ $ doctave init
 This will create a `docs/` directory in the root of your repository, and some pages for you to get
 started with.
 
+If you wish to use a different directory than `docs/`, you can pass the name of that directory as the argument `--docs-dir`:
+```
+$ doctave init --docs-dir some_subdirectory
+...
+```
+
 You'll also find a `doctave.yaml` in your project root now. Lets take a look at it.
 
 ```

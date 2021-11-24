@@ -9,13 +9,11 @@ use crate::{Error, Result};
 pub struct InitCommand {
     stdout: StandardStream,
     project_root: PathBuf,
-    docs_root: PathBuf,
+    custom_docs_dir: Option<String>,
 }
 
 impl InitCommand {
-    pub fn run(project_root: PathBuf, colors: bool) -> Result<()> {
-        let docs_root = project_root.join("docs");
-
+    pub fn run(project_root: PathBuf, colors: bool, custom_doc_root: Option<String>) -> Result<()> {
         let stdout = if colors {
             StandardStream::stdout(ColorChoice::Auto)
         } else {
@@ -25,7 +23,7 @@ impl InitCommand {
         let mut cmd = InitCommand {
             stdout,
             project_root,
-            docs_root,
+            custom_docs_dir: custom_doc_root.clone(),
         };
 
         bunt::writeln!(cmd.stdout, "{$bold}{$blue}Doctave | Init{/$}{/$}")?;
@@ -42,7 +40,8 @@ impl InitCommand {
         } else {
             bunt::writeln!(
                 cmd.stdout,
-                "{$yellow}Skipping{/$} {$bold}docs{/$} directory - found existing docs...",
+                "{$yellow}Skipping{/$} {$bold}{}{/$} directory - found existing docs...",
+                custom_doc_root.unwrap_or("docs".to_string())
             )?;
         }
 
@@ -65,7 +64,7 @@ impl InitCommand {
     }
 
     fn no_existing_docs_dir(&self) -> bool {
-        !self.project_root.join("docs").exists()
+        !self.doc_root().exists()
     }
 
     fn create_doctave_yaml(&mut self) -> Result<()> {
@@ -75,14 +74,19 @@ impl InitCommand {
         file.write(b"---\ntitle: \"My Project\"\n")
             .map_err(|e| Error::io(e, "Could not write to doctave.yaml"))?;
 
+        if let Some(doc_root) = &self.custom_docs_dir {
+            file.write(format!("\ndocs_dir: {}\n", doc_root).as_bytes())
+                .map_err(|e| Error::io(e, "Could not write to doctave.yaml"))?;
+        }
+
         bunt::writeln!(self.stdout, "Created {$bold}doctave.yaml{/$}...")?;
 
         Ok(())
     }
 
     fn create_docs_dir(&mut self) -> Result<()> {
-        if !self.project_root.join("docs").exists() {
-            fs::create_dir(&self.docs_root).map_err(|e| {
+        if self.no_existing_docs_dir() {
+            fs::create_dir(&self.doc_root()).map_err(|e| {
                 Error::io(
                     e,
                     format!(
@@ -92,14 +96,21 @@ impl InitCommand {
                 )
             })?;
 
-            bunt::writeln!(self.stdout, "Created {$bold}docs{/$} folder...")?;
+            let doc_root_name = &self.doc_root_name();
+            let doc_root = Path::new(doc_root_name);
+
+            bunt::writeln!(
+                self.stdout,
+                "Created {$bold}{}{/$} folder...",
+                doc_root.display(),
+            )?;
         }
 
         Ok(())
     }
 
     fn create_docs_index(&mut self) -> Result<()> {
-        let path = self.project_root.join("docs").join("README.md");
+        let path = self.doc_root().join("README.md");
 
         if !path.exists() {
             let mut file = File::create(path).map_err(|e| {
@@ -107,7 +118,7 @@ impl InitCommand {
                     e,
                     format!(
                         "Could not create README.md in {}",
-                        self.project_root.join("docs").display()
+                        self.doc_root().display()
                     ),
                 )
             })?;
@@ -115,7 +126,9 @@ impl InitCommand {
             file.write(include_str!("../templates/starter_readme.md").as_bytes())
                 .map_err(|e| Error::io(e, "Could not write to README.md"))?;
 
-            let relative_path = Path::new("docs").join("README.md");
+            let doc_root_name = &self.doc_root_name();
+            let relative_path = Path::new(doc_root_name).join("README.md");
+
             bunt::writeln!(
                 self.stdout,
                 "Created {$bold}{}{/$}...",
@@ -127,7 +140,7 @@ impl InitCommand {
     }
 
     fn create_doc_examples(&mut self) -> Result<()> {
-        let path = self.project_root.join("docs").join("examples.md");
+        let path = self.doc_root().join("examples.md");
 
         if !path.exists() {
             let mut file = File::create(path).map_err(|e| {
@@ -135,7 +148,7 @@ impl InitCommand {
                     e,
                     format!(
                         "Could not create examles.md in {}",
-                        self.project_root.join("docs").display()
+                        self.doc_root().display()
                     ),
                 )
             })?;
@@ -143,7 +156,8 @@ impl InitCommand {
             file.write(include_str!("../templates/starter_examples.md").as_bytes())
                 .map_err(|e| Error::io(e, "Could not write to README.md"))?;
 
-            let relative_path = Path::new("docs").join("examples.md");
+            let doc_root_name = &self.doc_root_name();
+            let relative_path = Path::new(doc_root_name).join("examples.md");
             bunt::writeln!(
                 self.stdout,
                 "Created {$bold}{}{/$}...",
@@ -152,5 +166,16 @@ impl InitCommand {
         }
 
         Ok(())
+    }
+
+    fn doc_root_name(&self) -> String {
+        match &self.custom_docs_dir {
+            Some(doc_root) => doc_root.to_string(),
+            None => "docs".to_string(),
+        }
+    }
+
+    fn doc_root(&self) -> PathBuf {
+        self.project_root.join(self.doc_root_name())
     }
 }

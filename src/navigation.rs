@@ -80,10 +80,7 @@ impl<'a> Navigation<'a> {
             let mut without_docs_part = path.components();
             let _ = without_docs_part.next();
 
-            let link_path = link
-                    .path
-                    .strip_prefix(self.config.base_path())
-                    .unwrap();
+            let link_path = link.path.strip_prefix(self.config.base_path()).unwrap();
 
             let doc_path = Link::path_to_uri(without_docs_part.as_path());
 
@@ -177,7 +174,7 @@ mod test {
             Path::new(path),
             "Not important".to_string(),
             frontmatter,
-            base_path.unwrap_or("/")
+            base_path.unwrap_or("/"),
         )
     }
 
@@ -191,14 +188,14 @@ mod test {
     fn basic() {
         let config = config(None);
         let root = Directory {
-            path: PathBuf::from("docs"),
+            path: config.docs_dir().to_path_buf(),
             docs: vec![
                 page("README.md", "Getting Started", None),
                 page("one.md", "One", None),
                 page("two.md", "Two", None),
             ],
             dirs: vec![Directory {
-                path: PathBuf::from("docs").join("child"),
+                path: config.docs_dir().join("child"),
                 docs: vec![
                     page("child/README.md", "Nested Root", None),
                     page("child/three.md", "Three", None),
@@ -546,22 +543,14 @@ mod test {
         let root = Directory {
             path: PathBuf::from("docs"),
             docs: vec![
-                page(
-                    "README.md",
-                    "Getting Started",
-                    Some(config.base_path()),
-                ),
+                page("README.md", "Getting Started", Some(config.base_path())),
                 page("one.md", "One", Some(config.base_path())),
                 page("two.md", "Two", Some(config.base_path())),
             ],
             dirs: vec![Directory {
                 path: PathBuf::from("docs").join("child"),
                 docs: vec![
-                    page(
-                        "child/README.md",
-                        "Nested Root",
-                        Some(config.base_path()),
-                    ),
+                    page("child/README.md", "Nested Root", Some(config.base_path())),
                     page("child/three.md", "Three", Some(config.base_path())),
                 ],
                 dirs: vec![],
