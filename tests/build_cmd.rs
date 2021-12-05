@@ -549,3 +549,31 @@ integration_test!(base_path_with_logo, |area| {
     area.refute_contains(&index, "<a href=\"/\">");
     area.refute_contains(&index, "<a href='/'>");
 });
+
+// See (Issue 18)[https://github.com/Doctave/doctave/issues/18]
+integration_test!(issue_18, |area| {
+    area.write_file(
+        Path::new("doctave.yaml"),
+        indoc! {"
+    ---
+    title: Test project
+    navigation:
+        - path: docs/README.md
+        - path: docs/another_file.md
+    "}
+        .as_bytes(),
+    );
+    area.mkdir("docs");
+
+    area.write_file(
+        Path::new("docs").join("README.md"),
+        indoc! {"# A test file"}.as_bytes(),
+    );
+    area.write_file(
+        Path::new("docs").join("another_file.md"),
+        indoc! {"# A second test file"}.as_bytes(),
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+});
