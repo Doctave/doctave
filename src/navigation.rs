@@ -16,11 +16,9 @@ impl<'a> Navigation<'a> {
 
     /// Builds a navigation tree given a root directory
     pub fn build_for(&self, dir: &Directory) -> Vec<Link> {
-        let default: Vec<Link> = dir.links();
-
         match &self.config.navigation() {
-            None => default,
-            Some(nav) => self.customize(nav, &default),
+            None => dir.links(false),
+            Some(nav) => self.customize(nav, &dir.links(true)),
         }
     }
 
@@ -40,7 +38,20 @@ impl<'a> Navigation<'a> {
     fn customize(&self, rules: &[NavRule], default: &[Link]) -> Vec<Link> {
         let mut links = vec![];
 
+        let root_path_rule = NavRule::File(PathBuf::from("/"));
+
         for rule in rules {
+            let rule = if rule
+                .is_default_readme_rule(&self.config.project_root(), &self.config.docs_dir())
+            {
+                // If we're building navigation for the default readme file, we should
+                // use a different path as the rule will contain "/README.md", while the
+                // rest of the program expects it to be "/"
+                &root_path_rule
+            } else {
+                rule
+            };
+
             match rule {
                 NavRule::File(path) => links.push(
                     self.find_matching_link(path, &default)
@@ -365,7 +376,7 @@ mod test {
 
         let config = config(None);
         let navigation = Navigation::new(&config);
-        let links: Vec<Link> = root.links();
+        let links: Vec<Link> = root.links(true);
 
         assert_eq!(
             navigation.customize(&rules, &links),
@@ -432,7 +443,7 @@ mod test {
 
         let config = config(None);
         let navigation = Navigation::new(&config);
-        let links: Vec<Link> = root.links();
+        let links: Vec<Link> = root.links(true);
 
         assert_eq!(
             navigation.customize(&rules, &links),
@@ -480,7 +491,7 @@ mod test {
 
         let config = config(None);
         let navigation = Navigation::new(&config);
-        let links: Vec<Link> = root.links();
+        let links: Vec<Link> = root.links(true);
 
         assert_eq!(
             navigation.customize(&rules, &links),
@@ -516,7 +527,7 @@ mod test {
 
         let config = config(None);
         let navigation = Navigation::new(&config);
-        let links: Vec<Link> = root.links();
+        let links: Vec<Link> = root.links(true);
 
         assert_eq!(
             navigation.customize(&rules, &links),
