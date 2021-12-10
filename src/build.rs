@@ -3,7 +3,7 @@ use std::time::Instant;
 use bunt::termcolor::{ColorChoice, StandardStream};
 
 use crate::config::Config;
-use crate::site::{BuildMode, DiskBackedSite, Site};
+use crate::site::{BuildMode, Site};
 use crate::Result;
 
 pub struct BuildCommand {}
@@ -16,7 +16,7 @@ impl BuildCommand {
             StandardStream::stdout(ColorChoice::Never)
         };
 
-        let site = DiskBackedSite::new(config.clone());
+        let site = Site::disk_backed(config.clone());
 
         let target_dir = config.out_dir();
 

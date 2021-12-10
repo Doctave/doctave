@@ -8,7 +8,7 @@ use crossbeam_channel::bounded;
 use crate::config::Config;
 use crate::livereload_server::LivereloadServer;
 use crate::preview_server::PreviewServer;
-use crate::site::{InMemorySite, Site};
+use crate::site::Site;
 use crate::watcher::Watcher;
 use crate::Result;
 
@@ -26,7 +26,7 @@ impl ServeCommand {
         } else {
             StandardStream::stdout(ColorChoice::Never)
         };
-        let site = Arc::new(InMemorySite::new(config.clone()));
+        let site = Arc::new(Site::in_memory(config.clone()));
 
         bunt::writeln!(stdout, "{$bold}{$blue}Doctave | Serve{/$}{/$}")?;
         println!("Starting development server...\n");

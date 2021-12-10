@@ -7,17 +7,17 @@ use ascii::AsciiString;
 use bunt::termcolor::{ColorChoice, StandardStream};
 use tiny_http::{Request, Response, Server};
 
-use crate::site::{InMemorySite, Site};
+use crate::site::{Site, SiteBackend};
 
-pub struct PreviewServer {
+pub struct PreviewServer<B: SiteBackend> {
     color: bool,
     base_path: String,
     addr: SocketAddr,
-    site: Arc<InMemorySite>,
+    site: Arc<Site<B>>,
 }
 
-impl PreviewServer {
-    pub fn new(addr: &str, site: Arc<InMemorySite>, color: bool, base_path: String) -> Self {
+impl<B: SiteBackend> PreviewServer<B> {
+    pub fn new(addr: &str, site: Arc<Site<B>>, color: bool, base_path: String) -> Self {
         PreviewServer {
             addr: addr.parse().expect("invalid address for preview server"),
             site,
@@ -56,7 +56,7 @@ impl PreviewServer {
     }
 }
 
-fn handle_request(request: Request, site: &InMemorySite, base_path: &str) {
+fn handle_request<B: SiteBackend>(request: Request, site: &Site<B>, base_path: &str) {
     let result = {
         let uri = request.url().parse::<http::Uri>().unwrap();
 
@@ -83,9 +83,9 @@ fn handle_request(request: Request, site: &InMemorySite, base_path: &str) {
     }
 }
 
-fn resolve_file(
+fn resolve_file<B: SiteBackend>(
     path: &Path,
-    site: &InMemorySite,
+    site: &Site<B>,
     base_path: &str,
 ) -> Option<(Vec<u8>, Option<&'static str>)> {
     if path.to_str().map(|s| s.contains("..")).unwrap_or(false) {
@@ -102,23 +102,26 @@ fn resolve_file(
 
     let mut path = path.strip_prefix("/").unwrap_or(path).to_owned();
 
-    if site.has_file(&path) {
+    if site.backend.has_file(&path) {
         Some((
-            site.read_path(&path).unwrap(),
+            site.backend.read_path(&path).unwrap(),
             content_type_for(path.extension()),
         ))
-    } else if site.has_file(&path.join("index.html")) {
+    } else if site.backend.has_file(&path.join("index.html")) {
         let p = path.join("index.html");
         let extension = p.extension();
 
-        Some((site.read_path(&p).unwrap(), content_type_for(extension)))
+        Some((
+            site.backend.read_path(&p).unwrap(),
+            content_type_for(extension),
+        ))
     } else {
         // Try with a .html extension
         path.set_extension("html");
 
-        if site.has_file(&path) {
+        if site.backend.has_file(&path) {
             Some((
-                site.read_path(&path).unwrap(),
+                site.backend.read_path(&path).unwrap(),
                 content_type_for(path.extension()),
             ))
         } else {
