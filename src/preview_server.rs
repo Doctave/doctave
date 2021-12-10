@@ -83,7 +83,10 @@ fn handle_request<B: SiteBackend>(request: Request, site: &Site<B>, base_path: &
     }
 }
 
-fn resolve_file<B: SiteBackend>(
+/// Uses some basic logic for resolving a path into the correct file.
+/// This means resolving to an index.html from the root of the directory,
+/// trying with .html extensions with needed, etc.
+pub fn resolve_file<B: SiteBackend>(
     path: &Path,
     site: &Site<B>,
     base_path: &str,

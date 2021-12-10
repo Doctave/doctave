@@ -6,6 +6,7 @@ use std::sync::RwLock;
 
 use walkdir::WalkDir;
 
+use crate::broken_links_checker;
 use crate::config::Config;
 use crate::site_generator::SiteGenerator;
 use crate::{Directory, Document};
@@ -50,6 +51,14 @@ impl Site<InMemorySite> {
             config,
         }
     }
+
+    pub fn with_root(root: Directory, config: Config) -> Site<InMemorySite> {
+        Site {
+            backend: InMemorySite::new(config.clone()),
+            root,
+            config,
+        }
+    }
 }
 
 impl Site<DiskBackedSite> {
@@ -70,7 +79,7 @@ impl<B: SiteBackend> Site<B> {
     }
 
     pub fn check_dead_links(&self) -> Result<()> {
-        unimplemented!()
+        broken_links_checker::run(&self)
     }
 
     fn find_docs(config: &Config) -> Directory {
