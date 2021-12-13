@@ -62,7 +62,9 @@ fn handle_request<B: SiteBackend>(request: Request, site: &Site<B>, base_path: &
 
         let path = PathBuf::from(uri.path());
 
-        match resolve_file(&path, &site, base_path) {
+        match resolve_file(&path, &site, base_path)
+            .map(|p| (read_file(site, &p), content_type_for(p.extension())))
+        {
             Some((data, None)) => request.respond(Response::from_data(data).with_status_code(200)),
             Some((data, Some(content_type))) => {
                 request.respond(Response::from_data(data).with_status_code(200).with_header(
@@ -90,7 +92,7 @@ pub fn resolve_file<B: SiteBackend>(
     path: &Path,
     site: &Site<B>,
     base_path: &str,
-) -> Option<(Vec<u8>, Option<&'static str>)> {
+) -> Option<PathBuf> {
     if path.to_str().map(|s| s.contains("..")).unwrap_or(false) {
         return None;
     }
@@ -106,31 +108,30 @@ pub fn resolve_file<B: SiteBackend>(
     let mut path = path.strip_prefix("/").unwrap_or(path).to_owned();
 
     if site.backend.has_file(&path) {
-        Some((
-            site.backend.read_path(&path).unwrap(),
-            content_type_for(path.extension()),
-        ))
+        Some(path)
     } else if site.backend.has_file(&path.join("index.html")) {
         let p = path.join("index.html");
-        let extension = p.extension();
 
-        Some((
-            site.backend.read_path(&p).unwrap(),
-            content_type_for(extension),
-        ))
+        Some(p)
     } else {
         // Try with a .html extension
         path.set_extension("html");
 
         if site.backend.has_file(&path) {
-            Some((
-                site.backend.read_path(&path).unwrap(),
-                content_type_for(path.extension()),
-            ))
+            Some(path)
         } else {
             None
         }
     }
+}
+
+fn read_file<B: SiteBackend>(site: &Site<B>, path: &Path) -> Vec<u8> {
+    let content = site
+        .backend
+        .read_path(path)
+        .expect("Found a file to serve but could not open it");
+
+    content
 }
 
 fn content_type_for(extension: Option<&OsStr>) -> Option<&'static str> {

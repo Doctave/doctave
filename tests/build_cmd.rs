@@ -462,7 +462,7 @@ integration_test!(base_path, |area| {
     area.create_config();
     area.mkdir("docs");
     area.write_file(Path::new("docs").join("README.md"), b"[link](/foo)");
-    area.write_file(Path::new("docs").join("other.md"), b"[link](/)");
+    area.write_file(Path::new("docs").join("foo.md"), b"[link](/)");
     area.write_file(
         Path::new("doctave.yaml"),
         indoc! {"
@@ -482,14 +482,14 @@ integration_test!(base_path, |area| {
     area.refute_contains(&index, "<a href=\"/\">");
     area.refute_contains(&index, "<a href='/'>");
 
-    area.refute_contains(&index, "<a href=\"/other\">");
-    area.assert_contains(&index, "<a href=\"/docs/other\">");
+    area.refute_contains(&index, "<a href=\"/foo\">");
+    area.assert_contains(&index, "<a href=\"/docs/foo\">");
 });
 
 integration_test!(base_path_with_custom_navigation, |area| {
     area.create_config();
     area.mkdir("docs");
-    area.write_file(Path::new("docs").join("README.md"), b"[link](/foo)");
+    area.write_file(Path::new("docs").join("README.md"), b"[link](/other)");
     area.write_file(Path::new("docs").join("other.md"), b"[link](/)");
     area.write_file(
         Path::new("doctave.yaml"),
@@ -520,6 +520,7 @@ integration_test!(base_path_with_logo, |area| {
     area.create_config();
     area.mkdir(Path::new("docs").join("_include").join("assets"));
     area.write_file(Path::new("docs").join("README.md"), b"[link](/foo)");
+    area.write_file(Path::new("docs").join("foo.md"), b"# Foo");
     // Create a fake logo
     area.write_file(
         Path::new("docs")
@@ -576,4 +577,28 @@ integration_test!(issue_18, |area| {
 
     let result = area.cmd(&["build"]);
     assert_success(&result);
+});
+
+integration_test!(broken_link_detection, |area| {
+    area.create_config();
+    area.mkdir("docs");
+    area.write_file(
+        Path::new("docs").join("README.md"),
+        indoc! {"
+
+        [Road to nowhere](/nope)
+    "}
+        .as_bytes(),
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_failed(&result);
+
+    let stderr = std::str::from_utf8(&result.stderr).unwrap();
+
+    println!("{}", stderr);
+
+    assert!(stderr.contains("Detected broken internal links"));
+    assert!(stderr.contains("/nope"));
+    assert!(stderr.contains("Road to nowhere"));
 });

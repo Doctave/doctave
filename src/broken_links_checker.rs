@@ -59,6 +59,13 @@ mod test {
         Document::new(Path::new(path), content.to_string(), frontmatter, "/")
     }
 
+    fn page_with_base_path(path: &str, name: &str, content: &str, base_path: &str) -> Document {
+        let mut frontmatter = BTreeMap::new();
+        frontmatter.insert("title".to_string(), name.to_string());
+
+        Document::new(Path::new(path), content.to_string(), frontmatter, base_path)
+    }
+
     fn config(yaml: Option<&str>) -> Config {
         let conf = yaml.unwrap_or("---\ntitle: My project\n");
 
@@ -151,6 +158,49 @@ mod test {
                 docs: vec![
                     page("nested/README.md", "Nested", "Content"),
                     page("nested/other.md", "Nested Child", "No links!"),
+                ],
+                dirs: vec![],
+            }],
+        };
+
+        let site = Site::with_root(root, config);
+        site.build().unwrap();
+        let result = run(&site);
+
+        println!("{:?}", result);
+
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn honors_a_different_base_path() {
+        let config = config(Some(&indoc! {"
+        ---
+        title: Not Interesting
+        base_path: /not_docs
+        "}));
+
+        let root = Directory {
+            path: config.docs_dir().to_path_buf(),
+            docs: vec![
+                page_with_base_path(
+                    "README.md",
+                    "Getting Started",
+                    "[I'm on a](/nested/)\n[highway to hell](/nested/other.html)",
+                    "/not_docs",
+                ),
+                page_with_base_path("other.md", "Getting Started", "No links!", "/not_docs"),
+            ],
+            dirs: vec![Directory {
+                path: config.docs_dir().to_path_buf().join("nested"),
+                docs: vec![
+                    page_with_base_path("nested/README.md", "Nested", "Content", "/not_docs"),
+                    page_with_base_path(
+                        "nested/other.md",
+                        "Nested Child",
+                        "No links!",
+                        "/not_docs",
+                    ),
                 ],
                 dirs: vec![],
             }],

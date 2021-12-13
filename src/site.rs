@@ -199,6 +199,7 @@ pub trait SiteBackend: Send + Sync {
     fn has_file(&self, path: &Path) -> bool;
     fn reset(&self) -> Result<()>;
     fn build(&self, root: &Directory) -> Result<()>;
+    fn list_files(&self) -> Vec<PathBuf>;
 }
 
 impl<T: SiteBackend> SiteBackend for &T {
@@ -222,6 +223,9 @@ impl<T: SiteBackend> SiteBackend for &T {
     }
     fn build(&self, root: &Directory) -> Result<()> {
         (*self).build(root)
+    }
+    fn list_files(&self) -> Vec<PathBuf> {
+        (*self).list_files()
     }
 }
 
@@ -280,6 +284,12 @@ impl SiteBackend for InMemorySite {
         let generator = SiteGenerator::new(root, self);
 
         generator.run()
+    }
+
+    fn list_files(&self) -> Vec<PathBuf> {
+        let contents = self.contents.read().unwrap();
+
+        contents.keys().map(|p| p.to_owned()).collect::<Vec<_>>()
     }
 }
 
@@ -349,15 +359,15 @@ impl SiteBackend for DiskBackedSite {
     }
 
     fn read_path(&self, path: &Path) -> Option<Vec<u8>> {
-        if path.exists() {
-            Some(fs::read(path).unwrap())
+        if self.config.out_dir().join(path).exists() {
+            Some(fs::read(self.config.out_dir().join(path)).unwrap())
         } else {
             None
         }
     }
 
     fn has_file(&self, path: &Path) -> bool {
-        path.exists()
+        self.config.out_dir().join(path).exists()
     }
 
     fn reset(&self) -> Result<()> {
@@ -371,6 +381,14 @@ impl SiteBackend for DiskBackedSite {
         let generator = SiteGenerator::new(root, self);
 
         generator.run()
+    }
+
+    fn list_files(&self) -> Vec<PathBuf> {
+        walkdir::WalkDir::new(self.config.out_dir())
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .map(|e| e.path().to_owned())
+            .collect::<Vec<_>>()
     }
 }
 

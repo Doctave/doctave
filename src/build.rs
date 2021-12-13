@@ -42,8 +42,10 @@ impl BuildCommand {
 
         if result.is_ok() {
             bunt::writeln!(stdout, "Site built in {$bold}{:?}{/$}\n", duration)?;
-        }
 
-        result
+            site.check_dead_links()
+        } else {
+            result
+        }
     }
 }
