@@ -81,7 +81,7 @@ fn handle_request<B: SiteBackend>(request: Request, site: &Site<B>, base_path: &
     match result {
         Ok(()) => {}
         Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => {}
-        Err(e) => eprintln!("    HTTP server threw error: {}", e),
+        Err(e) => println!("    HTTP server threw error: {}", e),
     }
 }
 

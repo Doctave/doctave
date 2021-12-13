@@ -369,7 +369,7 @@ integration_test!(custom_colors_invalid, |area| {
     assert_failed(&result);
     assert_output(
         &result,
-        "Error: Invalid HEX color provided for colors.main in doctave.yaml.",
+        "Invalid HEX color provided for colors.main in doctave.yaml.",
     );
     assert_output(&result, "Found 'not-a-color'");
 });
@@ -594,11 +594,35 @@ integration_test!(broken_link_detection, |area| {
     let result = area.cmd(&["build"]);
     assert_failed(&result);
 
-    let stderr = std::str::from_utf8(&result.stderr).unwrap();
+    let stdout = std::str::from_utf8(&result.stdout).unwrap();
 
-    println!("{}", stderr);
+    println!("{}", stdout);
 
-    assert!(stderr.contains("Detected broken internal links"));
-    assert!(stderr.contains("/nope"));
-    assert!(stderr.contains("Road to nowhere"));
+    assert!(stdout.contains("Detected broken internal links"));
+    assert!(stdout.contains("/nope"));
+    assert!(stdout.contains("Road to nowhere"));
+});
+
+integration_test!(broken_link_detection_can_be_skipped_with_flag, |area| {
+    area.create_config();
+    area.mkdir("docs");
+    area.write_file(
+        Path::new("docs").join("README.md"),
+        indoc! {"
+
+        [Road to nowhere](/nope)
+    "}
+        .as_bytes(),
+    );
+
+    let result = area.cmd(&["build", "--skip-checks"]);
+    assert_success(&result);
+
+    let stdout = std::str::from_utf8(&result.stdout).unwrap();
+
+    println!("{}", stdout);
+
+    assert!(stdout.contains("Detected broken internal links"));
+    assert!(stdout.contains("/nope"));
+    assert!(stdout.contains("Road to nowhere"));
 });

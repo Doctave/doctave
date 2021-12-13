@@ -60,7 +60,7 @@ impl fmt::Display for Error {
             ErrorKind::Handlebars(err) => write!(f, "{}:\n{}", self.message, err),
             ErrorKind::Yaml(err) => write!(f, "{}:\n{}", self.message, err),
             ErrorKind::BrokenLinks(links) => {
-                write!(f, "{}\n{}", self.message, format_broken_links(&links))
+                write!(f, "{}.\n{}", self.message, format_broken_links(&links))
             }
             ErrorKind::Generic => write!(f, "{}", self.message),
         }
