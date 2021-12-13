@@ -87,6 +87,7 @@ mod test {
         };
 
         let site = Site::with_root(root, config);
+        site.build().unwrap();
 
         assert!(run(&site).is_err());
     }
@@ -204,6 +205,32 @@ mod test {
                 ],
                 dirs: vec![],
             }],
+        };
+
+        let site = Site::with_root(root, config);
+        site.build().unwrap();
+        let result = run(&site);
+
+        println!("{:?}", result);
+
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn does_not_care_about_anchor_tags_in_paths() {
+        let config = config(None);
+
+        let root = Directory {
+            path: config.docs_dir().to_path_buf(),
+            docs: vec![
+                page(
+                    "README.md",
+                    "Getting Started",
+                    "[highway to hell](/other#heading-1)",
+                ),
+                page("other.md", "Getting Started", "# Heading"),
+            ],
+            dirs: vec![],
         };
 
         let site = Site::with_root(root, config);

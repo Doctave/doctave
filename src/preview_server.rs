@@ -99,6 +99,12 @@ pub fn resolve_file<B: SiteBackend>(
 
     let mut path = path;
 
+    if path.to_str().map(|s| s.contains("#")).unwrap_or(false) {
+        let prefix = path.to_str().unwrap().split("#").next().unwrap();
+
+        path = Path::new(prefix);
+    }
+
     if path.starts_with(base_path) {
         path = path.strip_prefix(base_path).unwrap();
     } else {

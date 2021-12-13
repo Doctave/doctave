@@ -44,8 +44,6 @@ impl<'a, T: SiteBackend> SiteGenerator<'a, T> {
         let nav_builder = Navigation::new(&self.config);
         let navigation = nav_builder.build_for(&self.root);
 
-        self.site.reset()?;
-
         let head_include = self.read_head_include()?;
 
         self.build_includes()?;

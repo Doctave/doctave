@@ -16,8 +16,6 @@ pub fn find(config: &Config) -> Directory {
         dirs: vec![],
     });
 
-    println!("{:#?}", root_dir);
-
     generate_missing_indices(&mut root_dir, config);
 
     root_dir
