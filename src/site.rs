@@ -8,6 +8,7 @@ use walkdir::WalkDir;
 
 use crate::broken_links_checker;
 use crate::config::Config;
+use crate::docs_finder;
 use crate::site_generator::SiteGenerator;
 use crate::{Directory, Document};
 use crate::{Error, Result};
@@ -36,26 +37,24 @@ impl std::fmt::Display for BuildMode {
 /// When `build` is called on this struct, the backend is populated by the
 /// `SiteGenerator`.
 pub struct Site<B: SiteBackend> {
-    pub root: Directory,
     pub backend: B,
     pub config: Config,
 }
 
 impl Site<InMemorySite> {
     pub fn in_memory(config: Config) -> Site<InMemorySite> {
-        let root = Self::find_docs(&config);
-
         Site {
             backend: InMemorySite::new(config.clone()),
-            root,
             config,
         }
     }
 
+    #[cfg(test)]
+    /// Don't load the site from memory - instead provide the loaded directory
+    /// state manually. Used only in testing.
     pub fn with_root(root: Directory, config: Config) -> Site<InMemorySite> {
         Site {
-            backend: InMemorySite::new(config.clone()),
-            root,
+            backend: InMemorySite::with_root(root, config.clone()),
             config,
         }
     }
@@ -63,146 +62,57 @@ impl Site<InMemorySite> {
 
 impl Site<DiskBackedSite> {
     pub fn disk_backed(config: Config) -> Site<DiskBackedSite> {
-        let root = Self::find_docs(&config);
-
         Site {
             backend: DiskBackedSite::new(config.clone()),
-            root,
             config,
         }
     }
 }
 
 impl<B: SiteBackend> Site<B> {
+    pub fn root(&self) -> Directory {
+        self.backend.root()
+    }
+
+    pub fn reset(&self) -> Result<()> {
+        self.backend.reset()
+    }
+
     pub fn build(&self) -> Result<()> {
-        self.backend.build(&self.root)
+        self.backend.build()
+    }
+
+    pub fn rebuild(&self) -> Result<()> {
+        self.backend.reset()?;
+        self.backend.build()
     }
 
     pub fn check_dead_links(&self) -> Result<()> {
         broken_links_checker::run(&self)
     }
-
-    fn find_docs(config: &Config) -> Directory {
-        let mut root_dir = Self::walk_dir(config.docs_dir(), config).unwrap_or(Directory {
-            path: config.docs_dir().to_path_buf(),
-            docs: vec![],
-            dirs: vec![],
-        });
-
-        Self::generate_missing_indices(&mut root_dir, config);
-
-        root_dir
-    }
-
-    fn walk_dir<P: AsRef<Path>>(dir: P, config: &Config) -> Option<Directory> {
-        let mut docs = vec![];
-        let mut dirs = vec![];
-
-        let current_dir: &Path = dir.as_ref();
-
-        for entry in WalkDir::new(&current_dir)
-            .max_depth(1)
-            .into_iter()
-            .filter_map(|e| e.ok())
-        {
-            if entry.file_type().is_file() && entry.path().extension() == Some(OsStr::new("md")) {
-                let path = entry.path().strip_prefix(config.docs_dir()).unwrap();
-
-                docs.push(Document::load(entry.path(), path, config.base_path()));
-            } else {
-                let path = entry.into_path();
-
-                if path.as_path() == current_dir {
-                    continue;
-                }
-
-                if let Some(dir) = Self::walk_dir(path, config) {
-                    dirs.push(dir);
-                }
-            }
-        }
-
-        if docs.is_empty() {
-            None
-        } else {
-            Some(Directory {
-                path: current_dir.to_path_buf(),
-                docs,
-                dirs,
-            })
-        }
-    }
-
-    fn generate_missing_indices(dir: &mut Directory, config: &Config) {
-        if dir
-            .docs
-            .iter()
-            .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
-            .is_none()
-        {
-            let new_index = Self::generate_missing_index(dir, config);
-            dir.docs.push(new_index);
-        }
-
-        for mut child in &mut dir.dirs {
-            Self::generate_missing_indices(&mut child, config);
-        }
-    }
-
-    fn generate_missing_index(dir: &mut Directory, config: &Config) -> Document {
-        let content = dir
-            .docs
-            .iter()
-            .map(|d| format!("* [{}]({})", d.title(), d.uri_path()))
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        let mut frontmatter = BTreeMap::new();
-        frontmatter.insert(
-            "title".to_string(),
-            format!("{}", dir.path().file_name().unwrap().to_string_lossy()),
-        );
-
-        let tmp = dir.path().join("README.md");
-        let path = tmp.strip_prefix(config.docs_dir()).unwrap();
-
-        Document::new(
-            path,
-            format!(
-                "# Index of {}\n \
-                \n \
-                This page was generated automatically by Doctave, because the directory \
-                `{}` did not contain an index `README.md` file. You can customize this page by \
-                creating one yourself.\
-                \n\
-                ## Pages\n\
-                \n\
-                {}",
-                dir.path().file_name().unwrap().to_string_lossy(),
-                dir.path()
-                    .strip_prefix(config.project_root())
-                    .unwrap_or_else(|_| dir.path())
-                    .display(),
-                content
-            ),
-            frontmatter,
-            config.base_path(),
-        )
-    }
 }
 
 pub trait SiteBackend: Send + Sync {
+    fn root(&self) -> Directory;
     fn config(&self) -> &Config;
+    /// Adds the rendered content for a given path
     fn add_file(&self, path: &Path, content: Vec<u8>) -> std::io::Result<()>;
     fn copy_file(&self, from: &Path, to: &Path) -> std::io::Result<()>;
+    /// Reads the rendered output of the specified path
     fn read_path(&self, path: &Path) -> Option<Vec<u8>>;
+    /// Says if we have rendered the specified file
     fn has_file(&self, path: &Path) -> bool;
+    /// Clears the rendered output, and reloads the documentation from disk into memory
     fn reset(&self) -> Result<()>;
-    fn build(&self, root: &Directory) -> Result<()>;
+    /// Renders the loaded documentation into memory
+    fn build(&self) -> Result<()>;
     fn list_files(&self) -> Vec<PathBuf>;
 }
 
 impl<T: SiteBackend> SiteBackend for &T {
+    fn root(&self) -> Directory {
+        (*self).root()
+    }
     fn config(&self) -> &Config {
         (*self).config()
     }
@@ -221,8 +131,8 @@ impl<T: SiteBackend> SiteBackend for &T {
     fn reset(&self) -> Result<()> {
         (*self).reset()
     }
-    fn build(&self, root: &Directory) -> Result<()> {
-        (*self).build(root)
+    fn build(&self) -> Result<()> {
+        (*self).build()
     }
     fn list_files(&self) -> Vec<PathBuf> {
         (*self).list_files()
@@ -232,29 +142,54 @@ impl<T: SiteBackend> SiteBackend for &T {
 #[derive(Debug)]
 pub struct InMemorySite {
     config: Config,
-    contents: RwLock<HashMap<PathBuf, Vec<u8>>>,
+    content: RwLock<InMemoryContent>,
+}
+
+#[derive(Debug)]
+struct InMemoryContent {
+    pub root: Directory,
+    pub rendered: HashMap<PathBuf, Vec<u8>>,
 }
 
 impl InMemorySite {
     pub fn new(config: Config) -> Self {
         InMemorySite {
+            content: RwLock::new(InMemoryContent {
+                root: docs_finder::find(&config),
+                rendered: HashMap::new(),
+            }),
             config,
-            contents: RwLock::new(HashMap::new()),
+        }
+    }
+
+    #[cfg(test)]
+    pub fn with_root(root: Directory, config: Config) -> Self {
+        InMemorySite {
+            content: RwLock::new(InMemoryContent {
+                root,
+                rendered: HashMap::new(),
+            }),
+            config,
         }
     }
 }
 
 impl SiteBackend for InMemorySite {
+    fn root(&self) -> Directory {
+        let content = self.content.read().unwrap();
+        content.root.clone()
+    }
+
     fn config(&self) -> &Config {
         &self.config
     }
 
-    fn add_file(&self, path: &Path, content: Vec<u8>) -> std::io::Result<()> {
-        let mut contents = self.contents.write().unwrap();
+    fn add_file(&self, path: &Path, html: Vec<u8>) -> std::io::Result<()> {
+        let mut content = self.content.write().unwrap();
 
         let path = path.strip_prefix(self.config.out_dir()).unwrap();
 
-        contents.insert(path.to_owned(), content.into());
+        content.rendered.insert(path.to_owned(), html.into());
         Ok(())
     }
 
@@ -264,42 +199,51 @@ impl SiteBackend for InMemorySite {
     }
 
     fn read_path(&self, path: &Path) -> Option<Vec<u8>> {
-        let contents = self.contents.read().unwrap();
-        contents.get(path).map(|s| s.clone())
+        let content = self.content.read().unwrap();
+        content.rendered.get(path).map(|s| s.clone())
     }
 
     fn has_file(&self, path: &Path) -> bool {
-        let contents = self.contents.read().unwrap();
-        contents.contains_key(path)
+        let content = self.content.read().unwrap();
+        content.rendered.contains_key(path)
     }
 
     fn reset(&self) -> Result<()> {
-        let mut contents = self.contents.write().unwrap();
-        *contents = HashMap::new();
+        let mut content = self.content.write().unwrap();
+        content.rendered = HashMap::new();
+        content.root = docs_finder::find(&self.config);
 
         Ok(())
     }
 
-    fn build(&self, root: &Directory) -> Result<()> {
-        let generator = SiteGenerator::new(root, self);
+    fn build(&self) -> Result<()> {
+        let generator = SiteGenerator::new(self);
 
         generator.run()
     }
 
     fn list_files(&self) -> Vec<PathBuf> {
-        let contents = self.contents.read().unwrap();
+        let content = self.content.read().unwrap();
 
-        contents.keys().map(|p| p.to_owned()).collect::<Vec<_>>()
+        content
+            .rendered
+            .keys()
+            .map(|p| p.to_owned())
+            .collect::<Vec<_>>()
     }
 }
 
 pub struct DiskBackedSite {
     config: Config,
+    root: Directory,
 }
 
 impl DiskBackedSite {
     pub fn new(config: Config) -> Self {
-        DiskBackedSite { config }
+        DiskBackedSite {
+            root: docs_finder::find(&config),
+            config,
+        }
     }
 
     pub fn create_dir(&self) -> Result<()> {
@@ -332,6 +276,10 @@ impl DiskBackedSite {
 }
 
 impl SiteBackend for DiskBackedSite {
+    fn root(&self) -> Directory {
+        self.root.clone()
+    }
+
     fn config(&self) -> &Config {
         &self.config
     }
@@ -377,8 +325,8 @@ impl SiteBackend for DiskBackedSite {
         Ok(())
     }
 
-    fn build(&self, root: &Directory) -> Result<()> {
-        let generator = SiteGenerator::new(root, self);
+    fn build(&self) -> Result<()> {
+        let generator = SiteGenerator::new(self);
 
         generator.run()
     }

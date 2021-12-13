@@ -9,6 +9,7 @@ extern crate lazy_static;
 mod broken_links_checker;
 mod build;
 pub mod config;
+mod docs_finder;
 mod error;
 mod frontmatter;
 mod init;

@@ -35,6 +35,12 @@ impl ServeCommand {
 
         let start = Instant::now();
         site.build().unwrap();
+
+        if let Err(e) = site.check_dead_links() {
+            bunt::writeln!(stdout, "{$bold}{$yellow}WARNING{/$}{/$}")?;
+            println!("{}", e);
+        }
+
         let duration = start.elapsed();
 
         // Watcher ------------------------------------
@@ -76,11 +82,17 @@ impl ServeCommand {
         for (path, msg) in watch_rcv {
             bunt::writeln!(stdout, "    File {$bold}{}{/$} {}.", path.display(), msg)?;
 
+            site.reset().unwrap();
             let start = Instant::now();
-            site.build().unwrap();
+            site.rebuild().unwrap();
             let duration = start.elapsed();
 
             bunt::writeln!(stdout, "    Site rebuilt in {$bold}{:?}{/$}\n", duration)?;
+
+            if let Err(e) = site.check_dead_links() {
+                bunt::writeln!(stdout, "{$bold}{$yellow}WARNING{/$}{/$}")?;
+                println!("{}", e);
+            }
 
             reload_send.send(()).unwrap();
         }

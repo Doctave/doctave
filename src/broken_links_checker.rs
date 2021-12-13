@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 
 pub fn run<B: SiteBackend>(site: &Site<B>) -> Result<()> {
     let mut broken_links = Vec::new();
-    find_broken_links(&site.root, site, &mut broken_links, &site.config);
+    find_broken_links(&site.root(), site, &mut broken_links, &site.config);
 
     if broken_links.len() == 0 {
         Ok(())

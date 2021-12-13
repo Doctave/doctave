@@ -19,13 +19,13 @@ static HEAD_FILE: &str = "_head.html";
 
 pub struct SiteGenerator<'a, T: SiteBackend> {
     config: Config,
-    root: &'a Directory,
+    root: Directory,
     site: Box<&'a T>,
     timestamp: String,
 }
 
 impl<'a, T: SiteBackend> SiteGenerator<'a, T> {
-    pub fn new(root: &'a Directory, site: &'a T) -> Self {
+    pub fn new(site: &'a T) -> Self {
         let start = SystemTime::now();
 
         let since_the_epoch = start
@@ -33,7 +33,7 @@ impl<'a, T: SiteBackend> SiteGenerator<'a, T> {
             .expect("Time went backwards");
 
         SiteGenerator {
-            root,
+            root: site.root(),
             site: Box::new(site),
             config: site.config().clone(),
             timestamp: format!("{}", since_the_epoch.as_secs()),
