@@ -95,7 +95,7 @@ impl Directory {
             .expect("No index file found for directory")
     }
 
-    fn links(&self) -> Vec<Link> {
+    fn links(&self, include_root_readme: bool) -> Vec<Link> {
         let mut links = self
             .docs
             .iter()
@@ -104,7 +104,11 @@ impl Directory {
                 path: d.uri_path(),
                 children: vec![],
             })
-            .filter(|l| l.path != self.index().uri_path())
+            // Filter out the index for each sub-link, but not the default/README file
+            .filter(|l| {
+                l.path != self.index().uri_path()
+                    || (l.path == "/".to_string() && include_root_readme)
+            })
             .collect::<Vec<_>>();
 
         let mut children = self
@@ -113,7 +117,7 @@ impl Directory {
             .map(|d| Link {
                 title: d.index().title().to_owned(),
                 path: d.index().uri_path(),
-                children: d.links(),
+                children: d.links(include_root_readme),
             })
             .collect::<Vec<_>>();
 

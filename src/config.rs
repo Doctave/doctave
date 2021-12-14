@@ -232,6 +232,15 @@ impl NavRule {
             ),
         }
     }
+
+    pub fn is_default_readme_rule(&self, root_dir: &Path, docs_dir: &Path) -> bool {
+        let my_path = match self {
+            NavRule::File(path) => path,
+            NavRule::Dir(_, _) => return false,
+        };
+
+        root_dir.join(my_path) == docs_dir.join("README.md")
+    }
 }
 
 #[derive(Debug, Clone)]
