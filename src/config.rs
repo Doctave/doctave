@@ -246,7 +246,7 @@ impl NavRule {
 #[derive(Debug, Clone)]
 pub struct Config {
     color: bool,
-    skip_checks: bool,
+    allow_failed_checks: bool,
     project_root: PathBuf,
     out_dir: PathBuf,
     docs_dir: PathBuf,
@@ -278,7 +278,7 @@ impl Config {
 
         let config = Config {
             color: true,
-            skip_checks: false,
+            allow_failed_checks: false,
             project_root: project_root.to_path_buf(),
             out_dir: project_root.join("site"),
             docs_dir: doctave_yaml.docs_dir(project_root),
@@ -339,16 +339,16 @@ impl Config {
         self.color
     }
 
-    pub fn skip_checks(&self) -> bool {
-        self.skip_checks
+    pub fn allow_failed_checks(&self) -> bool {
+        self.allow_failed_checks
     }
 
     pub fn disable_colors(&mut self) {
         self.color = false
     }
 
-    pub fn disable_checks(&mut self) {
-        self.skip_checks = true
+    pub fn set_allow_failed_checks(&mut self) {
+        self.allow_failed_checks = true
     }
 
     pub fn build_mode(&self) -> BuildMode {

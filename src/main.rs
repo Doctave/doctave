@@ -30,8 +30,8 @@ fn main() {
                         .help("Build the site in release mode"),
                 )
                 .arg(
-                    Arg::with_name("skip-checks")
-                        .long("skip-checks")
+                    Arg::with_name("allow-failed-checks")
+                        .long("allow-failed-checks")
                         .help("Don't return an error if there are failed checks"),
                 ),
         )
@@ -98,8 +98,8 @@ fn build(cmd: &ArgMatches) -> doctave::Result<()> {
         config.disable_colors();
     }
 
-    if cmd.is_present("skip-checks") {
-        config.disable_checks();
+    if cmd.is_present("allow-failed-checks") {
+        config.set_allow_failed_checks();
     }
 
     doctave::BuildCommand::run(config)

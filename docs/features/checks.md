@@ -6,7 +6,7 @@ Checks
 ======
 
 Doctave will over time add various checks that can be run as part of your build. When you run `doctave build`, you will
-see any failed checks in the terminal output. To opt out of these checks, use the `--skip-checks` flag.
+see any failed checks in the terminal output. To not error out on these checks, use the `--allow-failed-checks` flag.
 
 Currently the only supported check is broken links checking.
 

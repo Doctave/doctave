@@ -615,7 +615,7 @@ integration_test!(broken_link_detection_can_be_skipped_with_flag, |area| {
         .as_bytes(),
     );
 
-    let result = area.cmd(&["build", "--skip-checks"]);
+    let result = area.cmd(&["build", "--allow-failed-checks"]);
     assert_success(&result);
 
     let stdout = std::str::from_utf8(&result.stdout).unwrap();
