@@ -42,7 +42,9 @@ fn find_broken_links<B: SiteBackend>(
 }
 
 fn matches_a_target<B: SiteBackend>(path: &Path, site: &Site<B>, base_path: &str) -> bool {
-    resolve_file(path, &site, base_path).is_some()
+    let full_path = Path::new(base_path).join(path.strip_prefix("/").unwrap_or(path));
+
+    resolve_file(&full_path, &site, base_path).is_some()
 }
 
 #[cfg(test)]
