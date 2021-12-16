@@ -28,7 +28,7 @@ fn find_broken_links<B: SiteBackend>(
             match &link.url {
                 doctave_markdown::UrlType::Remote(_) => {}
                 doctave_markdown::UrlType::Local(path) => {
-                    if !matches_a_target(&path, site, config.base_path()) {
+                    if !matches_a_target(&path, site) {
                         broken_links.push((doc.original_path().to_owned(), link.clone()))
                     }
                 }
@@ -41,10 +41,8 @@ fn find_broken_links<B: SiteBackend>(
     }
 }
 
-fn matches_a_target<B: SiteBackend>(path: &Path, site: &Site<B>, base_path: &str) -> bool {
-    let full_path = Path::new(base_path).join(path.strip_prefix("/").unwrap_or(path));
-
-    resolve_file(&full_path, &site, base_path).is_some()
+fn matches_a_target<B: SiteBackend>(path: &Path, site: &Site<B>) -> bool {
+    resolve_file(path, &site).is_some()
 }
 
 #[cfg(test)]

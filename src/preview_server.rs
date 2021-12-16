@@ -49,20 +49,20 @@ impl<B: SiteBackend> PreviewServer<B> {
         for request in server.incoming_requests() {
             pool.scoped(|scope| {
                 scope.execute(|| {
-                    handle_request(request, &self.site, &self.base_path);
+                    handle_request(request, &self.site);
                 });
             })
         }
     }
 }
 
-fn handle_request<B: SiteBackend>(request: Request, site: &Site<B>, base_path: &str) {
+fn handle_request<B: SiteBackend>(request: Request, site: &Site<B>) {
     let result = {
         let uri = request.url().parse::<http::Uri>().unwrap();
 
         let path = PathBuf::from(uri.path());
 
-        match resolve_file(&path, &site, base_path)
+        match resolve_file(&path, &site)
             .map(|p| (read_file(site, &p), content_type_for(p.extension())))
         {
             Some((data, None)) => request.respond(Response::from_data(data).with_status_code(200)),
@@ -88,11 +88,7 @@ fn handle_request<B: SiteBackend>(request: Request, site: &Site<B>, base_path: &
 /// Uses some basic logic for resolving a path into the correct file.
 /// This means resolving to an index.html from the root of the directory,
 /// trying with .html extensions with needed, etc.
-pub fn resolve_file<B: SiteBackend>(
-    path: &Path,
-    site: &Site<B>,
-    base_path: &str,
-) -> Option<PathBuf> {
+pub fn resolve_file<B: SiteBackend>(path: &Path, site: &Site<B>) -> Option<PathBuf> {
     if path.to_str().map(|s| s.contains("..")).unwrap_or(false) {
         return None;
     }
@@ -105,8 +101,8 @@ pub fn resolve_file<B: SiteBackend>(
         path = Path::new(prefix);
     }
 
-    if path.starts_with(base_path) {
-        path = path.strip_prefix(base_path).unwrap();
+    if path.starts_with(site.config.base_path()) {
+        path = path.strip_prefix(site.config.base_path()).unwrap();
     } else {
         return None;
     }
