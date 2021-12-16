@@ -3,7 +3,7 @@ use std::time::Instant;
 use bunt::termcolor::{ColorChoice, StandardStream};
 
 use crate::config::Config;
-use crate::site::{BuildMode, DiskBackedSite, Site};
+use crate::site::{BuildMode, Site};
 use crate::Result;
 
 pub struct BuildCommand {}
@@ -16,7 +16,7 @@ impl BuildCommand {
             StandardStream::stdout(ColorChoice::Never)
         };
 
-        let site = DiskBackedSite::new(config.clone());
+        let site = Site::disk_backed(config.clone());
 
         let target_dir = config.out_dir();
 
@@ -42,8 +42,18 @@ impl BuildCommand {
 
         if result.is_ok() {
             bunt::writeln!(stdout, "Site built in {$bold}{:?}{/$}\n", duration)?;
-        }
 
-        result
+            let dead_links_result = site.check_dead_links();
+
+            if dead_links_result.is_err() && config.allow_failed_checks() {
+                bunt::writeln!(stdout, "{$bold}{$yellow}WARNING{/$}{/$}")?;
+                bunt::writeln!(stdout, "{}", dead_links_result.unwrap_err())?;
+                Ok(())
+            } else {
+                dead_links_result
+            }
+        } else {
+            result
+        }
     }
 }

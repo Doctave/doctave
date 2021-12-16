@@ -84,8 +84,8 @@ docs_dir: custom_documentation_directory/
 
 ### colors.main
 
-This sets the main color for your site. You can read more about this in
-[customization](/features/customization). Currently this is the only color you can customize.
+This sets the main color for your site. You can read more about this in the
+[look-and-feel section](/features/look-and-feel). Currently this is the only color you can customize.
 
 This is an optional setting.
 
@@ -102,8 +102,8 @@ colors:
 
 ### logo
 
-The name of the file to serve as your logo. You can read more about this in
-[customization](/features/customization).
+The name of the file to serve as your logo. You can read more about this in the
+[look-and-feel section](/features/look-and-feel).
 
 This is an optional setting.
 

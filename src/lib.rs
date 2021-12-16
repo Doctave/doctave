@@ -6,8 +6,10 @@ extern crate indoc;
 #[macro_use]
 extern crate lazy_static;
 
+mod broken_links_checker;
 mod build;
 pub mod config;
+mod docs_finder;
 mod error;
 mod frontmatter;
 mod init;
@@ -193,6 +195,10 @@ impl Document {
         self.path.file_name()
     }
 
+    fn original_path(&self) -> &Path {
+        &self.path
+    }
+
     /// Destination path, given an output directory
     fn destination(&self, out: &Path) -> PathBuf {
         out.join(self.html_path())
@@ -223,6 +229,10 @@ impl Document {
 
     fn headings(&self) -> &[Heading] {
         &self.markdown.headings
+    }
+
+    fn outgoing_links(&self) -> &[doctave_markdown::Link] {
+        &self.markdown.links
     }
 
     fn html(&self) -> &str {

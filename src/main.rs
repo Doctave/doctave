@@ -1,3 +1,4 @@
+use bunt::termcolor::{ColorChoice, StandardStream};
 use clap::{App, Arg, ArgMatches, SubCommand};
 
 fn main() {
@@ -27,6 +28,11 @@ fn main() {
                     Arg::with_name("release")
                         .long("release")
                         .help("Build the site in release mode"),
+                )
+                .arg(
+                    Arg::with_name("allow-failed-checks")
+                        .long("allow-failed-checks")
+                        .help("Don't return an error if there are failed checks"),
                 ),
         )
         .subcommand(
@@ -59,8 +65,14 @@ fn main() {
         _ => Ok(()),
     };
 
+    let mut out = if matches.value_of("no-color").is_some() {
+        StandardStream::stdout(ColorChoice::Never)
+    } else {
+        StandardStream::stdout(ColorChoice::Auto)
+    };
+
     if let Err(e) = result {
-        eprintln!("Error: {}", e);
+        bunt::writeln!(out, "{$red}ERROR:{/$} {}", e).unwrap();
         std::process::exit(1);
     }
 }
@@ -84,6 +96,10 @@ fn build(cmd: &ArgMatches) -> doctave::Result<()> {
 
     if cmd.is_present("no-color") {
         config.disable_colors();
+    }
+
+    if cmd.is_present("allow-failed-checks") {
+        config.set_allow_failed_checks();
     }
 
     doctave::BuildCommand::run(config)

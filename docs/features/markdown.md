@@ -7,6 +7,8 @@ Markdown syntax
 
 This document walks you through all the various Markdown features and associated syntaxes.
 
+#[I don't exist](/nothing/here)
+
 ## Headings
 
 All heading types are supported.

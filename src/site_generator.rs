@@ -1,7 +1,6 @@
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs;
-use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use elasticlunr::Index;
@@ -11,20 +10,21 @@ use walkdir::WalkDir;
 
 use crate::config::Config;
 use crate::navigation::{Link, Navigation};
-use crate::site::{BuildMode, Site};
-use crate::{Directory, Document};
+use crate::site::{BuildMode, SiteBackend};
+use crate::Directory;
 use crate::{Error, Result};
 
 static INCLUDE_DIR: &str = "_include";
 static HEAD_FILE: &str = "_head.html";
 
-pub struct SiteGenerator<'a, T: Site> {
+pub struct SiteGenerator<'a, T: SiteBackend> {
     config: Config,
+    root: Directory,
     site: Box<&'a T>,
     timestamp: String,
 }
 
-impl<'a, T: Site> SiteGenerator<'a, T> {
+impl<'a, T: SiteBackend> SiteGenerator<'a, T> {
     pub fn new(site: &'a T) -> Self {
         let start = SystemTime::now();
 
@@ -33,6 +33,7 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
             .expect("Time went backwards");
 
         SiteGenerator {
+            root: site.root(),
             site: Box::new(site),
             config: site.config().clone(),
             timestamp: format!("{}", since_the_epoch.as_secs()),
@@ -40,18 +41,15 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
     }
 
     pub fn run(&self) -> Result<()> {
-        let root = self.find_docs();
         let nav_builder = Navigation::new(&self.config);
-        let navigation = nav_builder.build_for(&root);
-
-        self.site.reset()?;
+        let navigation = nav_builder.build_for(&self.root);
 
         let head_include = self.read_head_include()?;
 
         self.build_includes()?;
         self.build_assets()?;
-        self.build_directory(&root, &navigation, head_include.as_deref())?;
-        self.build_search_index(&root)?;
+        self.build_directory(&self.root, &navigation, head_include.as_deref())?;
+        self.build_search_index(&self.root)?;
 
         Ok(())
     }
@@ -274,114 +272,6 @@ impl<'a, T: Site> SiteGenerator<'a, T> {
         for dir in &root.dirs {
             self.build_search_index_for_dir(&dir, index);
         }
-    }
-
-    fn find_docs(&self) -> Directory {
-        let mut root_dir = self.walk_dir(self.config.docs_dir()).unwrap_or(Directory {
-            path: self.config.docs_dir().to_path_buf(),
-            docs: vec![],
-            dirs: vec![],
-        });
-
-        self.generate_missing_indices(&mut root_dir);
-
-        root_dir
-    }
-
-    fn walk_dir<P: AsRef<Path>>(&self, dir: P) -> Option<Directory> {
-        let mut docs = vec![];
-        let mut dirs = vec![];
-
-        let current_dir: &Path = dir.as_ref();
-
-        for entry in WalkDir::new(&current_dir)
-            .max_depth(1)
-            .into_iter()
-            .filter_map(|e| e.ok())
-        {
-            if entry.file_type().is_file() && entry.path().extension() == Some(OsStr::new("md")) {
-                let path = entry.path().strip_prefix(self.config.docs_dir()).unwrap();
-
-                docs.push(Document::load(entry.path(), path, self.config.base_path()));
-            } else {
-                let path = entry.into_path();
-
-                if path.as_path() == current_dir {
-                    continue;
-                }
-
-                if let Some(dir) = self.walk_dir(path) {
-                    dirs.push(dir);
-                }
-            }
-        }
-
-        if docs.is_empty() {
-            None
-        } else {
-            Some(Directory {
-                path: current_dir.to_path_buf(),
-                docs,
-                dirs,
-            })
-        }
-    }
-
-    fn generate_missing_indices(&self, dir: &mut Directory) {
-        if dir
-            .docs
-            .iter()
-            .find(|d| d.original_file_name() == Some(OsStr::new("README.md")))
-            .is_none()
-        {
-            let new_index = self.generate_missing_index(dir);
-            dir.docs.push(new_index);
-        }
-
-        for mut child in &mut dir.dirs {
-            self.generate_missing_indices(&mut child);
-        }
-    }
-
-    fn generate_missing_index(&self, dir: &mut Directory) -> Document {
-        let content = dir
-            .docs
-            .iter()
-            .map(|d| format!("* [{}]({})", d.title(), d.uri_path()))
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        let mut frontmatter = BTreeMap::new();
-        frontmatter.insert(
-            "title".to_string(),
-            format!("{}", dir.path().file_name().unwrap().to_string_lossy()),
-        );
-
-        let tmp = dir.path().join("README.md");
-        let path = tmp.strip_prefix(self.config.docs_dir()).unwrap();
-
-        Document::new(
-            path,
-            format!(
-                "# Index of {}\n \
-                \n \
-                This page was generated automatically by Doctave, because the directory \
-                `{}` did not contain an index `README.md` file. You can customize this page by \
-                creating one yourself.\
-                \n\
-                ## Pages\n\
-                \n\
-                {}",
-                dir.path().file_name().unwrap().to_string_lossy(),
-                dir.path()
-                    .strip_prefix(self.config.project_root())
-                    .unwrap_or_else(|_| dir.path())
-                    .display(),
-                content
-            ),
-            frontmatter,
-            self.config.base_path(),
-        )
     }
 }
 
