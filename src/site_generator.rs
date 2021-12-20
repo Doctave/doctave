@@ -122,10 +122,35 @@ impl<'a, T: SiteBackend> SiteGenerator<'a, T> {
             .map_err(|e| Error::io(e, "Could not write prism.js to assets directory"))?;
         self.site
             .add_file(
+                &self.config.out_dir().join("assets").join("katex.js"),
+                crate::KATEX_JS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write katex.js to assets directory"))?;
+        self.site
+            .add_file(
                 &self.config.out_dir().join("assets").join("doctave-app.js"),
                 crate::APP_JS.into(),
             )
             .map_err(|e| Error::io(e, "Could not write doctave-app.js to assets directory"))?;
+
+        // Add fonts
+        for font in crate::KATEX_FONTS
+            .entries()
+            .iter()
+            .filter_map(|f| f.as_file())
+        {
+            self.site
+                .add_file(
+                    &self
+                        .config
+                        .out_dir()
+                        .join("assets")
+                        .join("katex-fonts")
+                        .join(font.path().file_name().unwrap()),
+                    Vec::from(font.contents()),
+                )
+                .map_err(|e| Error::io(e, "Could not write doctave-app.js to assets directory"))?;
+        }
 
         // Add styles
         self.site
@@ -154,6 +179,12 @@ impl<'a, T: SiteBackend> SiteGenerator<'a, T> {
                 crate::NORMALIZE_CSS.into(),
             )
             .map_err(|e| Error::io(e, "Could not write normalize.css to assets directory"))?;
+        self.site
+            .add_file(
+                &self.config.out_dir().join("assets").join("katex.css"),
+                crate::KATEX_CSS.into(),
+            )
+            .map_err(|e| Error::io(e, "Could not write prism-atom-dark.css to assets directory"))?;
 
         let mut data = serde_json::Map::new();
         data.insert(

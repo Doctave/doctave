@@ -24,6 +24,7 @@ Doctave comes with a number of documentation-specific features out of the box. N
 - Offline full-text search
 - Local live-reloading server
 - Broken links checking
+- Typesetting for mathematical formulas
 - Responsive design
 - Dark mode
 - GitHub flavored markdown

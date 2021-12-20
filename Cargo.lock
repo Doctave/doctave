@@ -302,6 +302,7 @@ dependencies = [
  "elasticlunr-rs",
  "handlebars",
  "http",
+ "include_dir",
  "indoc",
  "lazy_static",
  "notify",
@@ -317,8 +318,8 @@ dependencies = [
 
 [[package]]
 name = "doctave-markdown"
-version = "0.7.2"
-source = "git+https://github.com/Doctave/doctave-markdown?tag=0.7.2#96540095d37910781a8af6168761fe24ccc8915b"
+version = "0.8.0"
+source = "git+https://github.com/Doctave/doctave-markdown?tag=0.8.0#552e60684538377005c7bc59615c60b5e89658de"
 dependencies = [
  "ammonia",
  "emojis",
@@ -556,6 +557,25 @@ dependencies = [
  "matches",
  "unicode-bidi",
  "unicode-normalization",
+]
+
+[[package]]
+name = "include_dir"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "482a2e29200b7eed25d7fdbd14423326760b7f6658d21a4cf12d55a50713c69f"
+dependencies = [
+ "include_dir_macros",
+]
+
+[[package]]
+name = "include_dir_macros"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5e074c19deab2501407c91ba1860fa3d6820bfde307db6d8cb851b55a10be89b"
+dependencies = [
+ "proc-macro2",
+ "quote",
 ]
 
 [[package]]
