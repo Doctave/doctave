@@ -36,6 +36,7 @@ pub use site::BuildMode;
 
 pub use doctave_markdown::{Heading, Markdown};
 use handlebars::Handlebars;
+use include_dir::{include_dir, Dir};
 use navigation::Link;
 
 static APP_JS: &str = include_str!("assets/app.js");
@@ -43,10 +44,14 @@ static MERMAID_JS: &str = include_str!("assets/mermaid.min.js");
 static ELASTIC_LUNR: &str = include_str!("assets/elasticlunr.min.js");
 static LIVERELOAD_JS: &str = include_str!("assets/livereload.min.js");
 static PRISM_JS: &str = include_str!("assets/prism.min.js");
+static KATEX_JS: &str = include_str!("assets/katex.min.js");
 
 static NORMALIZE_CSS: &str = include_str!("assets/normalize.css");
 static ATOM_DARK_CSS: &str = include_str!("assets/prism-atom-dark.css");
 static GH_COLORS_CSS: &str = include_str!("assets/prism-ghcolors.css");
+static KATEX_CSS: &str = include_str!("assets/katex.min.css");
+
+static KATEX_FONTS: Dir = include_dir!("$CARGO_MANIFEST_DIR/src/assets/katex-fonts");
 
 lazy_static! {
     pub static ref HANDLEBARS: Handlebars<'static> = {

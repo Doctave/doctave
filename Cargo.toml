@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 clap = "2.33.3"
 walkdir = "2.3.1"
-doctave-markdown = { git = "https://github.com/Doctave/doctave-markdown", tag = "0.7.2" }
+doctave-markdown = { git = "https://github.com/Doctave/doctave-markdown", tag = "0.8.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 handlebars = "3.4.0"
@@ -26,6 +26,7 @@ bus = "2.2.3"
 rayon = "1.4"
 colorsys = "0.5.7"
 alphanumeric-sort = "1.4.0"
+include_dir = "0.7.2"
 
 [dev-dependencies]
 indoc = "1.0.2"
