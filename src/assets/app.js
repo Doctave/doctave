@@ -162,7 +162,11 @@ for (let element of mathElements) {
         if (e instanceof katex.ParseError) {
             // KaTeX can't parse the expression
             var error_message = e.message
-                .replaceAll(/&/g, "&amp;").replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;").replaceAll("\n", "<br />");
+                .replaceAll(/^KaTeX parse error: /g, "Error parsing math notation:\n")
+                .replaceAll(/&/g, "&amp;")
+                .replaceAll(/</g, "&lt;")
+                .replaceAll(/>/g, "&gt;")
+                .replaceAll("\n", "<br />");
 
             element.innerHTML = "<p class='katex-error-msg'>" + error_message + "</p>" + latex.trim().replaceAll("\n", "<br />");
             element.classList.add("katex-error");

@@ -626,3 +626,22 @@ integration_test!(broken_link_detection_can_be_skipped_with_flag, |area| {
     assert!(stdout.contains("/nope"));
     assert!(stdout.contains("Road to nowhere"));
 });
+
+integration_test!(includes_katex_bundles, |area| {
+    area.create_config();
+    area.mkdir("docs");
+    area.write_file(
+        Path::new("docs").join("README.md"),
+        indoc! {"
+        # New phone, who dis?
+    "}
+        .as_bytes(),
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    area.assert_exists(area.path.join("site").join("assets").join("katex-fonts"));
+    area.assert_exists(area.path.join("site").join("assets").join("katex.js"));
+    area.assert_exists(area.path.join("site").join("assets").join("katex.css"));
+});
