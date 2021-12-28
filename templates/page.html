@@ -21,28 +21,6 @@
     <link rel="stylesheet" type="text/css" href="{{ base_path }}assets/prism-ghcolors.css?v={{ timestamp }}"
         media="screen" />
 
-    {{#if (eq build_mode "dev") }}
-    <script type='text/javascript' src="{{ base_path }}assets/livereload.js?port=35729" async="" defer=""></script>
-
-    <script>
-        // Don't reset scrolling on livereload
-        window.addEventListener('scroll', function () {
-            localStorage.setItem('doctave-scrollPosition', window.scrollY);
-
-            dragRightMenu();
-        }, false);
-
-        window.addEventListener('load', function () {
-            if (localStorage.getItem('doctave-scrollPosition') !== null)
-                window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
-
-            document.getElementById('menu-toggle-switch').addEventListener('change', function (e) {
-                disableScrollifMenuOpen();
-            });
-        }, false);
-    </script>
-    {{/if}}
-
     <script>
         var DOCTAVE_TIMESTAMP = "{{ timestamp }}";
         var BASE_PATH = "{{ base_path }}";
@@ -125,8 +103,30 @@
     <script type="text/javascript" src="{{ base_path }}assets/katex.js?v={{ timestamp }}"></script>
     <script type="text/javascript" src="{{ base_path }}assets/mermaid.js?v={{ timestamp }}"></script>
     <script type="text/javascript" src="{{ base_path }}assets/elasticlunr.js?v={{ timestamp }}"></script>
-    <script type="text/javascript" src="{{ base_path }}assets/doctave-app.js?v={{ timestamp }}"></script>
     <script type="text/javascript" src="{{ base_path }}assets/prism.js?v={{ timestamp }}"></script>
+    <script type="text/javascript" src="{{ base_path }}assets/doctave-app.js?v={{ timestamp }}"></script>
+
+    {{#if (eq build_mode "dev") }}
+    <script type='text/javascript' src="{{ base_path }}assets/livereload.js?port=35729" async="" defer=""></script>
+
+    <script>
+        // Don't reset scrolling on livereload
+        window.addEventListener('scroll', function () {
+            localStorage.setItem('doctave-scrollPosition', window.scrollY);
+
+            dragRightMenu();
+        }, false);
+
+        window.addEventListener('load', function () {
+            if (localStorage.getItem('doctave-scrollPosition') !== null)
+                window.scrollTo(0, localStorage.getItem('doctave-scrollPosition'));
+
+            document.getElementById('menu-toggle-switch').addEventListener('change', function (e) {
+                disableScrollifMenuOpen();
+            });
+        }, false);
+    </script>
+    {{/if}}
 </body>
 
 </html>

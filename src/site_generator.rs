@@ -149,7 +149,26 @@ impl<'a, T: SiteBackend> SiteGenerator<'a, T> {
                         .join(font.path().file_name().unwrap()),
                     Vec::from(font.contents()),
                 )
-                .map_err(|e| Error::io(e, "Could not write doctave-app.js to assets directory"))?;
+                .map_err(|e| Error::io(e, "Could not write katex fonts to assets directory"))?;
+        }
+
+        // Add prism grammars
+        for font in crate::PRISM_GRAMMARS
+            .entries()
+            .iter()
+            .filter_map(|f| f.as_file())
+        {
+            self.site
+                .add_file(
+                    &self
+                        .config
+                        .out_dir()
+                        .join("assets")
+                        .join("prism-grammars")
+                        .join(font.path().file_name().unwrap()),
+                    Vec::from(font.contents()),
+                )
+                .map_err(|e| Error::io(e, "Could not write prism grammars to assets directory"))?;
         }
 
         // Add styles

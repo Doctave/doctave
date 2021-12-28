@@ -52,6 +52,7 @@ static GH_COLORS_CSS: &str = include_str!("assets/prism-ghcolors.css");
 static KATEX_CSS: &str = include_str!("assets/katex.min.css");
 
 static KATEX_FONTS: Dir = include_dir!("$CARGO_MANIFEST_DIR/src/assets/katex-fonts");
+static PRISM_GRAMMARS: Dir = include_dir!("$CARGO_MANIFEST_DIR/src/assets/prism-grammars");
 
 lazy_static! {
     pub static ref HANDLEBARS: Handlebars<'static> = {

@@ -176,9 +176,13 @@ for (let element of mathElements) {
     }
 }
 
-var INDEX;
+// Setup Prism
+Prism.plugins.autoloader.languages_path = '/assets/prism-grammars/';
+
 
 // Load search index
+var INDEX;
+
 fetch(BASE_PATH + 'search_index.json')
     .then(function (response) {
         if (!response.ok) {
@@ -193,7 +197,6 @@ fetch(BASE_PATH + 'search_index.json')
     });
 
 // Setup keyboard shortcuts
-
 document.onkeydown = function (e) {
     var searchResults = document.getElementById('search-results');
     var first = searchResults.firstChild;
