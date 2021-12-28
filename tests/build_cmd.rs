@@ -235,13 +235,13 @@ integration_test!(page_nav, |area| {
     assert_success(&result);
 
     area.assert_contains(&index, "<li class='page-nav-level-1'>");
-    area.assert_contains(&index, "  <a href='#this-1'>This</a>");
+    area.assert_contains(&index, "  <a href='#this'>This</a>");
     area.assert_contains(&index, "<li class='page-nav-level-1'>");
-    area.assert_contains(&index, "  <a href='#is-2'>Is</a>");
+    area.assert_contains(&index, "  <a href='#is'>Is</a>");
     area.assert_contains(&index, "<li class='page-nav-level-1'>");
-    area.assert_contains(&index, "  <a href='#the-3'>The</a>");
+    area.assert_contains(&index, "  <a href='#the'>The</a>");
     area.assert_contains(&index, "<li class='page-nav-level-1'>");
-    area.assert_contains(&index, "  <a href='#end-4'>End</a>");
+    area.assert_contains(&index, "  <a href='#end'>End</a>");
 });
 
 integration_test!(missing_directory_index, |area| {
