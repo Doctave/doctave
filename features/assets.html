@@ -9,17 +9,20 @@
     <meta name="description" content="Documentation for Doctave">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
+        rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1634885345" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1634885345" media="screen" />
-
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1634885345" media="screen" />
-
-    
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1640767391"
+        media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1640767391"
+        media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/katex.css?v=1640767391" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1640767391"
+        media="screen" />
 
     <script>
-        var DOCTAVE_TIMESTAMP = "1634885345";
+        var DOCTAVE_TIMESTAMP = "1640767391";
         var BASE_PATH = "/";
         var color = localStorage.getItem('doctave-color')
 
@@ -33,7 +36,7 @@
     </script>
 
     
-        <script async defer data-domain="cli.doctave.com" src="https://plausible.doctave.com/js/index.js"></script>
+    <script async defer data-domain="cli.doctave.com" src="https://plausible.doctave.com/js/index.js"></script>
 
     
 </head>
@@ -47,9 +50,9 @@
         <div class='header'>
             <div class='logo'>
                 
-                    <a href="/">
-                        <img src="/assets/doctave-logo.svg" alt='Doctave logo'></img>
-                    </a>
+                <a href="/">
+                    <img src="/assets/doctave-logo.svg" alt='Doctave logo'></img>
+                </a>
                 
                 <h2 class='project-name'>
                     <a href="/">
@@ -83,6 +86,9 @@
             
                 <ul>
     
+        <li><a href="/features/checks">Checks</a></li>
+        
+    
         <li><a class="active" href="/features/assets">Custom assets</a></li>
         
     
@@ -96,6 +102,9 @@
         
     
         <li><a href="/features/markdown">Markdown syntax</a></li>
+        
+    
+        <li><a href="/features/math-notation">Mathematical Notation</a></li>
         
     
         <li><a href="/features/mermaid-js">Mermaid.js diagrams</a></li>
@@ -128,17 +137,17 @@
 
             </div>
             <div class='content'>
-                <h1 id="custom-assets-1">Custom assets</h1>
+                <h1 id="custom-assets">Custom assets</h1>
 <p>If you have images or other files besides Markdown files that you wish to include in your project,
 you can place them in a <code>docs/_include</code> directory. Doctave will copy all files from that directory
 into the final site bundle, and place in the root of the directory.</p>
 <p>Here's a couple examples:</p>
-<h2 id="images-2">Images</h2>
+<h2 id="images">Images</h2>
 <p>A <code>docs/_include/assets/cat.jpg</code> file would get a final path of <code>/assets/cat.jpg</code>, which you can
 reference in your documentation as:</p>
 <pre><code class="language-markdown">![my lovely cat](/assets/cat.jpg)
 </code></pre>
-<h2 id="favicon-3">Favicon</h2>
+<h2 id="favicon">Favicon</h2>
 <p>You can include a custom favicon by placing a <code>favicon.ico</code> into the <code>docs/_include</code> directory.</p>
 
             </div>
@@ -147,35 +156,44 @@ reference in your documentation as:</p>
                     <p class='page-nav-header'>On this page</p>
                     <ul>
                         
-                            <li class='page-nav-level-1'>
-                                <a href='#custom-assets-1'>Custom assets</a>
-                            </li>
+                        <li class='page-nav-level-1'>
+                            <a href='#custom-assets'>Custom assets</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#images-2'>Images</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#images'>Images</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#favicon-3'>Favicon</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#favicon'>Favicon</a>
+                        </li>
                         
                     </ul>
                 </div>
             </div>
             <div class='wave-container'>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-                    <path fill-opacity="0.35" d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
-                    <path fill-opacity="0.5" d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
-                    <path fill-opacity="0.2" d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                    <path fill-opacity="0.35"
+                        d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
+                    <path fill-opacity="0.5"
+                        d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
+                    <path fill-opacity="0.2"
+                        d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
                 </svg>
                 <p>Powered by <a href='https://cli.doctave.com' target='_blank'>Doctave</a></p>
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js?v=1634885345"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js?v=1634885345"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js?v=1634885345"></script>
-    <script type="text/javascript" src="/assets/prism.js?v=1634885345"></script>
+    <script type="text/javascript" src="/assets/katex.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/prism.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v=1640767391"></script>
+
+    
 </body>
 
 </html>

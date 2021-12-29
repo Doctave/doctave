@@ -9,17 +9,20 @@
     <meta name="description" content="Documentation for Doctave">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
+        rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1634885345" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1634885345" media="screen" />
-
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1634885345" media="screen" />
-
-    
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1640767391"
+        media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1640767391"
+        media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/katex.css?v=1640767391" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1640767391"
+        media="screen" />
 
     <script>
-        var DOCTAVE_TIMESTAMP = "1634885345";
+        var DOCTAVE_TIMESTAMP = "1640767391";
         var BASE_PATH = "/";
         var color = localStorage.getItem('doctave-color')
 
@@ -33,7 +36,7 @@
     </script>
 
     
-        <script async defer data-domain="cli.doctave.com" src="https://plausible.doctave.com/js/index.js"></script>
+    <script async defer data-domain="cli.doctave.com" src="https://plausible.doctave.com/js/index.js"></script>
 
     
 </head>
@@ -47,9 +50,9 @@
         <div class='header'>
             <div class='logo'>
                 
-                    <a href="/">
-                        <img src="/assets/doctave-logo.svg" alt='Doctave logo'></img>
-                    </a>
+                <a href="/">
+                    <img src="/assets/doctave-logo.svg" alt='Doctave logo'></img>
+                </a>
                 
                 <h2 class='project-name'>
                     <a href="/">
@@ -83,6 +86,9 @@
             
                 <ul>
     
+        <li><a href="/features/checks">Checks</a></li>
+        
+    
         <li><a href="/features/assets">Custom assets</a></li>
         
     
@@ -96,6 +102,9 @@
         
     
         <li><a href="/features/markdown">Markdown syntax</a></li>
+        
+    
+        <li><a href="/features/math-notation">Mathematical Notation</a></li>
         
     
         <li><a href="/features/mermaid-js">Mermaid.js diagrams</a></li>
@@ -128,23 +137,27 @@
 
             </div>
             <div class='content'>
-                <h1 id="tutorial-1">Tutorial</h1>
+                <h1 id="tutorial">Tutorial</h1>
 <p>If you are new to Doctave, this tutorial will walk you through getting your site built and
 deployed.</p>
-<h2 id="installation-2">Installation</h2>
+<h2 id="installation">Installation</h2>
 <p>First, make sure that you have installed Doctave locally. Follow the instructions in the
 <a href="/installing">installation guide</a>.</p>
 <p>To verify you have installed everything correctly, run the following:</p>
 <pre><code>$ doctave --version
 Doctave x.y.z
 </code></pre>
-<h2 id="creating-a-new-site-3">Creating a new site</h2>
+<h2 id="creating-a-new-site">Creating a new site</h2>
 <p>Creating a new documentation site can be done easily with the <code>doctave init</code> command:</p>
 <pre><code>$ doctave init
 ...
 </code></pre>
 <p>This will create a <code>docs/</code> directory in the root of your repository, and some pages for you to get
 started with.</p>
+<p>If you wish to use a different directory than <code>docs/</code>, you can pass the name of that directory as the argument <code>--docs-dir</code>:</p>
+<pre><code>$ doctave init --docs-dir some_subdirectory
+...
+</code></pre>
 <p>You'll also find a <code>doctave.yaml</code> in your project root now. Lets take a look at it.</p>
 <pre><code># On Mac / Linux
 $ cat doctave.yaml
@@ -171,7 +184,7 @@ Starting development server...
 Server running on http://0.0.0.0:4001/
 </code></pre>
 <p>And finally, go to <a href="http://localhost:4001">http://localhost:4001</a> to view your site.</p>
-<h2 id="editing-content-4">Editing content</h2>
+<h2 id="editing-content">Editing content</h2>
 <p>While <code>doctave serve</code> is running, you can edit the your documentation Markdown files, and you will
 immediately see your page update. Try it! Open up <code>docs/README.md</code> in your favorite text editor,
 and make a change. You should see the browser refresh and show your changes automatically. This way
@@ -181,7 +194,7 @@ reference</a> or check out <a href="https://guides.github.com/features/mastering
 guide</a> by GitHub. Note that there are a few
 different flavors of Markdown. Doctave supports all the "basics" Markdown features, as well as a few
 "GitHub flavored Markdown" features - namely task lists and tables.</p>
-<h2 id="adding-pages-5">Adding pages</h2>
+<h2 id="adding-pages">Adding pages</h2>
 <p>To add a new page, all you need to do is add another Markdown file.</p>
 <p>Let's say you want to add another page; a "How To Build" page. All you need to do is create a that
 page inside your docs folder.</p>
@@ -207,7 +220,7 @@ title: How to build
 </code></pre>
 <p>Open up your browser, and you should now see a <em>"How to build"</em> link in the sidebar. And if you
 click it, you will be taken to the page.</p>
-<h2 id="what-next?-6">What next?</h2>
+<h2 id="what-next?">What next?</h2>
 <p>That's really all there is to know about getting started with Doctave. Here are some resources that
 can help going forward:</p>
 <ul>
@@ -223,47 +236,56 @@ can help going forward:</p>
                     <p class='page-nav-header'>On this page</p>
                     <ul>
                         
-                            <li class='page-nav-level-1'>
-                                <a href='#tutorial-1'>Tutorial</a>
-                            </li>
+                        <li class='page-nav-level-1'>
+                            <a href='#tutorial'>Tutorial</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#installation-2'>Installation</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#installation'>Installation</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#creating-a-new-site-3'>Creating a new site</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#creating-a-new-site'>Creating a new site</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#editing-content-4'>Editing content</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#editing-content'>Editing content</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#adding-pages-5'>Adding pages</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#adding-pages'>Adding pages</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#what-next?-6'>What next?</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#what-next?'>What next?</a>
+                        </li>
                         
                     </ul>
                 </div>
             </div>
             <div class='wave-container'>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-                    <path fill-opacity="0.35" d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
-                    <path fill-opacity="0.5" d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
-                    <path fill-opacity="0.2" d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                    <path fill-opacity="0.35"
+                        d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
+                    <path fill-opacity="0.5"
+                        d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
+                    <path fill-opacity="0.2"
+                        d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
                 </svg>
                 <p>Powered by <a href='https://cli.doctave.com' target='_blank'>Doctave</a></p>
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js?v=1634885345"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js?v=1634885345"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js?v=1634885345"></script>
-    <script type="text/javascript" src="/assets/prism.js?v=1634885345"></script>
+    <script type="text/javascript" src="/assets/katex.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/prism.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v=1640767391"></script>
+
+    
 </body>
 
 </html>

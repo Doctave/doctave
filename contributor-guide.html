@@ -9,17 +9,20 @@
     <meta name="description" content="Documentation for Doctave">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
+        rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1634885345" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1634885345" media="screen" />
-
-    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1634885345" media="screen" />
-
-    
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1640767391"
+        media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1640767391"
+        media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/katex.css?v=1640767391" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1640767391"
+        media="screen" />
 
     <script>
-        var DOCTAVE_TIMESTAMP = "1634885345";
+        var DOCTAVE_TIMESTAMP = "1640767391";
         var BASE_PATH = "/";
         var color = localStorage.getItem('doctave-color')
 
@@ -33,7 +36,7 @@
     </script>
 
     
-        <script async defer data-domain="cli.doctave.com" src="https://plausible.doctave.com/js/index.js"></script>
+    <script async defer data-domain="cli.doctave.com" src="https://plausible.doctave.com/js/index.js"></script>
 
     
 </head>
@@ -47,9 +50,9 @@
         <div class='header'>
             <div class='logo'>
                 
-                    <a href="/">
-                        <img src="/assets/doctave-logo.svg" alt='Doctave logo'></img>
-                    </a>
+                <a href="/">
+                    <img src="/assets/doctave-logo.svg" alt='Doctave logo'></img>
+                </a>
                 
                 <h2 class='project-name'>
                     <a href="/">
@@ -83,6 +86,9 @@
             
                 <ul>
     
+        <li><a href="/features/checks">Checks</a></li>
+        
+    
         <li><a href="/features/assets">Custom assets</a></li>
         
     
@@ -96,6 +102,9 @@
         
     
         <li><a href="/features/markdown">Markdown syntax</a></li>
+        
+    
+        <li><a href="/features/math-notation">Mathematical Notation</a></li>
         
     
         <li><a href="/features/mermaid-js">Mermaid.js diagrams</a></li>
@@ -128,7 +137,7 @@
 
             </div>
             <div class='content'>
-                <h1 id="contributor-guide-1">Contributor guide</h1>
+                <h1 id="contributor-guide">Contributor guide</h1>
 <p>Firstly, <strong>thank you for considering contributing to Doctave</strong>. Open source software would not
 survive without people like yourself, who take time out of their busy schedules to help out. <strong>We
 appreciate you.</strong></p>
@@ -138,7 +147,7 @@ run tests, and things to keep in mind when contributing.</p>
 <pre><code>git clone git@github.com:Doctave/doctave.git
 </code></pre>
 <p>and installed the <a href="https://www.rust-lang.org/learn/get-started">Rust toolchain</a>.</p>
-<h2 id="building-2">Building</h2>
+<h2 id="building">Building</h2>
 <p>Doctave is a fairly standard Rust project. It uses Cargo, doesn't have any non-rust dependencies, so
 assuming you have Rust installed, you should be able to run <code>cargo build</code> and get a working build.
 If not, please open an issue on Github with the error you see.</p>
@@ -149,19 +158,19 @@ If not, please open an issue on Github with the error you see.</p>
 <p>You can now verify your installation works with:</p>
 <pre><code>$ cargo run -- --version
 </code></pre>
-<h2 id="running-tests-3">Running tests</h2>
+<h2 id="running-tests">Running tests</h2>
 <p>Again, Doctave uses Cargo. You can run all tests with</p>
 <pre><code>$ cargo test
 </code></pre>
 <p>This will run unit tests and integration tests.</p>
-<h3 id="test-structure-4">Test structure</h3>
+<h3 id="test-structure">Test structure</h3>
 <p>Doctave has two types of tests: unit tests and integration tests.</p>
 <p>You will find unit tests at the bottom of source files under <code>src</code>. As a general rule, they should
 not have any external dependencies - especially on the file system.</p>
 <p>Integrations tests live under the <code>tests</code> directory. These tests shell out and execute the doctave
 binary directly inside an isolated environment. Each test will get its own directory under the
 <code>_test_area</code> directory when executed.</p>
-<h3 id="adding-integration-tests-5">Adding integration tests</h3>
+<h3 id="adding-integration-tests">Adding integration tests</h3>
 <p>If you want to add integration tests, you should use the <code>integration_test</code> macro to define your
 tests. It takes two arguments: the name of the test, and a lambda to run the test code. The argument
 passed into the lambda is a <code>TestArea</code> struct describing the isolated test area. When creating
@@ -201,14 +210,14 @@ expected content in the index file.</p>
     area.assert_contains(&amp;index, "&lt;li&gt;List&lt;/li&gt;");
 });
 </code></pre>
-<h2 id="cross-platform-compatibility-6">Cross-platform compatibility</h2>
+<h2 id="cross-platform-compatibility">Cross-platform compatibility</h2>
 <p>Doctave runs on Mac, Linux, and Windows, which means you need to be careful about not relying on
 platform-specific features. Most commonly for Doctave, this means you have to be careful when
 building filesystem paths.</p>
 <p>Luckily, Rust has a good solution for this: the <code>Path</code> and <code>PathBuf</code> structs. If you are familiar
 with Rust, think of these as <code>str</code> and <code>String</code> equivalents for handling paths. <code>Path</code> is always
 accessed through a reference, while <code>PathBuf</code> is an owned type.</p>
-<h2 id="ci-7">CI</h2>
+<h2 id="ci">CI</h2>
 <p>Doctave uses <a href="https://github.com/Doctave/doctave/actions">GitHub actions</a> to run tests
 automatically for each commit and PR. The test suite is executed on Mac, Linux, and Windows. When
 opening a PR, make sure you pass all checks.</p>
@@ -219,51 +228,60 @@ opening a PR, make sure you pass all checks.</p>
                     <p class='page-nav-header'>On this page</p>
                     <ul>
                         
-                            <li class='page-nav-level-1'>
-                                <a href='#contributor-guide-1'>Contributor guide</a>
-                            </li>
+                        <li class='page-nav-level-1'>
+                            <a href='#contributor-guide'>Contributor guide</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#building-2'>Building</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#building'>Building</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#running-tests-3'>Running tests</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#running-tests'>Running tests</a>
+                        </li>
                         
-                            <li class='page-nav-level-3'>
-                                <a href='#test-structure-4'>Test structure</a>
-                            </li>
+                        <li class='page-nav-level-3'>
+                            <a href='#test-structure'>Test structure</a>
+                        </li>
                         
-                            <li class='page-nav-level-3'>
-                                <a href='#adding-integration-tests-5'>Adding integration tests</a>
-                            </li>
+                        <li class='page-nav-level-3'>
+                            <a href='#adding-integration-tests'>Adding integration tests</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#cross-platform-compatibility-6'>Cross-platform compatibility</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#cross-platform-compatibility'>Cross-platform compatibility</a>
+                        </li>
                         
-                            <li class='page-nav-level-2'>
-                                <a href='#ci-7'>CI</a>
-                            </li>
+                        <li class='page-nav-level-2'>
+                            <a href='#ci'>CI</a>
+                        </li>
                         
                     </ul>
                 </div>
             </div>
             <div class='wave-container'>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-                    <path fill-opacity="0.35" d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
-                    <path fill-opacity="0.5" d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
-                    <path fill-opacity="0.2" d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                    <path fill-opacity="0.35"
+                        d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
+                    <path fill-opacity="0.5"
+                        d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
+                    <path fill-opacity="0.2"
+                        d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
                 </svg>
                 <p>Powered by <a href='https://cli.doctave.com' target='_blank'>Doctave</a></p>
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/assets/mermaid.js?v=1634885345"></script>
-    <script type="text/javascript" src="/assets/elasticlunr.js?v=1634885345"></script>
-    <script type="text/javascript" src="/assets/doctave-app.js?v=1634885345"></script>
-    <script type="text/javascript" src="/assets/prism.js?v=1634885345"></script>
+    <script type="text/javascript" src="/assets/katex.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/prism.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v=1640767391"></script>
+
+    
 </body>
 
 </html>

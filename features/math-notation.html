@@ -1,0 +1,222 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Mathematical Notation</title>
+    <meta name="description" content="Documentation for Doctave">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="/assets/normalize.css?v=1640767391"
+        media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/doctave-style.css?v=1640767391"
+        media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/katex.css?v=1640767391" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/assets/prism-ghcolors.css?v=1640767391"
+        media="screen" />
+
+    <script>
+        var DOCTAVE_TIMESTAMP = "1640767391";
+        var BASE_PATH = "/";
+        var color = localStorage.getItem('doctave-color')
+
+        if (color === 'dark') {
+            document.getElementsByTagName('html')[0].classList.remove('light');
+            document.getElementsByTagName('html')[0].classList.add('dark');
+        } else {
+            document.getElementsByTagName('html')[0].classList.remove('dark');
+            document.getElementsByTagName('html')[0].classList.add('light');
+        }
+    </script>
+
+    
+    <script async defer data-domain="cli.doctave.com" src="https://plausible.doctave.com/js/index.js"></script>
+
+    
+</head>
+
+<body>
+    <label for='menu-toggle-switch' class='menu-toggle-button'>
+        ☰
+    </label>
+    <input type="checkbox" id="menu-toggle-switch" value='0' />
+    <div class='page'>
+        <div class='header'>
+            <div class='logo'>
+                
+                <a href="/">
+                    <img src="/assets/doctave-logo.svg" alt='Doctave logo'></img>
+                </a>
+                
+                <h2 class='project-name'>
+                    <a href="/">
+                        Doctave
+                    </a>
+                </h2>
+            </div>
+            <div class='search'>
+                <form id='search-form'>
+    <input type='text' id='search-box' autocomplete="off" placeholder="Search..."></input>
+    <span class='search-icon'>S</span>
+    <ul id='search-results'></ul>
+</form>
+
+            </div>
+            <div class='header-dummy-right'>
+            </div>
+        </div>
+        <div class='container'>
+            <div class='sidebar-left'>
+                <nav class='site-nav'>
+    <ul>
+        
+            <li><a href="/installing">Installing</a></li>
+            
+        
+            <li><a href="/tutorial">Tutorial</a></li>
+            
+        
+            <li><a href="/features">Features</a></li>
+            
+                <ul>
+    
+        <li><a href="/features/checks">Checks</a></li>
+        
+    
+        <li><a href="/features/assets">Custom assets</a></li>
+        
+    
+        <li><a href="/features/custom-head-tag">Custom head tag</a></li>
+        
+    
+        <li><a href="/features/custom-navigation">Custom navigation</a></li>
+        
+    
+        <li><a href="/features/look-and-feel">Look and feel</a></li>
+        
+    
+        <li><a href="/features/markdown">Markdown syntax</a></li>
+        
+    
+        <li><a class="active" href="/features/math-notation">Mathematical Notation</a></li>
+        
+    
+        <li><a href="/features/mermaid-js">Mermaid.js diagrams</a></li>
+        
+    
+</ul>
+
+            
+        
+            <li><a href="/deployment">Deployment</a></li>
+            
+        
+            <li><a href="/configuration">Configuration</a></li>
+            
+        
+            <li><a href="/contributor-guide">Contributor guide</a></li>
+            
+        
+    </ul>
+    <span id='light-dark-mode-switch'>
+        <svg xmlns="http://www.w3.org/2000/svg" id="dark-mode-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+        </svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" id="light-mode-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />
+        </svg>
+    </span>
+</nav>
+
+            </div>
+            <div class='content'>
+                <h1 id="mathematical-notation">Mathematical Notation</h1>
+<p>Doctave will render mathematical formulas written in <a href="https://en.wikipedia.org/wiki/TeX">Tex</a> into nicely typeset
+notation. This feature is powered by <a href="https://katex.org/">KaTex</a>.</p>
+<h2 id="example">Example</h2>
+<p>To place a formula onto your page, create a code block and specify <code>math</code> as its language:</p>
+<pre><code>```math
+x^2 - 5x + 6 = 0 \\
+(x-2)(x-3)=0 \\
+\textrm{then either }x=2 \,or\,x=3
+```
+</code></pre>
+<p>This will get rendered as follows:</p>
+<div class="math">
+x^2 - 5x + 6 = 0 \\
+(x-2)(x-3)=0 \\
+\textrm{then either }x=2 \,or\,x=3
+</div>
+<p>Or for something more complicated:</p>
+<pre><code>```math
+\left( \sum_{k=1}^n a_k b_k \right)^2 \leq
+\left( \sum_{k=1}^n a_k^2 \right)
+\left( \sum_{k=1}^n b_k^2 \right)
+```
+</code></pre>
+<p>We get:</p>
+<div class="math">
+\left( \sum_{k=1}^n a_k b_k \right)^2 \leq
+\left( \sum_{k=1}^n a_k^2 \right)
+\left( \sum_{k=1}^n b_k^2 \right)
+</div><h2 id="where-can-i-learn-more?">Where can I learn more?</h2>
+<p>Here are some useful links if you are not familiar with TeX or KaTeX specifically.</p>
+<ul>
+<li><a href="https://www.texlive.info/CTAN/info/gentle/gentle.pdf">A gentle introduction to TeX</a></li>
+<li><a href="https://katex.org/docs/supported.html">Supported functions in KaTeX</a></li>
+</ul>
+
+            </div>
+            <div class='sidebar-right'>
+                <div class='page-nav' id='page-nav'>
+                    <p class='page-nav-header'>On this page</p>
+                    <ul>
+                        
+                        <li class='page-nav-level-1'>
+                            <a href='#mathematical-notation'>Mathematical Notation</a>
+                        </li>
+                        
+                        <li class='page-nav-level-2'>
+                            <a href='#example'>Example</a>
+                        </li>
+                        
+                        <li class='page-nav-level-2'>
+                            <a href='#where-can-i-learn-more?'>Where can I learn more?</a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class='wave-container'>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+                    <path fill-opacity="0.35"
+                        d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
+                    <path fill-opacity="0.5"
+                        d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
+                    <path fill-opacity="0.2"
+                        d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
+                    </path>
+                </svg>
+                <p>Powered by <a href='https://cli.doctave.com' target='_blank'>Doctave</a></p>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/assets/katex.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/mermaid.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/elasticlunr.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/prism.js?v=1640767391"></script>
+    <script type="text/javascript" src="/assets/doctave-app.js?v=1640767391"></script>
+
+    
+</body>
+
+</html>

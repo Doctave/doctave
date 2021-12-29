@@ -20,7 +20,7 @@ function search() {
         expand: true
     }
 
-    INDEX.search(box.value, config).forEach(function(result) {
+    INDEX.search(box.value, config).forEach(function (result) {
         listItem = document.createElement("li");
         listItem.className = "search-result-item";
         listItem.innerHTML =
@@ -65,8 +65,8 @@ function navTouchingBottom() {
         document.body.offsetHeight, document.documentElement.offsetHeight,
         document.body.clientHeight, document.documentElement.clientHeight
     );
-                                                                         // Magic number determined
-                                                                         // by height of bottom wave
+    // Magic number determined
+    // by height of bottom wave
     return window.scrollY + nav.offsetTop + nav.offsetHeight >= height - 230;
 }
 
@@ -77,8 +77,8 @@ function scrolledUp() {
         document.body.clientHeight, document.documentElement.clientHeight
     );
 
-                                                         // Magic number determined
-                                                         // by height of bottom wave
+    // Magic number determined
+    // by height of bottom wave
     return window.scrollY + window.innerHeight < height - 230;
 }
 
@@ -140,30 +140,64 @@ document.getElementById("light-dark-mode-switch").addEventListener("click", togg
 var color = localStorage.getItem('doctave-color')
 if (color === 'dark') {
     console.log("DARK MODE");
-    mermaid.initialize({'theme': 'dark'});
+    mermaid.initialize({ 'theme': 'dark' });
 } else {
-    mermaid.initialize({'theme': 'default'});
+    mermaid.initialize({ 'theme': 'default' });
 }
 
-var INDEX;
+// Setup Katex
+var mathElements = document.getElementsByClassName("math");
+
+const macros = {}
+
+for (let element of mathElements) {
+    let latex = element.textContent;
+
+    try {
+        katex.render(latex, element, {
+            displayMode: true,
+            macros: macros,
+        });
+    } catch (e) {
+        if (e instanceof katex.ParseError) {
+            // KaTeX can't parse the expression
+            var error_message = e.message
+                .replaceAll(/^KaTeX parse error: /g, "Error parsing math notation:\n")
+                .replaceAll(/&/g, "&amp;")
+                .replaceAll(/</g, "&lt;")
+                .replaceAll(/>/g, "&gt;")
+                .replaceAll("\n", "<br />");
+
+            element.innerHTML = "<p class='katex-error-msg'>" + error_message + "</p>" + latex.trim().replaceAll("\n", "<br />");
+            element.classList.add("katex-error");
+        } else {
+            throw e;  // other error
+        }
+    }
+}
+
+// Setup Prism
+Prism.plugins.autoloader.languages_path = '/assets/prism-grammars/';
+
 
 // Load search index
+var INDEX;
+
 fetch(BASE_PATH + 'search_index.json')
-    .then(function(response) {
+    .then(function (response) {
         if (!response.ok) {
             throw new Error("HTTP error " + response.status);
         }
         return response.json();
     })
-    .then(function(json) {
+    .then(function (json) {
         INDEX = elasticlunr.Index.load(json)
         document.getElementById('search-box').oninput = search;
         search();
     });
 
 // Setup keyboard shortcuts
-
-document.onkeydown = function(e) {
+document.onkeydown = function (e) {
     var searchResults = document.getElementById('search-results');
     var first = searchResults.firstChild;
     var searchBox = document.getElementById('search-box');
