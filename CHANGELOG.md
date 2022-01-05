@@ -1,11 +1,16 @@
 Changelog
 =========
 
-Starting from version 0.4.0, Doctave will mantain this changelog to describe changes in each release.
+Starting from version 0.4.0, Doctave will maintain this changelog to describe changes in each release.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1](https://github.com/Doctave/doctave/releases/tag/0.4.1) 2022-01-05
+
+### Fixed
+
+- Fix CSS class name collision with some Prism grammars [#34](https://github.com/Doctave/doctave/issues/34)
 
 ## [0.4.0](https://github.com/Doctave/doctave/releases/tag/0.4.0) 2021-12-29
 
