@@ -204,7 +204,7 @@ integration_test!(frontmatter, |area| {
 
     let index = std::fs::read_to_string(&index).unwrap();
 
-    let start = index.find("<div class='content'>").unwrap();
+    let start = index.find("<div class='doctave-content'>").unwrap();
     let end = index.find("<div class='sidebar-right'>").unwrap();
 
     // Check that there is no line between the beginning and end of the content
