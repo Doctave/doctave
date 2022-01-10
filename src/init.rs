@@ -9,11 +9,11 @@ use crate::{Error, Result};
 pub struct InitCommand {
     stdout: StandardStream,
     project_root: PathBuf,
-    custom_docs_dir: Option<String>,
+    docs_dir: Option<PathBuf>,
 }
 
 impl InitCommand {
-    pub fn run(project_root: PathBuf, colors: bool, custom_doc_root: Option<String>) -> Result<()> {
+    pub fn run(project_root: PathBuf, colors: bool, docs_dir: Option<PathBuf>) -> Result<()> {
         let stdout = if colors {
             StandardStream::stdout(ColorChoice::Auto)
         } else {
@@ -23,7 +23,7 @@ impl InitCommand {
         let mut cmd = InitCommand {
             stdout,
             project_root,
-            custom_docs_dir: custom_doc_root.clone(),
+            docs_dir,
         };
 
         bunt::writeln!(cmd.stdout, "{$bold}{$blue}Doctave | Init{/$}{/$}")?;
@@ -38,10 +38,11 @@ impl InitCommand {
             cmd.create_docs_index()?;
             cmd.create_doc_examples()?;
         } else {
+            let dir = cmd.docs_dir.as_deref().unwrap_or_else(|| Path::new("docs"));
             bunt::writeln!(
                 cmd.stdout,
                 "{$yellow}Skipping{/$} {$bold}{}{/$} directory - found existing docs...",
-                custom_doc_root.unwrap_or("docs".to_string())
+                dir.display()
             )?;
         }
 
@@ -74,8 +75,8 @@ impl InitCommand {
         file.write(b"---\ntitle: \"My Project\"\n")
             .map_err(|e| Error::io(e, "Could not write to doctave.yaml"))?;
 
-        if let Some(doc_root) = &self.custom_docs_dir {
-            file.write(format!("\ndocs_dir: {}\n", doc_root).as_bytes())
+        if let Some(doc_root) = &self.docs_dir {
+            file.write(format!("\ndocs_dir: {}\n", doc_root.display()).as_bytes())
                 .map_err(|e| Error::io(e, "Could not write to doctave.yaml"))?;
         }
 
@@ -96,8 +97,7 @@ impl InitCommand {
                 )
             })?;
 
-            let doc_root_name = &self.doc_root_name();
-            let doc_root = Path::new(doc_root_name);
+            let doc_root = self.docs_dir().to_path_buf();
 
             bunt::writeln!(
                 self.stdout,
@@ -126,8 +126,7 @@ impl InitCommand {
             file.write(include_str!("../templates/starter_readme.md").as_bytes())
                 .map_err(|e| Error::io(e, "Could not write to README.md"))?;
 
-            let doc_root_name = &self.doc_root_name();
-            let relative_path = Path::new(doc_root_name).join("README.md");
+            let relative_path = self.docs_dir().join("README.md");
 
             bunt::writeln!(
                 self.stdout,
@@ -156,8 +155,7 @@ impl InitCommand {
             file.write(include_str!("../templates/starter_examples.md").as_bytes())
                 .map_err(|e| Error::io(e, "Could not write to README.md"))?;
 
-            let doc_root_name = &self.doc_root_name();
-            let relative_path = Path::new(doc_root_name).join("examples.md");
+            let relative_path = self.docs_dir().join("examples.md");
             bunt::writeln!(
                 self.stdout,
                 "Created {$bold}{}{/$}...",
@@ -168,14 +166,13 @@ impl InitCommand {
         Ok(())
     }
 
-    fn doc_root_name(&self) -> String {
-        match &self.custom_docs_dir {
-            Some(doc_root) => doc_root.to_string(),
-            None => "docs".to_string(),
-        }
+    fn docs_dir(&self) -> &Path {
+        self.docs_dir
+            .as_deref()
+            .unwrap_or_else(|| Path::new("docs"))
     }
 
     fn doc_root(&self) -> PathBuf {
-        self.project_root.join(self.doc_root_name())
+        self.project_root.join(self.docs_dir())
     }
 }
