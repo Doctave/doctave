@@ -244,6 +244,59 @@ mod test {
     }
 
     #[test]
+    fn auto_title() {
+        let auto_titled_page = |path: &str, base_path: Option<&str>| -> Document {
+            let frontmatter = BTreeMap::new();
+
+            Document::new(
+                Path::new(path),
+                "Not important".to_string(),
+                frontmatter,
+                base_path.unwrap_or("/"),
+            )
+        };
+
+        let config = config(None);
+        let root = Directory {
+            path: config.docs_dir().to_path_buf(),
+            docs: vec![
+                page("README.md", "Getting Started", None),
+                auto_titled_page("one.md", None),
+            ],
+            dirs: vec![Directory {
+                path: config.docs_dir().join("child"),
+                docs: vec![
+                    page("child/README.md", "Nested Root", None),
+                    auto_titled_page("child/three.md", None),
+                ],
+                dirs: vec![],
+            }],
+        };
+
+        let navigation = Navigation::new(&config);
+
+        assert_eq!(
+            navigation.build_for(&root),
+            vec![
+                Link {
+                    path: String::from("/child"),
+                    title: String::from("Nested Root"),
+                    children: vec![Link {
+                        path: String::from("/child/three"),
+                        title: String::from("Three"),
+                        children: vec![]
+                    }]
+                },
+                Link {
+                    path: String::from("/one"),
+                    title: String::from("One"),
+                    children: vec![]
+                },
+            ]
+        )
+    }
+
+    #[test]
     fn sorting_alphanumerically() {
         let config = config(None);
         let root = Directory {

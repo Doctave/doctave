@@ -245,10 +245,19 @@ impl Document {
         &self.markdown.as_html
     }
 
-    fn title(&self) -> &str {
-        self.frontmatter
-            .get("title")
-            .map(|t| t.as_ref())
-            .unwrap_or_else(|| self.path.file_stem().unwrap().to_str().unwrap())
+    fn title(&self) -> String {
+        if let Some(title) = self.frontmatter.get("title") {
+            return title.to_string();
+        }
+
+        capitalize(self.path.file_stem().unwrap().to_str().unwrap())
+    }
+}
+
+fn capitalize(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
     }
 }
