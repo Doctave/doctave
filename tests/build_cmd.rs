@@ -244,6 +244,30 @@ integration_test!(page_nav, |area| {
     area.assert_contains(&index, "  <a href='#end'>End</a>");
 });
 
+integration_test!(no_table_contents, |area| {
+    area.mkdir(Path::new("docs"));
+    area.write_file(
+        Path::new("doctave.yaml"),
+        indoc! {"
+    ---
+    title: Custom colors
+    table_contents: false
+    "}
+        .as_bytes(),
+    );
+
+    area.write_file(
+        Path::new("docs").join("README.md"),
+        b"# Hi\n## Foo\n### Bar",
+    );
+
+    let result = area.cmd(&["build"]);
+    assert_success(&result);
+
+    let index = Path::new("site").join("index.html");
+    area.refute_contains(&index, "On this page");
+});
+
 integration_test!(missing_directory_index, |area| {
     area.create_config();
     area.mkdir(Path::new("docs").join("nested"));

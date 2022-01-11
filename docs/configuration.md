@@ -128,6 +128,17 @@ navigation:
     children: "*"
 ```
 
+
+### table of contents
+
+Tells Doctave to show or not the table of contents in the right side of the main content.
+
+This is an optional setting.
+
+```yaml
+table_contents: true
+```
+
 ## All commands
 
 All commands support the following option.
