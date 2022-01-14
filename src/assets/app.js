@@ -177,7 +177,7 @@ for (let element of mathElements) {
 }
 
 // Setup Prism
-Prism.plugins.autoloader.languages_path = '/assets/prism-grammars/';
+Prism.plugins.autoloader.languages_path = BASE_PATH + 'assets/prism-grammars/';
 
 
 // Load search index
