@@ -19,6 +19,7 @@ struct DoctaveYaml {
     navigation: Option<Vec<Navigation>>,
     base_path: Option<String>,
     docs_dir: Option<String>,
+    table_contents: Option<bool>,
 }
 
 impl DoctaveYaml {
@@ -257,6 +258,7 @@ pub struct Config {
     navigation: Option<Vec<NavRule>>,
     port: u32,
     build_mode: BuildMode,
+    table_contents: bool,
 }
 
 impl Config {
@@ -295,6 +297,7 @@ impl Config {
             navigation: doctave_yaml.navigation.map(|n| NavRule::from_yaml_input(n)),
             port: doctave_yaml.port.unwrap_or_else(|| 4001),
             build_mode: BuildMode::Dev,
+            table_contents: doctave_yaml.table_contents.unwrap_or(true),
         };
 
         Ok(config)
@@ -380,6 +383,10 @@ impl Config {
     /// URI path to a logo that will show up at the top left next to the title
     pub fn logo(&self) -> Option<&str> {
         self.logo.as_deref()
+    }
+
+    pub fn table_contents_enabled(&self) -> bool {
+        self.table_contents
     }
 }
 

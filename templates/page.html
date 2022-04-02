@@ -73,6 +73,7 @@
                 {{{ content }}}
             </div>
             <div class='sidebar-right'>
+                {{#if table_contents }}
                 <div class='page-nav' id='page-nav'>
                     <p class='page-nav-header'>On this page</p>
                     <ul>
@@ -83,6 +84,7 @@
                         {{/each}}
                     </ul>
                 </div>
+                {{/if}}
             </div>
             <div class='wave-container'>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">

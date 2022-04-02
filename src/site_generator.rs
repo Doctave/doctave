@@ -271,6 +271,7 @@ impl<'a, T: SiteBackend> SiteGenerator<'a, T> {
                     timestamp: &self.timestamp,
                     page_title,
                     head_include,
+                    table_contents: self.config.table_contents_enabled(),
                 };
 
                 let mut out = Vec::new();
@@ -338,4 +339,5 @@ pub struct TemplateData<'a> {
     pub project_title: String,
     pub build_mode: String,
     pub timestamp: &'a str,
+    pub table_contents: bool,
 }
