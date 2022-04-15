@@ -312,11 +312,7 @@ impl<'a, T: SiteBackend> SiteGenerator<'a, T> {
         for doc in &root.docs {
             index.add_doc(
                 &doc.id.to_string(),
-                &[
-                    &doc.title(),
-                    &doc.uri_path().as_str(),
-                    doc.markdown_section(),
-                ],
+                &[&doc.title(), &doc.uri_path(), doc.markdown_section()],
             );
         }
         for dir in &root.dirs {
