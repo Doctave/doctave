@@ -17,6 +17,7 @@ pub struct ServeCommand {}
 #[derive(Default)]
 pub struct ServeOptions {
     pub port: Option<u32>,
+    pub open: bool
 }
 
 impl ServeCommand {
@@ -70,6 +71,7 @@ impl ServeCommand {
             site.clone(),
             config.color_enabled(),
             config.base_path().to_owned(),
+            options.open
         );
         thread::Builder::new()
             .name("http-server".into())
