@@ -54,7 +54,13 @@ fn main() {
                             Ok(_) => Ok(()),
                             Err(e) => Err(e.to_string()),
                         }),
-                ),
+                ).arg(
+                Arg::with_name("open")
+                    .long("open")
+                    .short("o")
+                    .help("Opens the docs site on chrome")
+            )
+            ,
         )
         .get_matches();
 
@@ -117,6 +123,8 @@ fn serve(cmd: &ArgMatches) -> doctave::Result<()> {
     if let Some(p) = cmd.value_of("port") {
         options.port = Some(p.parse::<u32>().unwrap());
     }
+
+    options.open = cmd.is_present("open");
 
     if cmd.is_present("no-color") {
         config.disable_colors();

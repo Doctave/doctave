@@ -14,15 +14,17 @@ pub struct PreviewServer<B: SiteBackend> {
     base_path: String,
     addr: SocketAddr,
     site: Arc<Site<B>>,
+    open: bool
 }
 
 impl<B: SiteBackend> PreviewServer<B> {
-    pub fn new(addr: &str, site: Arc<Site<B>>, color: bool, base_path: String) -> Self {
+    pub fn new(addr: &str, site: Arc<Site<B>>, color: bool, base_path: String, open: bool) -> Self {
         PreviewServer {
             addr: addr.parse().expect("invalid address for preview server"),
             site,
             color,
             base_path,
+            open
         }
     }
 
@@ -44,6 +46,10 @@ impl<B: SiteBackend> PreviewServer<B> {
                 self.base_path
             )
             .unwrap();
+
+            if self.open {
+                open_web_app(self.addr.to_string().as_str());
+            }
         }
 
         for request in server.incoming_requests() {
@@ -155,4 +161,8 @@ fn content_type_for(extension: Option<&OsStr>) -> Option<&'static str> {
         },
         None => None,
     }
+}
+
+fn open_web_app(url: &str) -> std::io::Result<()> {
+    open::that("http://".to_owned()+url)
 }
