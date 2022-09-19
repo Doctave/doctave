@@ -27,6 +27,7 @@ rayon = "1.4"
 colorsys = "0.5.7"
 alphanumeric-sort = "1.4.0"
 include_dir = "0.7.2"
+open = "3.0.3"
 
 [dev-dependencies]
 indoc = "1.0.2"

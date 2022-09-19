@@ -47,7 +47,7 @@ impl<B: SiteBackend> PreviewServer<B> {
             )
             .unwrap();
 
-            if cfg!(target_os = "macos") && self.open {
+            if self.open {
                 open_web_app(self.addr.to_string().as_str());
             }
         }
@@ -163,12 +163,6 @@ fn content_type_for(extension: Option<&OsStr>) -> Option<&'static str> {
     }
 }
 
-fn open_web_app(url: &str) {
-    use std::process::Command;
-    let mut cmd = Command::new("open");
-    cmd.arg("-a")
-        .arg("Google Chrome")
-        .arg(format!("http://{}", url))
-        .spawn()
-        .expect("Failed to open Google Chrome");
+fn open_web_app(url: &str) -> std::io::Result<()> {
+    open::that("http://".to_owned()+url)
 }
